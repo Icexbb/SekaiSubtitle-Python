@@ -1,0 +1,8 @@
+*.json
+*.jsonc
+*.pyc
+
+img
+video
+.idea
+venv
