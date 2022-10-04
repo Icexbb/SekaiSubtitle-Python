@@ -1,13 +1,9 @@
-import json
 from typing import Union
 
-import cv2
-import loguru
 
-
-def get_area_mask_size(target_size: dict):
-    height = target_size['height']
-    width = target_size['width']
+def get_area_mask_size(frame_shape: tuple):
+    height = frame_shape[1]
+    width = frame_shape[0]
     size = [0, 0]
     if (width / height) > (16 / 9):
         size[1] = int((height / 1080) * 136)
@@ -15,15 +11,22 @@ def get_area_mask_size(target_size: dict):
     else:
         size[0] = int((width / 1920) * 886)
         size[1] = int(size[0] * (136 / 886))
+    area_mask_area = [
+        width / 2 - size[0] / 2,
+        height / 2 - size[1] / 2,
+        width / 2 + size[0] / 2,
+        height / 2 + size[1] / 2
+    ]
     return {
         'area_mask_size': size,
-        'area_mask_coefficient': size[0] / 886
+        'area_mask_coefficient': size[0] / 886,
+        'area_mask_area': area_mask_area
     }
 
 
-def get_pattern_size(target_size: dict):
-    height = target_size['height']
-    width = target_size['width']
+def get_pattern_size(frame_shape: tuple):
+    height = frame_shape[1]
+    width = frame_shape[0]
     size = [0, 0]
     if (width / height) > (16 / 9):
         size[1] = int((height / 1080) * 317)
@@ -37,51 +40,26 @@ def get_pattern_size(target_size: dict):
     }
 
 
-def get_point_center(img: str) -> dict:
-    target = cv2.imread(img)
-    target_size = {
-        'height': target.shape[0],
-        'width': target.shape[1]
-    }
+def get_point_center(frame_shape: tuple, point_center: tuple) -> dict:
+    # target = cv2.imread(img)
+    height = frame_shape[1]
+    width = frame_shape[0]
 
-    dialog_size = get_pattern_size(target_size)
-    area_mask_size = get_area_mask_size(target_size)
+    dialog_size = get_pattern_size(frame_shape)
+    area_mask_size = get_area_mask_size(frame_shape)
     dialog_coefficient = dialog_size['pattern_coefficient']
 
-    point = cv2.imread("asset/point.png")
-    point_height = int(point.shape[0] * dialog_coefficient)
-    point_width = int(point.shape[1] * dialog_coefficient)
-
-    point = cv2.resize(
-        point, (point_height, point_width), interpolation=cv2.INTER_AREA
-    )
-    result = cv2.matchTemplate(target, point, cv2.TM_SQDIFF_NORMED)
-    # 归一化处理
-
-    cv2.normalize(result, result, 0, 1, cv2.NORM_MINMAX, -1)
-    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-    loguru.logger.info(min_val)
-    loguru.logger.info(max_val)
-    loguru.logger.info(min_loc)
-    loguru.logger.info(max_loc)
-    cv2.rectangle(target, min_loc, (min_loc[0] + point_width, min_loc[1] + point_height), (0, 255, 0))
-    cv2.imshow('res', target)
-    cv2.waitKey(0)
-    start_point = [min_loc[0] + point_width / 2 - 110 * dialog_coefficient,
-                   min_loc[1] + point_height / 2 - 42 * dialog_coefficient]
+    start_point = [point_center[0] - 110 * dialog_coefficient,
+                   point_center[1] - 42 * dialog_coefficient]
     pattern_area = start_point + [start_point[0] + dialog_size['pattern_size'][0],
                                   start_point[1] + dialog_size['pattern_size'][1]]
     area_mask_area = [
-        target.shape[1] / 2 - area_mask_size['area_mask_size'][0] / 2,
-        target.shape[0] / 2 - area_mask_size['area_mask_size'][1] / 2,
-        target.shape[1] / 2 + area_mask_size['area_mask_size'][0] / 2,
-        target.shape[0] / 2 + area_mask_size['area_mask_size'][1] / 2
+        width / 2 - area_mask_size['area_mask_size'][0] / 2,
+        height / 2 - area_mask_size['area_mask_size'][1] / 2,
+        width / 2 + area_mask_size['area_mask_size'][0] / 2,
+        height / 2 + area_mask_size['area_mask_size'][1] / 2
     ]
     return {
-        'target_size': target_size,
-        'point_center': (min_loc[0] + point_width / 2, min_loc[1] + point_height / 2),
-        'point_size': point_width,
-
         'pattern_size': dialog_size['pattern_size'],
         'pattern_coefficient': dialog_size['pattern_coefficient'],
 
@@ -92,7 +70,7 @@ def get_point_center(img: str) -> dict:
         'area_mask_size': area_mask_size['area_mask_size'],
         'area_mask_coefficient': area_mask_size['area_mask_coefficient'],
 
-        'area_mask_center': list(map(lambda x: int(x / 2), target.shape[:2])),
+        'area_mask_center': list(map(lambda x: int(x / 2), frame_shape)),
         'area_mask_area': area_mask_area
     }
 
@@ -190,7 +168,7 @@ class AssDraw:
         return ' '.join([x.string for x in self.ad_list])
 
 
-def dialog_mask(screen_data: dict) -> str:
+def get_dialog_mask(screen_data: dict) -> str:
     origin_mask = 'm 232 785 ' \
                   'b 232 785 232 785 232 785 ' \
                   'b 137 836 137 964 232 1015 ' \
@@ -210,7 +188,7 @@ def dialog_mask(screen_data: dict) -> str:
     return mask.string()
 
 
-def area_mask(screen_data: dict) -> str:
+def get_area_mask(screen_data: dict) -> str:
     origin_mask = 'm 566 472 ' \
                   'l 517 608 ' \
                   'l 1354 608 ' \
@@ -241,7 +219,7 @@ class TextBox:
         self.center[0] = int(self.center[0] + offset[0])
         self.center[1] = int(self.center[1] + offset[1])
 
-    def scale(self, coefficient: list[int, int]):
+    def scale(self, coefficient: list[float, float]):
         self.length = int(self.length * coefficient[0])
         self.height = int(self.height * coefficient[1])
 
@@ -254,13 +232,13 @@ class TextBox:
 
 
 class Reference:
-    def __init__(self, img: str):
-        self.data = get_point_center(img)
+    def __init__(self, screen_data: dict):
+        self.data = screen_data
         self.screen_text = {'header': "{\\p1\\pos(0,0)\\fad(50,0)\\c&HFFFFFF&}",
-                            'content': dialog_mask(data)}
+                            'content': get_dialog_mask(data)}
         self.location_screen_text = {
             'header': "{\\an7\\p1\\c&HB68B89&\\pos(0,0)\\fad(100,100)}",
-            'content': area_mask(data)
+            'content': get_area_mask(data)
         }
         self.location_text = {
             f'{{\\an2\\pos({self.data["target_size"]["width"] / 2},{self.data["target_size"]["height"] / 2})'
@@ -268,15 +246,3 @@ class Reference:
         }
         self.text_box_mx = TextBox([340, 1576, 746, 896])
         self.text_box_mx.scale([self.data['pattern_coefficient'], self.data['pattern_coefficient']])
-
-
-if __name__ == "__main__":
-    data = get_point_center("./img/16-10_3.png")
-    dialog_mask_ = dialog_mask(data)
-    area_mask_ = area_mask(data)
-    loguru.logger.info(dialog_mask_)
-    loguru.logger.info(area_mask_)
-    text_box_mx = TextBox([340, 1576, 746, 896])
-    text_box_mx.scale([data['pattern_coefficient'], data['pattern_coefficient']])
-    text_box_mx.move_to(data['pattern_center'])
-    loguru.logger.info(text_box_mx.string)

@@ -1,220 +1,48 @@
-import os.path
 import time
 
-import cv2
-import numpy as np
-from tqdm import tqdm
-
-
-def check_distance(array_1: list | tuple, array_2: list | tuple):
-    assert len(array_1) == len(array_2)
-    distance = pow(sum(pow((array_1[i] - array_2[i]), 2) for i in range(len(array_1))), 1 / 2)
-    return distance
-
-
-def check_similar_color(image: np.ndarray, color: tuple):
-    exist = False
-    for array in image:
-        for pixel in array:
-            distance = check_distance(pixel, color)
-            if distance < 25:
-                exist = True
-                break
-    return exist
-
-
-def check_dark(image: np.ndarray, color: int):
-    return True if image.min(initial=None) < color else False
-
-
-class VideoProcessor:
-
-    def __init__(self, video_path, point_pattern_path):
-        self.frame_gray = None
-        self.frame = None
-        self.initialed = False
-        self.video = None
-        self.pointer_size = None
-        self.frame_height = None
-        self.frame_width = None
-        self.constant_point_center = None
-        self.pointer = None
-        self.frame_count = None
-        self.done: bool = False
-        self.point_pattern_path: str = point_pattern_path
-        self.video_path: str = video_path
-
-    def initial(self):
-        assert os.path.exists(self.video_path), "Video Not Exists"
-        assert os.path.exists(self.point_pattern_path), "Pattern Not Exists"
-        self.video: cv2.VideoCapture = cv2.VideoCapture(self.video_path)
-        self.frame_count: int = int(self.video.get(7))
-        self.pointer: np.ndarray = self.get_pointer()
-        self.pointer_size: int = self.pointer.shape[0]
-
-        self.constant_point_center: tuple[int, int] | None = None
-        self.frame_height = int(self.video.get(4))
-        self.frame_width = int(self.video.get(3))
-        self.initialed = True
-
-    def get_pointer(self) -> np.ndarray:
-        height, width = (self.video.get(4), self.video.get(3))
-        if (width / height) > (16 / 9):
-            size = int((int((height / 1080) * 136)) * (886 / 136))
-        else:
-            size = int((width / 1920) * 886)
-        template = cv2.imread(self.point_pattern_path, 0)
-        i = size / 886
-        pointer = cv2.resize(template, (int(template.shape[0] * i), int(template.shape[1] * i)))
-        return pointer
-
-    def get_frame_pointer_position(self, frame: np.ndarray):
-        height = self.frame_height
-        width = self.frame_width
-        if self.constant_point_center:
-            lft, tp = self.constant_point_center
-            border = self.pointer_size * 0.9
-            cut_up = int(tp - border)
-            cut_down = int(tp + border)
-            cut_left = int(lft - border)
-            cut_right = int(lft + border)
-        else:
-            cut_up = int(height * 0.6)
-            cut_down = int(height * 9)
-            cut_left = int(width * 0)
-            cut_right = int(width * 0.4)
-        cut = frame[cut_up:cut_down, cut_left:cut_right]
-
-        res = cv2.matchTemplate(cut, self.pointer, cv2.TM_CCOEFF_NORMED)
-        threshold = 0.85
-
-        loc = divmod(np.argmax(res), res.shape[1])
-        if res[loc[0], loc[1]] < threshold:
-            center = None
-        else:
-            left_top = (cut_left + loc[1].item(), cut_up + loc[0].item())
-            center = (int(left_top[0] + (self.pointer_size / 2)), int(left_top[1] + (self.pointer_size / 2)))
-        return center
-
-    def check_frame_dialog_status(self, frame: np.ndarray, center: tuple[int, int] | None):
-        point_center = center
-        if not point_center:
-            return 0
-        size = self.pointer_size
-        left = int(point_center[0] - size / 2)
-        top = int(point_center[1] - size / 2)
-        right = int(point_center[0] + size / 2)
-        bottom = int(point_center[1] + size / 2)
-        top = int(top + 0.9 * size + size)
-        bottom = int(bottom + 0.9 * size + size)
-        color = 128  # (106, 75, 78)
-        cut = frame[top:bottom, left:right]
-        first_exist = check_dark(cut, color)
-        left = int(left + 0.15 * size + size)
-        right = int(right + 0.15 * size + size)
-        cut = frame[top:bottom, left:right]
-        second_exist = check_dark(cut, color)
-        result = int(first_exist + second_exist)
-        if result and not self.constant_point_center:
-            self.constant_point_center = point_center
-        return result
-
-    def process(self):
-        print(f"Total_frame:{self.frame_count}")
-        status_chain = [0]
-        point_chain = []
-        result = []
-        process = tqdm(range(self.frame_count))
-        for _ in process:
-            process.set_description("[Opencv] Progressing")
-            ret, frame = self.video.read()
-            if not ret:
-                break
-            else:
-                gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                center = self.get_frame_pointer_position(gray_frame)
-                point_chain.append(center)
-                res = self.check_frame_dialog_status(gray_frame, center)
-                status_chain.append(res)
-                result.append(res)
-
-        status_chain.append(0)
-        frame_chain = []
-        ps = [point_chain[i] for i in range(len(point_chain)) if status_chain[i + 1] == 2]
-        constant_point = max(ps, key=ps.count)
-
-        for i in range(len(status_chain) - 2):
-            f = Frame(i, status_chain[i:][:3], point_chain, constant_point)
-            frame_chain.append(f)
-        chain = []
-        for frame in frame_chain:
-            if chain:
-                i = chain[-1]
-                if frame.is_start_point():
-                    i += 1
-                elif frame.is_end_point():
-                    i -= 1
-                chain.append(i)
-            else:
-                chain.append(1 if frame.is_start_point() else 0)
-        return frame_chain
-
-
-class Frame:
-    def __init__(self, frame_id: int, status: list[int], points: list[tuple | None], constant_point):
-        self.frame_id = frame_id
-        self.point = points[frame_id]
-        self.points = points
-        self.status = status
-        self.constant_point = constant_point
-
-    def is_constant(self, point=None):
-        point = point if point else self.point
-        if point:
-            if check_distance(point, self.constant_point) <= pow(200, 0.5):
-                return True
-        return False
-
-    def is_start_point(self):
-        if self.status[1] == 1 and self.is_constant():
-            if self.status[0] == 0:
-                return True
-            elif self.status[0] == 2:
-                return True
-        return False
-
-    def is_end_point(self):
-        if self.status[1] == 2:
-            if self.status[2] == 0:
-                return True
-            elif self.status[2] == 1:
-                return True
-            else:
-                if self.is_constant() and not self.is_constant(self.points[self.frame_id + 1]):
-                    return True
-        return False
-
-    def is_mask_start_point(self):
-        if self.status[1] == 1:
-            if self.status[0] == 0:
-                return True
-        return False
-
-    def is_mask_end_point(self):
-        if self.status[1] == 2:
-            if self.status[2] == 0:
-                return True
-        return False
-
+from reference import get_point_center, get_dialog_mask, get_area_mask
+from video_process import VideoProcessor
 
 if __name__ == "__main__":
     t1 = time.time()
     v = VideoProcessor(r"./video/test.mp4", r"asset/point.png")
     v.initial()
+    print(f"[Video] Total_frame: {v.frame_count} Start Process")
     frames = v.process()
+    t2 = time.time()
+    print(f"[Finish] Use Time: {t2 - t1:.2f}s")
     start_keyframes = [frame.frame_id for frame in frames if frame.is_start_point()]
     end_keyframes = [frame.frame_id for frame in frames if frame.is_end_point()]
-    print(start_keyframes)
-    print(end_keyframes)
-    t2 = time.time()
-    print(t2 - t1)
+    str_len = len((str(v.frame_count)))
+    if len(start_keyframes) == len(end_keyframes):
+        for i in range(len(start_keyframes)):
+            print(
+                f"[Result] Line {i + 1}: Frame {start_keyframes[i]:{str_len}} -> Frame {end_keyframes[i]:{str_len}}")
+    else:
+        print(f"Run Error")
+    mask_start_keyframes = [frame.frame_id for frame in frames if frame.is_mask_start_point()]
+    mask_end_keyframes = [frame.frame_id for frame in frames if frame.is_mask_end_point()]
+    if len(mask_start_keyframes) == len(mask_end_keyframes):
+        for i in range(len(mask_end_keyframes)):
+            print(
+                f"[Result] Mask {i + 1}: "
+                f"Frame {mask_start_keyframes[i]:{str_len}} -> Frame {mask_end_keyframes[i]:{str_len}}")
+    else:
+        print(f"Run Error")
+    area_mask_start_keyframes = [frame.frame_id for frame in frames if frame.is_area_mask_start()]
+    area_mask_end_keyframes = [frame.frame_id for frame in frames if frame.is_area_mask_end()]
+    if len(area_mask_end_keyframes) == len(area_mask_start_keyframes):
+        for i in range(len(area_mask_end_keyframes)):
+            print(
+                f"[Result] Area Mask {i + 1}: "
+                f"Frame {area_mask_start_keyframes[i]:{str_len}} -> Frame {area_mask_end_keyframes[i]:{str_len}}")
+    else:
+        print(f"Run Error")
+    print(v.constant_point_center)
+    print(v.pointer_size)
+    screen_data = get_point_center((v.frame_width, v.frame_height), v.constant_point_center)
+    pattern_coefficient = screen_data['pattern_coefficient']
+    dialog_mask = get_dialog_mask(screen_data)
+    area_mask = get_area_mask(screen_data)
+    print(f"[Result] Dialog Mask: {dialog_mask}")
+    print(f"[Result] Area Banner Mask:{area_mask}")
