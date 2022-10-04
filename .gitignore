@@ -4,5 +4,7 @@
 
 img
 video
+json
+__pycache__
 .idea
 venv

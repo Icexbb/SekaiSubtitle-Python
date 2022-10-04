@@ -1,18 +1,18 @@
 import datetime
-import json
 import os
 
 import ass
+import json
 from ass.data import Color
+
+from lib import timedelta_to_string
 
 
 class Subtitle:
     class ScriptInfo:
         def __init__(self, data: dict):
-            self.Title: None = data.get("Title")
-            self.ScriptType: None = data.get("ScriptType")
-            self.ScaledBorderAndShadow: None = data.get("ScaledBorderAndShadow")
-            self.YCbCr_matrix: None = data.get("YCbCr Matrix")
+            self.Title: str = data.get("Title") or "Default Aegisub file"
+            self.ScriptType: str = data.get("ScriptType") or "v4.00+"
             if 'PlayResX' not in data or "PlayResY" not in data:
                 raise KeyError
             self.PlayResX: int = data.get("PlayResX")
@@ -23,8 +23,6 @@ class Subtitle:
             return {
                 "Title": self.Title,
                 "ScriptType": self.ScriptType,
-                "ScaledBorderAndShadow": self.ScaledBorderAndShadow,
-                "YCbCr_matrix": self.YCbCr_matrix,
                 "PlayResX": self.PlayResX,
                 "PlayResY": self.PlayResY
             }
@@ -34,17 +32,14 @@ class Subtitle:
             result = ("[Script Info]\n"
                       f"Title: {self.Title or 'Default Aegisub file'}\n"
                       f"ScriptType: {self.ScriptType or 'v4.00+'}\n"
-                      f"WrapStyle: 0"
-                      f"ScaledBorderAndShadow: {'yes' if self.ScaledBorderAndShadow else 'no'}\n"
-                      f"YCbCr Matrix: {self.YCbCr_matrix}\n"
                       f'PlayResX: {self.PlayResX}\n'
-                      f'PlayResY: {self.PlayResY}')
+                      f'PlayResY: {self.PlayResY}\n')
             return result
 
     class Garbage:
         def __init__(self, data: dict):
-            self.AudioFile: None = data.get("audio") or data.get("video")
-            self.VideoFile: None = data.get("video")
+            self.AudioFile: None = data.get("audio") or data.get("../video")
+            self.VideoFile: None = data.get("../video")
 
         @property
         def dict(self):
@@ -55,11 +50,12 @@ class Subtitle:
 
         @property
         def string(self):
-            result = ("[Aegisub Project Garbage]\n"
-                      f"Audio File: {self.AudioFile}\n"
-                      f"Video File: {self.VideoFile}"
-                      )
-            return result
+            result = [
+                "[Aegisub Project Garbage]",
+                f"Audio File: {os.path.realpath(self.AudioFile)}" if self.AudioFile else "",
+                f"Video File: {os.path.realpath(self.VideoFile)}" if self.VideoFile else ""
+            ]
+            return "\n".join(result).strip()
 
     class Styles:
         class StyleItem:
@@ -104,9 +100,10 @@ class Subtitle:
 
             @property
             def string(self):
-                return f"Style:{self.Name},{self.Fontname},{self.Fontsize}," \
+                return f"Style:{self.Name},{self.Fontname},{int(self.Fontsize)}," \
                        f"{self.PrimaryColour},{self.SecondaryColour},{self.OutlineColour},{self.BackColour}," \
-                       f"{self.Bold},{self.Italic},{self.Underline},{self.StrikeOut},{self.ScaleX},{self.ScaleY}," \
+                       f"{int(self.Bold)},{int(self.Italic)},{int(self.Underline)},{int(self.StrikeOut)}," \
+                       f"{int(self.ScaleX)},{int(self.ScaleY)}," \
                        f"{self.Spacing},{self.Angle},{self.BorderStyle},{self.Outline},{self.Shadow}," \
                        f"{self.Alignment},{self.MarginL},{self.MarginR},{self.MarginV},{self.Encoding}"
 
@@ -231,26 +228,10 @@ def from_file_generate(file_path: str) -> Subtitle:
         data = {
             "ScriptInfo": {
                 key: doc.info.get(key)
-                for key in ["Title", "ScriptType", "ScaledBorderAndShadow", "YCbCr_matrix", "PlayResX", "PlayResY"]
+                for key in ["Title", "ScriptType", "ScaledBorderAndShadow", "PlayResX", "PlayResY"]
             },
             "Garbage": {},
             "Styles": styles,
             "Events": events
         }
         return Subtitle(data)
-
-
-"""
-    text_box_mx = TextBox([340, 1576, 746, 896])
-    text_box_mx.scale([pattern_coefficient, pattern_coefficient])
-    text_box_mx.move_to(screen_data['pattern_center'])
-    print(text_box_mx.string)
-"""
-
-
-def timedelta_to_string(time: datetime.timedelta):
-    ms = f"{time.microseconds / 10000:.0f}"
-    s = f"{time.seconds % 60:02d}"
-    m = f"{time.seconds // 60:02d}"
-    h = f"{time.seconds // 3600}"
-    return f"{h}:{m}:{s}.{ms}"

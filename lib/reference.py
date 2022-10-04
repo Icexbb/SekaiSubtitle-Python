@@ -185,7 +185,7 @@ def get_dialog_mask(screen_data: dict) -> str:
     mask.move([-154, -717])
     mask.scale(screen_data['pattern_coefficient'])
     mask.move(screen_data['pattern_area'][:2])
-    return mask.string()
+    return r"{\p1\pos(0,0)\c&HFFFFFF&}" + mask.string()
 
 
 def get_area_mask(screen_data: dict) -> str:
@@ -197,7 +197,7 @@ def get_area_mask(screen_data: dict) -> str:
     mask.move([-517, -472])
     mask.scale(screen_data['area_mask_coefficient'])
     mask.move(screen_data['area_mask_area'][:2])
-    return mask.string()
+    return r"{\an7\p1\c&HB68B89&\pos(0,0)\fad(100,100)}" + mask.string()
 
 
 class TextBox:
@@ -229,20 +229,3 @@ class TextBox:
             int(point[1] - self.center[1]),
         ]
         self.move(offset)
-
-
-class Reference:
-    def __init__(self, screen_data: dict):
-        self.data = screen_data
-        self.screen_text = {'header': "{\\p1\\pos(0,0)\\fad(50,0)\\c&HFFFFFF&}",
-                            'content': get_dialog_mask(data)}
-        self.location_screen_text = {
-            'header': "{\\an7\\p1\\c&HB68B89&\\pos(0,0)\\fad(100,100)}",
-            'content': get_area_mask(data)
-        }
-        self.location_text = {
-            f'{{\\an2\\pos({self.data["target_size"]["width"] / 2},{self.data["target_size"]["height"] / 2})'
-            '\\c&HFFFFFF&\\fad(200,200)}LOCATION{\\fs200\\bord10\\t(\\frz-120)}TODO: LOCATION'
-        }
-        self.text_box_mx = TextBox([340, 1576, 746, 896])
-        self.text_box_mx.scale([self.data['pattern_coefficient'], self.data['pattern_coefficient']])
