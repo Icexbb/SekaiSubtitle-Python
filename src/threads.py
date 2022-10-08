@@ -1,43 +1,37 @@
 import json
 import logging
 
-import httpx
+import requests
 from PySide6 import QtCore
 
 
 class DownloadThread(QtCore.QThread):
     trigger = QtCore.Signal(bool)
+    data = QtCore.Signal(dict)
 
-    def __init__(self, jsonpath, jsonurl, proxy, headers):
+    def __init__(self, jsonurl, proxy):
         super(DownloadThread, self).__init__()
-        self.path = jsonpath
         self.url = jsonurl
         self.proxy = proxy
-        self.headers = headers
 
     def run(self):
         try:
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
                               'AppleWebKit/537.36 (KHTML, like Gecko) '
-                              'Chrome/94.0.4606.81 Safari/537.36'
+                              'Chrome/106.0.0.0 Safari/537.36'
             }
-            with httpx.stream("GET", self.url, headers=headers) as r:
-                r.encoding = "utf-8"
-                json_data = json.loads(r.text)
-
-            with open(self.path, 'w', encoding='utf-8') as f:
-                json.dump(json_data, f, indent=2, ensure_ascii=False)
-            logging.info("Json File Saved: " + self.path)
-
-            if "code" in json_data and json_data["code"] == "not_found":
-                logging.info("Download Failed, Json File not Exist.")
+            r = requests.get(self.url, headers=headers, stream=True, proxies={"http": self.proxy, "https": self.proxy})
+            print(r)
+            json_data = r.json()
+            if r.status_code != 200:
+                logging.info("Download Failed")
                 self.trigger.emit(False)
             else:
+                self.data.emit({"data": json_data})
                 logging.info("Download Succeeded.")
                 self.trigger.emit(True)
-        except BaseException:
+        except BaseException as e:
             logging.error("Fail to Download Json File.")
+            logging.exception(e)
             self.trigger.emit(False)
-
-

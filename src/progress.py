@@ -76,10 +76,10 @@ class ProgressBar(QtWidgets.QWidget, Bar):
                 self.label_process_status.setText("队列中")
         else:
             data = msg['data']
-            percent = int((data['frame'] / data["total_frame"]) * 100)
+            self.bar_progress.setMaximum(data["total_frame"])
+            self.bar_progress.setValue(data['frame'])
             fps = data['frame'] / data['time']
             self.label_process_fps.setText(f"{fps:.1f}")
-            self.bar_progress.setValue(percent)
             if data['frame'] % 200 == 0 or data['frame'] == data['total_frame']:
                 res = f"[OpenCV] Processing FPS:{fps:.1f} eta:{(data['total_frame'] - data['frame']) / fps:.1f}s"
                 self.strings.append(res)
