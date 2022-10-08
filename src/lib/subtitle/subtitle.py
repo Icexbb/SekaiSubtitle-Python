@@ -5,7 +5,7 @@ import ass
 import json
 from ass.data import Color
 
-from lib import timedelta_to_string
+from . import timedelta_to_string
 
 
 class Subtitle:
@@ -224,7 +224,6 @@ def from_file_generate(file_path: str) -> Subtitle:
                     res = value
                 result[key] = res
             events.append(result)
-        print(styles)
         data = {
             "ScriptInfo": {
                 key: doc.info.get(key)

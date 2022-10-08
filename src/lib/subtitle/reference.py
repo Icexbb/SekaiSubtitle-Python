@@ -168,7 +168,7 @@ class AssDraw:
         return ' '.join([x.string for x in self.ad_list])
 
 
-def get_dialog_mask(screen_data: dict) -> str:
+def get_dialog_mask(screen_data: dict, move: list[int, int] = None) -> str:
     origin_mask = 'm 232 785 ' \
                   'b 232 785 232 785 232 785 ' \
                   'b 137 836 137 964 232 1015 ' \
@@ -183,6 +183,8 @@ def get_dialog_mask(screen_data: dict) -> str:
                   'b 249 798 232 791 232 785'
     mask = AssDraw(origin_mask)
     mask.move([-154, -717])
+    if move:
+        mask.move(move)
     mask.scale(screen_data['pattern_coefficient'])
     mask.move(screen_data['pattern_area'][:2])
     return r"{\p1\pos(0,0)\c&HFFFFFF&}" + mask.string()

@@ -1,18 +1,13 @@
 import os
+import time
 from datetime import timedelta
 
 import cv2
 import numpy as np
-from tqdm import tqdm
+from PySide6.QtCore import Signal
 
-
-# from tqdm import tqdm
-
-
-def check_distance(array_1: list | tuple, array_2: list | tuple):
-    assert len(array_1) == len(array_2)
-    distance = pow(sum(pow((array_1[i] - array_2[i]), 2) for i in range(len(array_1))), 1 / 2)
-    return distance
+from . import check_distance
+from .reference import get_area_mask_size, get_area_mask
 
 
 def check_similar_color(image: np.ndarray, color: tuple):
@@ -32,7 +27,9 @@ def check_dark(image: np.ndarray, color: int):
 
 class VideoProcessor:
 
-    def __init__(self, video_path):
+    def __init__(self, video_path: str, signal: Signal):
+        self.video_path: str = video_path
+        self.signal: Signal = signal
         self.second_count = None
         self.menu_sign = None
         self.area_mask = None
@@ -47,9 +44,7 @@ class VideoProcessor:
         self.constant_point_center = None
         self.pointer = None
         self.frame_count = None
-        self.done: bool = False
         self.point_pattern_path: str = os.path.join(os.path.dirname(__file__), r"asset/point.png")
-        self.video_path: str = video_path
         self.menu_pattern_path: str = os.path.join(os.path.dirname(__file__), r"asset/menu.png")
 
     def initial(self):
@@ -68,7 +63,7 @@ class VideoProcessor:
         self.initialed = True
 
     def check_area_mask(self):
-        from lib.reference import get_area_mask_size, get_area_mask
+
         mask = get_area_mask_size((self.frame_width, self.frame_height))
         mask_string = [i for i in get_area_mask(mask).split(' ') if i.isdigit()]
         x_a = sorted(map(int, mask_string[::2]))[1:3]
@@ -159,26 +154,26 @@ class VideoProcessor:
                self.area_mask[0]:self.area_mask[0] + self.pointer_size,
                self.area_mask[2]:self.area_mask[2] + self.pointer_size
                ]
-        exist = False
+        num = pow(self.pointer_size, 2)
+        exist = 0
         for array in cut1:
             for pixel in array:
                 dis = check_distance(pixel, (178, 145, 139))
-                if dis < 25:
-                    exist = True
-                    break
-        return exist
+                if dis < pow(pow(15, 2) * 3, 0.5):
+                    exist += 1
+                if exist > num * 0.4:
+                    return True
+        return False
 
     def process(self):
-
         status_chain = [0]
         point_chain = []
         timestamp_chain = []
         mask_chain = [0]
-        process = tqdm(range(self.frame_count))
-        process.set_description("[Opencv] Progressing")
         frame_ms = (1 / self.video.get(5))
         frame_count = 0
-        for _ in process:
+        time_start = time.time()
+        while True:
             ret, frame = self.video.read()
             if not ret:
                 break
@@ -194,11 +189,20 @@ class VideoProcessor:
                 if self.start:
                     center = self.get_frame_pointer_position(gray_frame)
                     res = self.check_frame_dialog_status(gray_frame, center)
-                    sta = int(self.check_frame_area_mask(frame) if not res else False)
+                    sta = int(self.check_frame_area_mask(frame) if not res else 0)
                 point_chain.append(center)
                 status_chain.append(res)
                 mask_chain.append(sta)
                 frame_count += 1
+                # signal
+                time_now = time.time()
+                self.signal.emit({
+                    "type": dict,
+                    "data": {
+                        "time": time_now - time_start,
+                        "frame": frame_count,
+                        "total_frame": self.frame_count}
+                })
         status_chain.append(0)
         frame_chain = []
         ps = [point_chain[i] for i in range(len(point_chain)) if status_chain[i + 1] == 2]
