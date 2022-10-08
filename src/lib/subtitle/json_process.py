@@ -4,15 +4,10 @@ import os
 from PySide6.QtCore import Signal
 
 from . import timedelta_to_string, check_distance
+from .data import subtitle_styles, DISPLAY_NAME_STYLE
 from .reference import get_dialog_mask, get_area_mask
 from .subtitle import Subtitle
 from .video_process import Frame
-
-DISPLAY_NAME_STYLE = json.load(
-    open(os.path.join(os.path.dirname(__file__), "asset/name_style.json"), "r", encoding="utf8"))
-
-subtitle_styles = json.load(
-    open(os.path.join(os.path.dirname(__file__), "asset/subtitle_styles.json"), "r", encoding="utf8"))
 
 
 class Episode:

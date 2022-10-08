@@ -1,10 +1,10 @@
 *.pyc
 .gitignore
+__pycache__
+.idea
 
 img
 video
 json
-__pycache__
-.idea
 venv
 data
