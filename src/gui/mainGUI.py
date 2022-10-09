@@ -16,23 +16,23 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFormLayout,
-    QHBoxLayout, QHeaderView, QLabel, QLayout,
-    QLineEdit, QListWidget, QListWidgetItem, QMainWindow,
-    QProgressBar, QPushButton, QRadioButton, QSizePolicy,
-    QSpacerItem, QTabWidget, QTableView, QTextBrowser,
-    QVBoxLayout, QWidget)
+    QGroupBox, QHBoxLayout, QHeaderView, QLabel,
+    QLayout, QLineEdit, QListWidget, QListWidgetItem,
+    QMainWindow, QProgressBar, QPushButton, QRadioButton,
+    QSizePolicy, QSpacerItem, QTabWidget, QTableView,
+    QTextBrowser, QVBoxLayout, QWidget)
 
 class Ui_Sekai_Subtitle(object):
     def setupUi(self, Sekai_Subtitle):
         if not Sekai_Subtitle.objectName():
             Sekai_Subtitle.setObjectName(u"Sekai_Subtitle")
-        Sekai_Subtitle.resize(800, 425)
+        Sekai_Subtitle.resize(800, 400)
         sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Sekai_Subtitle.sizePolicy().hasHeightForWidth())
         Sekai_Subtitle.setSizePolicy(sizePolicy)
-        Sekai_Subtitle.setMinimumSize(QSize(800, 300))
+        Sekai_Subtitle.setMinimumSize(QSize(800, 400))
         Sekai_Subtitle.setBaseSize(QSize(800, 300))
         self.widget_main = QWidget(Sekai_Subtitle)
         self.widget_main.setObjectName(u"widget_main")
@@ -52,6 +52,9 @@ class Ui_Sekai_Subtitle(object):
         self.tabWidget = QTabWidget(self.widget_main)
         self.tabWidget.setObjectName(u"tabWidget")
         self.tabWidget.setMinimumSize(QSize(50, 0))
+        self.tabWidget.setDocumentMode(False)
+        self.tabWidget.setMovable(False)
+        self.tabWidget.setTabBarAutoHide(False)
         self.subtitle_widget = QWidget()
         self.subtitle_widget.setObjectName(u"subtitle_widget")
         self.subtitle_widget.setEnabled(True)
@@ -59,197 +62,256 @@ class Ui_Sekai_Subtitle(object):
         self.formLayout_3.setSpacing(5)
         self.formLayout_3.setContentsMargins(5, 5, 5, 5)
         self.formLayout_3.setObjectName(u"formLayout_3")
-        self.formLayout_3.setContentsMargins(6, 6, 6, 6)
-        self.gridWidget = QWidget(self.subtitle_widget)
-        self.gridWidget.setObjectName(u"gridWidget")
-        self.verticalLayout_6 = QVBoxLayout(self.gridWidget)
-        self.verticalLayout_6.setSpacing(5)
-        self.verticalLayout_6.setContentsMargins(5, 5, 5, 5)
-        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
-        self.verticalLayout_6.setSizeConstraint(QLayout.SetMaximumSize)
-        self.verticalLayout_6.setContentsMargins(0, 0, 0, 0)
-        self.vbox_subtitle_setting = QHBoxLayout()
-        self.vbox_subtitle_setting.setSpacing(5)
-        self.vbox_subtitle_setting.setObjectName(u"vbox_subtitle_setting")
-        self.vbox_subtitle_setting.setSizeConstraint(QLayout.SetMinimumSize)
-        self.vbox_subtitle_setting.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_4 = QHBoxLayout()
+        self.horizontalLayout_4.setSpacing(5)
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
         self.verticalLayout_3 = QVBoxLayout()
-        self.verticalLayout_3.setSpacing(5)
+        self.verticalLayout_3.setSpacing(3)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setSizeConstraint(QLayout.SetMinimumSize)
-        self.horizontalLayout_7 = QHBoxLayout()
-        self.horizontalLayout_7.setSpacing(5)
-        self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
-        self.horizontalLayout_7.setSizeConstraint(QLayout.SetMinimumSize)
-        self.horizontalLayout_12 = QHBoxLayout()
-        self.horizontalLayout_12.setSpacing(5)
-        self.horizontalLayout_12.setObjectName(u"horizontalLayout_12")
-        self.horizontalLayout_12.setSizeConstraint(QLayout.SetMinimumSize)
-        self.subtitle_label_video_video = QLabel(self.gridWidget)
-        self.subtitle_label_video_video.setObjectName(u"subtitle_label_video_video")
-        self.subtitle_label_video_video.setMinimumSize(QSize(75, 22))
-        self.subtitle_label_video_video.setMaximumSize(QSize(75, 16777215))
-
-        self.horizontalLayout_12.addWidget(self.subtitle_label_video_video)
-
-        self.subtitle_label_video_name = QLabel(self.gridWidget)
+        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.groupBox = QGroupBox(self.subtitle_widget)
+        self.groupBox.setObjectName(u"groupBox")
+        self.groupBox.setMaximumSize(QSize(16777215, 100))
+        self.verticalLayout_16 = QVBoxLayout(self.groupBox)
+        self.verticalLayout_16.setSpacing(5)
+        self.verticalLayout_16.setContentsMargins(5, 5, 5, 5)
+        self.verticalLayout_16.setObjectName(u"verticalLayout_16")
+        self.verticalLayout_16.setSizeConstraint(QLayout.SetMinimumSize)
+        self.verticalLayout_16.setContentsMargins(5, 5, 5, 5)
+        self.subtitle_label_video_name = QLabel(self.groupBox)
         self.subtitle_label_video_name.setObjectName(u"subtitle_label_video_name")
         self.subtitle_label_video_name.setMinimumSize(QSize(0, 22))
+        self.subtitle_label_video_name.setMaximumSize(QSize(1000, 22))
+        self.subtitle_label_video_name.setTextFormat(Qt.AutoText)
+        self.subtitle_label_video_name.setAlignment(Qt.AlignCenter)
 
-        self.horizontalLayout_12.addWidget(self.subtitle_label_video_name)
+        self.verticalLayout_16.addWidget(self.subtitle_label_video_name)
 
-        self.subtitle_button_video_select = QPushButton(self.gridWidget)
+        self.horizontalLayout_7 = QHBoxLayout()
+        self.horizontalLayout_7.setSpacing(0)
+        self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
+        self.horizontalLayout_7.setSizeConstraint(QLayout.SetMaximumSize)
+        self.subtitle_button_video_select = QPushButton(self.groupBox)
         self.subtitle_button_video_select.setObjectName(u"subtitle_button_video_select")
         sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.subtitle_button_video_select.sizePolicy().hasHeightForWidth())
         self.subtitle_button_video_select.setSizePolicy(sizePolicy2)
-        self.subtitle_button_video_select.setMinimumSize(QSize(75, 22))
-        self.subtitle_button_video_select.setMaximumSize(QSize(75, 24))
+        self.subtitle_button_video_select.setMinimumSize(QSize(55, 22))
+        self.subtitle_button_video_select.setMaximumSize(QSize(120, 22))
 
-        self.horizontalLayout_12.addWidget(self.subtitle_button_video_select)
+        self.horizontalLayout_7.addWidget(self.subtitle_button_video_select)
 
 
-        self.horizontalLayout_7.addLayout(self.horizontalLayout_12)
+        self.verticalLayout_16.addLayout(self.horizontalLayout_7)
 
-        self.horizontalLayout_13 = QHBoxLayout()
-        self.horizontalLayout_13.setSpacing(5)
-        self.horizontalLayout_13.setObjectName(u"horizontalLayout_13")
-        self.horizontalLayout_13.setSizeConstraint(QLayout.SetMinimumSize)
-        self.subtitle_label_json_json = QLabel(self.gridWidget)
-        self.subtitle_label_json_json.setObjectName(u"subtitle_label_json_json")
-        self.subtitle_label_json_json.setMinimumSize(QSize(75, 22))
-        self.subtitle_label_json_json.setMaximumSize(QSize(75, 16777215))
 
-        self.horizontalLayout_13.addWidget(self.subtitle_label_json_json)
+        self.verticalLayout_3.addWidget(self.groupBox)
 
-        self.subtitle_label_json_name = QLabel(self.gridWidget)
+        self.verticalGroupBox = QGroupBox(self.subtitle_widget)
+        self.verticalGroupBox.setObjectName(u"verticalGroupBox")
+        self.verticalLayout_12 = QVBoxLayout(self.verticalGroupBox)
+        self.verticalLayout_12.setSpacing(5)
+        self.verticalLayout_12.setContentsMargins(5, 5, 5, 5)
+        self.verticalLayout_12.setObjectName(u"verticalLayout_12")
+        self.verticalLayout_12.setContentsMargins(5, 5, 5, -1)
+        self.subtitle_label_json_name = QLabel(self.verticalGroupBox)
         self.subtitle_label_json_name.setObjectName(u"subtitle_label_json_name")
         self.subtitle_label_json_name.setMinimumSize(QSize(0, 22))
+        self.subtitle_label_json_name.setMaximumSize(QSize(200, 22))
+        self.subtitle_label_json_name.setAlignment(Qt.AlignCenter)
 
-        self.horizontalLayout_13.addWidget(self.subtitle_label_json_name)
+        self.verticalLayout_12.addWidget(self.subtitle_label_json_name)
 
-        self.subtitle_combo_json_source = QComboBox(self.gridWidget)
+        self.subtitle_json_source_widget = QWidget(self.verticalGroupBox)
+        self.subtitle_json_source_widget.setObjectName(u"subtitle_json_source_widget")
+        self.horizontalLayout_17 = QHBoxLayout(self.subtitle_json_source_widget)
+        self.horizontalLayout_17.setSpacing(5)
+        self.horizontalLayout_17.setContentsMargins(5, 5, 5, 5)
+        self.horizontalLayout_17.setObjectName(u"horizontalLayout_17")
+        self.horizontalLayout_17.setContentsMargins(5, 5, 5, 5)
+        self.label_2 = QLabel(self.subtitle_json_source_widget)
+        self.label_2.setObjectName(u"label_2")
+        self.label_2.setMaximumSize(QSize(50, 16777215))
+
+        self.horizontalLayout_17.addWidget(self.label_2)
+
+        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_17.addItem(self.horizontalSpacer_6)
+
+        self.subtitle_combo_json_source = QComboBox(self.subtitle_json_source_widget)
         self.subtitle_combo_json_source.addItem("")
         self.subtitle_combo_json_source.addItem("")
         self.subtitle_combo_json_source.addItem("")
         self.subtitle_combo_json_source.setObjectName(u"subtitle_combo_json_source")
         self.subtitle_combo_json_source.setMinimumSize(QSize(75, 22))
-        self.subtitle_combo_json_source.setMaximumSize(QSize(75, 22))
+        self.subtitle_combo_json_source.setMaximumSize(QSize(200, 22))
+        self.subtitle_combo_json_source.setSizeAdjustPolicy(QComboBox.AdjustToContents)
 
-        self.horizontalLayout_13.addWidget(self.subtitle_combo_json_source)
+        self.horizontalLayout_17.addWidget(self.subtitle_combo_json_source)
 
-        self.subtitle_button_json_load = QPushButton(self.gridWidget)
+
+        self.verticalLayout_12.addWidget(self.subtitle_json_source_widget)
+
+        self.subtitle_offline_group = QWidget(self.verticalGroupBox)
+        self.subtitle_offline_group.setObjectName(u"subtitle_offline_group")
+        self.horizontalLayout_13 = QHBoxLayout(self.subtitle_offline_group)
+        self.horizontalLayout_13.setSpacing(5)
+        self.horizontalLayout_13.setContentsMargins(5, 5, 5, 5)
+        self.horizontalLayout_13.setObjectName(u"horizontalLayout_13")
+        self.horizontalLayout_13.setContentsMargins(5, 5, 5, 5)
+        self.subtitle_button_json_load = QPushButton(self.subtitle_offline_group)
         self.subtitle_button_json_load.setObjectName(u"subtitle_button_json_load")
-        self.subtitle_button_json_load.setMinimumSize(QSize(75, 22))
-        self.subtitle_button_json_load.setMaximumSize(QSize(75, 24))
+        self.subtitle_button_json_load.setMinimumSize(QSize(55, 22))
+        self.subtitle_button_json_load.setMaximumSize(QSize(120, 24))
 
         self.horizontalLayout_13.addWidget(self.subtitle_button_json_load)
 
 
-        self.horizontalLayout_7.addLayout(self.horizontalLayout_13)
+        self.verticalLayout_12.addWidget(self.subtitle_offline_group)
 
-
-        self.verticalLayout_3.addLayout(self.horizontalLayout_7)
-
-        self.horizontalLayout_14 = QHBoxLayout()
-        self.horizontalLayout_14.setSpacing(5)
-        self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
-        self.horizontalLayout_14.setSizeConstraint(QLayout.SetMinimumSize)
-        self.subtitle_combo_type = QComboBox(self.gridWidget)
+        self.subtitle_online_group = QWidget(self.verticalGroupBox)
+        self.subtitle_online_group.setObjectName(u"subtitle_online_group")
+        self.subtitle_online_group.setAcceptDrops(False)
+        self.verticalLayout_11 = QVBoxLayout(self.subtitle_online_group)
+        self.verticalLayout_11.setSpacing(5)
+        self.verticalLayout_11.setContentsMargins(5, 5, 5, 5)
+        self.verticalLayout_11.setObjectName(u"verticalLayout_11")
+        self.verticalLayout_11.setContentsMargins(5, 5, 5, 5)
+        self.subtitle_combo_type = QComboBox(self.subtitle_online_group)
         self.subtitle_combo_type.setObjectName(u"subtitle_combo_type")
         self.subtitle_combo_type.setEnabled(True)
         self.subtitle_combo_type.setMinimumSize(QSize(75, 22))
-        self.subtitle_combo_type.setMaximumSize(QSize(75, 22))
+        self.subtitle_combo_type.setMaximumSize(QSize(1000, 22))
         self.subtitle_combo_type.setFocusPolicy(Qt.WheelFocus)
         self.subtitle_combo_type.setAutoFillBackground(False)
         self.subtitle_combo_type.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.subtitle_combo_type.setFrame(True)
 
-        self.horizontalLayout_14.addWidget(self.subtitle_combo_type)
+        self.verticalLayout_11.addWidget(self.subtitle_combo_type)
 
-        self.subtitle_combo_source = QComboBox(self.gridWidget)
+        self.subtitle_combo_source = QComboBox(self.subtitle_online_group)
         self.subtitle_combo_source.setObjectName(u"subtitle_combo_source")
         self.subtitle_combo_source.setMinimumSize(QSize(75, 22))
-        self.subtitle_combo_source.setMaximumSize(QSize(300, 22))
+        self.subtitle_combo_source.setMaximumSize(QSize(1000, 22))
         self.subtitle_combo_source.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.subtitle_combo_source.setFrame(True)
 
-        self.horizontalLayout_14.addWidget(self.subtitle_combo_source)
+        self.verticalLayout_11.addWidget(self.subtitle_combo_source)
 
-        self.subtitle_combo_episode = QComboBox(self.gridWidget)
+        self.subtitle_combo_episode = QComboBox(self.subtitle_online_group)
         self.subtitle_combo_episode.setObjectName(u"subtitle_combo_episode")
         self.subtitle_combo_episode.setMinimumSize(QSize(75, 22))
-        self.subtitle_combo_episode.setMaximumSize(QSize(300, 22))
+        self.subtitle_combo_episode.setMaximumSize(QSize(1000, 22))
         self.subtitle_combo_episode.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.subtitle_combo_episode.setFrame(True)
 
-        self.horizontalLayout_14.addWidget(self.subtitle_combo_episode)
+        self.verticalLayout_11.addWidget(self.subtitle_combo_episode)
 
-        self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_14.addItem(self.horizontalSpacer_4)
-
-        self.subtitle_button_flush_list = QPushButton(self.gridWidget)
+        self.horizontalLayout_14 = QHBoxLayout()
+        self.horizontalLayout_14.setSpacing(5)
+        self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
+        self.subtitle_button_flush_list = QPushButton(self.subtitle_online_group)
         self.subtitle_button_flush_list.setObjectName(u"subtitle_button_flush_list")
         sizePolicy3 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         sizePolicy3.setHorizontalStretch(0)
         sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.subtitle_button_flush_list.sizePolicy().hasHeightForWidth())
         self.subtitle_button_flush_list.setSizePolicy(sizePolicy3)
-        self.subtitle_button_flush_list.setMinimumSize(QSize(75, 22))
-        self.subtitle_button_flush_list.setMaximumSize(QSize(75, 22))
+        self.subtitle_button_flush_list.setMinimumSize(QSize(50, 0))
+        self.subtitle_button_flush_list.setMaximumSize(QSize(50, 22))
 
         self.horizontalLayout_14.addWidget(self.subtitle_button_flush_list)
 
+        self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.verticalLayout_3.addLayout(self.horizontalLayout_14)
+        self.horizontalLayout_14.addItem(self.horizontalSpacer_4)
+
+        self.subtitle_button_json_load_online = QPushButton(self.subtitle_online_group)
+        self.subtitle_button_json_load_online.setObjectName(u"subtitle_button_json_load_online")
+        self.subtitle_button_json_load_online.setMinimumSize(QSize(50, 22))
+        self.subtitle_button_json_load_online.setMaximumSize(QSize(50, 24))
+
+        self.horizontalLayout_14.addWidget(self.subtitle_button_json_load_online)
 
 
-        self.vbox_subtitle_setting.addLayout(self.verticalLayout_3)
+        self.verticalLayout_11.addLayout(self.horizontalLayout_14)
 
-        self.subtitle_buttom_insert = QPushButton(self.gridWidget)
+
+        self.verticalLayout_12.addWidget(self.subtitle_online_group)
+
+
+        self.verticalLayout_3.addWidget(self.verticalGroupBox)
+
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_3.addItem(self.verticalSpacer_2)
+
+        self.horizontalLayout_11 = QHBoxLayout()
+        self.horizontalLayout_11.setSpacing(0)
+        self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
+        self.subtitle_buttom_insert = QPushButton(self.subtitle_widget)
         self.subtitle_buttom_insert.setObjectName(u"subtitle_buttom_insert")
         sizePolicy4 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         sizePolicy4.setHorizontalStretch(0)
         sizePolicy4.setVerticalStretch(0)
         sizePolicy4.setHeightForWidth(self.subtitle_buttom_insert.sizePolicy().hasHeightForWidth())
         self.subtitle_buttom_insert.setSizePolicy(sizePolicy4)
-        self.subtitle_buttom_insert.setMinimumSize(QSize(25, 0))
-        self.subtitle_buttom_insert.setMaximumSize(QSize(75, 45))
+        self.subtitle_buttom_insert.setMinimumSize(QSize(25, 22))
+        self.subtitle_buttom_insert.setMaximumSize(QSize(200, 22))
 
-        self.vbox_subtitle_setting.addWidget(self.subtitle_buttom_insert)
+        self.horizontalLayout_11.addWidget(self.subtitle_buttom_insert)
+
+        self.subtitle_button_video_select_dir = QPushButton(self.subtitle_widget)
+        self.subtitle_button_video_select_dir.setObjectName(u"subtitle_button_video_select_dir")
+        self.subtitle_button_video_select_dir.setMinimumSize(QSize(22, 22))
+        self.subtitle_button_video_select_dir.setMaximumSize(QSize(22, 22))
+
+        self.horizontalLayout_11.addWidget(self.subtitle_button_video_select_dir)
 
 
-        self.verticalLayout_6.addLayout(self.vbox_subtitle_setting)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_11)
 
-        self.horizontalLayout_4 = QHBoxLayout()
-        self.horizontalLayout_4.setSpacing(5)
-        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.verticalLayout_11 = QVBoxLayout()
-        self.verticalLayout_11.setSpacing(5)
-        self.verticalLayout_11.setObjectName(u"verticalLayout_11")
-        self.subtitle_list_tasks = QListWidget(self.gridWidget)
+
+        self.horizontalLayout_4.addLayout(self.verticalLayout_3)
+
+        self.verticalLayout_6 = QVBoxLayout()
+        self.verticalLayout_6.setSpacing(5)
+        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
+        self.subtitle_list_tasks = QListWidget(self.subtitle_widget)
         self.subtitle_list_tasks.setObjectName(u"subtitle_list_tasks")
         self.subtitle_list_tasks.setEnabled(True)
         self.subtitle_list_tasks.setMinimumSize(QSize(250, 0))
         self.subtitle_list_tasks.setMaximumSize(QSize(250, 16777215))
 
-        self.verticalLayout_11.addWidget(self.subtitle_list_tasks)
+        self.verticalLayout_6.addWidget(self.subtitle_list_tasks)
 
-        self.subtitle_button_start = QPushButton(self.gridWidget)
+        self.horizontalLayout_20 = QHBoxLayout()
+        self.horizontalLayout_20.setSpacing(5)
+        self.horizontalLayout_20.setObjectName(u"horizontalLayout_20")
+        self.subtitle_button_clear_list = QPushButton(self.subtitle_widget)
+        self.subtitle_button_clear_list.setObjectName(u"subtitle_button_clear_list")
+
+        self.horizontalLayout_20.addWidget(self.subtitle_button_clear_list)
+
+        self.subtitle_button_start = QPushButton(self.subtitle_widget)
         self.subtitle_button_start.setObjectName(u"subtitle_button_start")
 
-        self.verticalLayout_11.addWidget(self.subtitle_button_start)
+        self.horizontalLayout_20.addWidget(self.subtitle_button_start)
 
 
-        self.horizontalLayout_4.addLayout(self.verticalLayout_11)
+        self.verticalLayout_6.addLayout(self.horizontalLayout_20)
+
+
+        self.horizontalLayout_4.addLayout(self.verticalLayout_6)
 
         self.verticalLayout_7 = QVBoxLayout()
         self.verticalLayout_7.setSpacing(5)
         self.verticalLayout_7.setObjectName(u"verticalLayout_7")
-        self.subtitle_text_processing = QTextBrowser(self.gridWidget)
+        self.subtitle_text_processing = QTextBrowser(self.subtitle_widget)
         self.subtitle_text_processing.setObjectName(u"subtitle_text_processing")
         self.subtitle_text_processing.setMaximumSize(QSize(16777215, 16777215))
 
@@ -258,12 +320,12 @@ class Ui_Sekai_Subtitle(object):
         self.horizontalLayout_9 = QHBoxLayout()
         self.horizontalLayout_9.setSpacing(5)
         self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
-        self.label = QLabel(self.gridWidget)
+        self.label = QLabel(self.subtitle_widget)
         self.label.setObjectName(u"label")
 
         self.horizontalLayout_9.addWidget(self.label)
 
-        self.subtitle_progress = QProgressBar(self.gridWidget)
+        self.subtitle_progress = QProgressBar(self.subtitle_widget)
         self.subtitle_progress.setObjectName(u"subtitle_progress")
         self.subtitle_progress.setValue(0)
 
@@ -275,13 +337,11 @@ class Ui_Sekai_Subtitle(object):
 
         self.horizontalLayout_4.addLayout(self.verticalLayout_7)
 
-        self.horizontalLayout_4.setStretch(0, 2)
-        self.horizontalLayout_4.setStretch(1, 5)
+        self.horizontalLayout_4.setStretch(0, 3)
+        self.horizontalLayout_4.setStretch(1, 1)
+        self.horizontalLayout_4.setStretch(2, 4)
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_4)
-
-
-        self.formLayout_3.setWidget(0, QFormLayout.SpanningRole, self.gridWidget)
+        self.formLayout_3.setLayout(0, QFormLayout.SpanningRole, self.horizontalLayout_4)
 
         self.tabWidget.addTab(self.subtitle_widget, "")
         self.translate_widget = QWidget()
@@ -296,7 +356,7 @@ class Ui_Sekai_Subtitle(object):
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.horizontalLayout_3.setSizeConstraint(QLayout.SetMaximumSize)
         self.verticalLayout_9 = QVBoxLayout()
-        self.verticalLayout_9.setSpacing(5)
+        self.verticalLayout_9.setSpacing(7)
         self.verticalLayout_9.setObjectName(u"verticalLayout_9")
         self.verticalLayout_2 = QVBoxLayout()
         self.verticalLayout_2.setSpacing(5)
@@ -408,6 +468,7 @@ class Ui_Sekai_Subtitle(object):
         self.translate_radio_trans = QRadioButton(self.translate_widget)
         self.translate_radio_trans.setObjectName(u"translate_radio_trans")
         self.translate_radio_trans.setMinimumSize(QSize(0, 22))
+        self.translate_radio_trans.setMaximumSize(QSize(16777215, 22))
         self.translate_radio_trans.setChecked(True)
 
         self.horizontalLayout_5.addWidget(self.translate_radio_trans)
@@ -415,12 +476,14 @@ class Ui_Sekai_Subtitle(object):
         self.translate_radio_check = QRadioButton(self.translate_widget)
         self.translate_radio_check.setObjectName(u"translate_radio_check")
         self.translate_radio_check.setMinimumSize(QSize(0, 22))
+        self.translate_radio_check.setMaximumSize(QSize(16777215, 22))
 
         self.horizontalLayout_5.addWidget(self.translate_radio_check)
 
         self.translate_radio_mean = QRadioButton(self.translate_widget)
         self.translate_radio_mean.setObjectName(u"translate_radio_mean")
         self.translate_radio_mean.setMinimumSize(QSize(0, 22))
+        self.translate_radio_mean.setMaximumSize(QSize(16777215, 22))
 
         self.horizontalLayout_5.addWidget(self.translate_radio_mean)
 
@@ -428,7 +491,7 @@ class Ui_Sekai_Subtitle(object):
         self.verticalLayout_5.addLayout(self.horizontalLayout_5)
 
         self.horizontalLayout_6 = QHBoxLayout()
-        self.horizontalLayout_6.setSpacing(5)
+        self.horizontalLayout_6.setSpacing(3)
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
         self.translate_label_title = QLabel(self.translate_widget)
         self.translate_label_title.setObjectName(u"translate_label_title")
@@ -480,11 +543,15 @@ class Ui_Sekai_Subtitle(object):
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.translate_check_fore = QCheckBox(self.translate_widget)
         self.translate_check_fore.setObjectName(u"translate_check_fore")
+        self.translate_check_fore.setMinimumSize(QSize(0, 22))
+        self.translate_check_fore.setMaximumSize(QSize(16777215, 22))
 
         self.verticalLayout_4.addWidget(self.translate_check_fore)
 
         self.translate_check_enter = QCheckBox(self.translate_widget)
         self.translate_check_enter.setObjectName(u"translate_check_enter")
+        self.translate_check_enter.setMinimumSize(QSize(0, 22))
+        self.translate_check_enter.setMaximumSize(QSize(16777215, 22))
         self.translate_check_enter.setChecked(True)
 
         self.verticalLayout_4.addWidget(self.translate_check_enter)
@@ -604,18 +671,22 @@ class Ui_Sekai_Subtitle(object):
 
     def retranslateUi(self, Sekai_Subtitle):
         Sekai_Subtitle.setWindowTitle(QCoreApplication.translate("Sekai_Subtitle", u"Sekai \u8f74\u59ec", None))
-        self.subtitle_label_video_video.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u89c6\u9891\u6587\u4ef6\uff1a", None))
+        self.groupBox.setTitle(QCoreApplication.translate("Sekai_Subtitle", u"\u89c6\u9891\u6587\u4ef6", None))
         self.subtitle_label_video_name.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u672a\u9009\u62e9", None))
         self.subtitle_button_video_select.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u9009\u62e9", None))
-        self.subtitle_label_json_json.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u6570\u636e\u6587\u4ef6\uff1a", None))
+        self.verticalGroupBox.setTitle(QCoreApplication.translate("Sekai_Subtitle", u"\u6570\u636e\u6587\u4ef6", None))
         self.subtitle_label_json_name.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u672a\u9009\u62e9", None))
+        self.label_2.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u6765\u6e90\uff1a", None))
         self.subtitle_combo_json_source.setItemText(0, QCoreApplication.translate("Sekai_Subtitle", u"\u672c\u5730\u8f7d\u5165", None))
-        self.subtitle_combo_json_source.setItemText(1, QCoreApplication.translate("Sekai_Subtitle", u"Ai\u7ad9", None))
-        self.subtitle_combo_json_source.setItemText(2, QCoreApplication.translate("Sekai_Subtitle", u"Best\u7ad9", None))
+        self.subtitle_combo_json_source.setItemText(1, QCoreApplication.translate("Sekai_Subtitle", u"\u5728\u7ebf\uff1aAI\u7ad9", None))
+        self.subtitle_combo_json_source.setItemText(2, QCoreApplication.translate("Sekai_Subtitle", u"\u5728\u7ebf\uff1aBest\u7ad9", None))
 
         self.subtitle_button_json_load.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u8f7d\u5165", None))
         self.subtitle_button_flush_list.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u5237\u65b0", None))
+        self.subtitle_button_json_load_online.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u4e0b\u8f7d", None))
         self.subtitle_buttom_insert.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u52a0\u5165\u961f\u5217", None))
+        self.subtitle_button_video_select_dir.setText(QCoreApplication.translate("Sekai_Subtitle", u"...", None))
+        self.subtitle_button_clear_list.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u6e05\u7a7a\u961f\u5217", None))
         self.subtitle_button_start.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u5f00\u59cb\u5904\u7406", None))
         self.label.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u603b\u8fdb\u5ea6", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.subtitle_widget), QCoreApplication.translate("Sekai_Subtitle", u"\u8f74\u673a", None))

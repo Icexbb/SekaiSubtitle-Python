@@ -42,6 +42,7 @@ class SekaiSubtitleMain(QtWidgets.QMainWindow, Ui_Sekai_Subtitle):
         # subtitle video select
         self.subtitle_video_selected = None
         self.subtitle_button_video_select.clicked.connect(self.subtitle_open_video)
+        self.subtitle_button_video_select_dir.clicked.connect(self.subtitle_open_video_dir)
         # subtitle json select
         self.subtitle_json_data = None
         self.subtitle_json_selected = None
@@ -50,6 +51,7 @@ class SekaiSubtitleMain(QtWidgets.QMainWindow, Ui_Sekai_Subtitle):
         self.subtitle_buttom_insert.clicked.connect(self.subtitle_task_insert)
         self.subtitle_button_start.clicked.connect(self.subtitle_task_start)
         self.subtitle_button_flush_list.clicked.connect(self.network_update_tree)
+        self.subtitle_button_clear_list.clicked.connect(self.subtitle_list_clear)
         self.subtitle_text_count = None
         self.subtitle_processing = None
         self.subtitle_progress.setValue(0)
@@ -69,6 +71,7 @@ class SekaiSubtitleMain(QtWidgets.QMainWindow, Ui_Sekai_Subtitle):
         self.timer.timeout.connect(self.update_content)
         self.timer.start()
         self.msgbox = QtWidgets.QMessageBox(self)
+        self.msgbox.setWindowTitle("消息")
         self.msgbox.setStandardButtons(QtWidgets.QMessageBox.Ok)
         self.downloadState = None
 
@@ -79,21 +82,23 @@ class SekaiSubtitleMain(QtWidgets.QMainWindow, Ui_Sekai_Subtitle):
         processor_bar: ProgressBar = self.subtitle_list_tasks.itemWidget(item)
         self.subtitle_process_item = processor_bar
 
+    def subtitle_insert_task(self, json_path, video_path):
+        item = QtWidgets.QListWidgetItem()
+        item.setSizeHint(QtCore.QSize(240, 60))
+        processor = VideoProcessThread(video_path, json_path)
+        self.subtitle_list_tasks.addItem(item)
+        self.subtitle_list_tasks.setItemWidget(item, processor.bar)
+        self.subtitle_task_list.append(processor)
+        if self.subtitle_task_count == 1:
+            self.subtitle_text_processing.clear()
+            self.subtitle_process_item = processor.bar
+            self.subtitle_text_count = 0
+
     def subtitle_task_insert(self):
-        self.subtitle_text_processing.clear()
         if self.subtitle_json_selected and self.subtitle_video_selected:
-            item = QtWidgets.QListWidgetItem()
-            item.setSizeHint(QtCore.QSize(240, 60))
-            processor = VideoProcessThread(
-                self.subtitle_video_selected, self.subtitle_json_selected)
+            self.subtitle_insert_task(self.subtitle_json_selected, self.subtitle_video_selected)
             self.subtitle_video_selected = None
             self.subtitle_json_selected = None
-            self.subtitle_list_tasks.addItem(item)
-            self.subtitle_list_tasks.setItemWidget(item, processor.bar)
-            self.subtitle_task_list.append(processor)
-            if self.subtitle_task_count == 1:
-                self.subtitle_process_item = processor.bar
-                self.subtitle_text_count = 0
         else:
             not_type = []
             if not self.subtitle_video_selected:
@@ -125,6 +130,39 @@ class SekaiSubtitleMain(QtWidgets.QMainWindow, Ui_Sekai_Subtitle):
             default_json_file = os.path.join(video_dir, f"{os.path.splitext(video_file)[0]}.json")
             if os.path.exists(default_json_file):
                 self.subtitle_json_selected = default_json_file
+
+    def subtitle_list_clear(self):
+        self.subtitle_list_tasks.clear()
+        self.subtitle_task_list: list[VideoProcessThread] = []
+        self.subtitle_task_wait: list[VideoProcessThread] = []
+        self.subtitle_task_processing: list[VideoProcessThread] = []
+        self.subtitle_task_finished: list[VideoProcessThread] = []
+        self.subtitle_processing = False
+        self.subtitle_text_processing.clear()
+        self.subtitle_process_item = None
+        for bar in self.subtitle_task_processing:
+            bar.processing = False
+
+    def subtitle_open_video_dir(self):
+        dir_path = QtWidgets.QFileDialog.getExistingDirectory(self, "选取文件夹", dir=self.root)
+        file_list = os.listdir(dir_path)
+        count = 0
+        for file in file_list:
+            file_real_path = os.path.join(dir_path, file)
+            if os.path.isfile(file_real_path) and os.path.splitext(file)[-1] in [".mp4", ".avi", ".wmv", ".mkv"]:
+                video_file = file_real_path
+                json_file = None
+                default_json_file = os.path.join(dir_path, f"{os.path.splitext(file)[0]}.json")
+                if os.path.exists(default_json_file):
+                    json_file = default_json_file
+                if json_file:
+                    self.subtitle_insert_task(json_file, video_file)
+                    count += 1
+        if count:
+            self.msgbox.setText(f"自动导入了文件夹中的{count}个视频任务")
+        else:
+            self.msgbox.setText(f"未找到视频任务<br>请确保json文件与视频文件同名")
+        self.msgbox.show()
 
     def subtitle_open_json(self):
         source = self.subtitle_combo_json_source.currentIndex()
@@ -233,12 +271,16 @@ class SekaiSubtitleMain(QtWidgets.QMainWindow, Ui_Sekai_Subtitle):
         for item in self.subtitle_task_processing + self.subtitle_task_wait + self.subtitle_task_finished:
             value += item.bar.bar_progress.value()
             count += item.bar.bar_progress.maximum()
+        if not count:
+            count = 1
         self.subtitle_progress.setValue(value)
         self.subtitle_progress.setMaximum(count)
 
     def update_tree(self) -> None:
         source = self.subtitle_combo_json_source.currentIndex()
         if source:
+            self.subtitle_online_group.setHidden(False)
+            self.subtitle_offline_group.setHidden(True)
             if source == 1:  # pjsekai
                 p = os.path.join(self.root, "data/pjsekai/tree/tree.json")
                 data = read_json(p) or {}
@@ -291,6 +333,8 @@ class SekaiSubtitleMain(QtWidgets.QMainWindow, Ui_Sekai_Subtitle):
                 self.subtitle_combo_source.clear()
                 self.subtitle_combo_episode.clear()
         else:
+            self.subtitle_online_group.setHidden(True)
+            self.subtitle_offline_group.setHidden(False)
             self.subtitle_combo_type.clear()
             self.subtitle_combo_source.clear()
             self.subtitle_combo_episode.clear()
