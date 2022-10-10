@@ -4,18 +4,18 @@ import time
 
 from PySide6 import QtWidgets, QtCore
 
-from gui.mainGUI import Ui_Sekai_Subtitle
 from gui.progress import Ui_Form as Bar
 
 
 class VideoProcessThread(QtCore.QThread):
     signal_data = QtCore.Signal(dict)
 
-    def __init__(self, video_file, json_file,):
+    def __init__(self, video_file, json_file, fitting_file=None):
         super().__init__()
         self.started = 0
         self.video_file = video_file
         self.json_file = json_file
+        self.fitting_file = fitting_file
         self.bar = ProgressBar(self.video_file)
         self.signal_data.connect(self.bar.subtitle_output_processing)
 
@@ -40,7 +40,7 @@ class VideoProcessThread(QtCore.QThread):
         screen_data = get_point_center((v.frame_width, v.frame_height), v.constant_point_center)
         # ===== Generate Subtitle =====
         episode = Episode(
-            self.video_file, self.json_file, output,
+            self.video_file, self.json_file, self.fitting_file, output,
             frames, screen_data, v.constant_point_center, v.pointer_size,
             (v.frame_width, v.frame_height), self.signal_data
         )
@@ -81,7 +81,7 @@ class ProgressBar(QtWidgets.QWidget, Bar):
             fps = data['frame'] / data['time']
             self.label_process_fps.setText(f"{fps:.1f}")
             if data['frame'] % 200 == 0 or data['frame'] == data['total_frame']:
-                res = f"[OpenCV] Processing FPS:{fps:.1f} eta:{(data['total_frame'] - data['frame']) / fps:.1f}s"
+                res = f"[OpenCV] Processing FPS:{fps:.1f} eta:{(data['total_frame'] - data['frame']) / fps:.1f}s\r"
                 self.strings.append(res)
         self.bar_progress.repaint()
         self.label_process_fps.repaint()

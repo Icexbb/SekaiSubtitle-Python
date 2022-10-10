@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 from PySide6.QtCore import Signal
 
@@ -13,7 +14,10 @@ from .video_process import Frame
 class Episode:
     def __init__(
             self,
-            file_path: str, json_file: str, output_path: str,
+            file_path: str,
+            json_file: str,
+            fitting_file: str | None,
+            output_path: str,
             frames: list[Frame],
             screen_data: dict,
             point_center: tuple,
@@ -23,6 +27,7 @@ class Episode:
     ):
         self.file_path = file_path
         self.output_path = output_path
+        self.fitting_file = fitting_file
         self.regular_dialog_mask = get_dialog_mask(screen_data)
         self.area_mask = get_area_mask(screen_data)
         self.screen_data = screen_data
@@ -233,7 +238,39 @@ class Episode:
             res.append(item)
         return res
 
+    def replace_chinese_body(self):
+        pattern_body = re.compile(r"^(?P<name>\S*)：(?P<body>.+)$")
+        pattern_place = re.compile(r"^(?P<place>\S[^：]*)$")
+        if self.fitting_file and os.path.exists(self.fitting_file):
+            self.signal.emit({"type": str, "data": "已选择合意文件"})
+            with open(self.fitting_file, 'r', encoding="utf8") as fp:
+                fitting_data = fp.readlines()
+            body = [
+                re.match(pattern_body, string).group("body") for string in fitting_data if
+                re.match(pattern_body, string.strip())
+            ]
+            place = [
+                re.match(pattern_place, string).group("place") for string in fitting_data if
+                re.match(pattern_place, string.strip())
+            ]
+            if len(body) == len(self.talk_data_data):
+                result = []
+                for i in range(len(body)):
+                    item = self.talk_data_data[i]
+                    item["Body"] = body[i]
+                    result.append(item)
+                self.talk_data_data = result
+            if len(place) == len(self.area_mask_data):
+                result = []
+                for i in range(len(place)):
+                    item = self.area_mask_data[i]
+                    item["StringVal"] = place[i]
+                    result.append(item)
+                self.area_mask_data = result
+            self.signal.emit({"type": str, "data": "已进行中文替换"})
+
     def save_ass(self):
+        self.replace_chinese_body()
         dia, jit = self.generate_ass_dialog()
         d_mask = self.generate_ass_dialog_mask(jit)
         a_mask = self.generate_ass_area_mask()

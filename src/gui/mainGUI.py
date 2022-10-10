@@ -26,13 +26,13 @@ class Ui_Sekai_Subtitle(object):
     def setupUi(self, Sekai_Subtitle):
         if not Sekai_Subtitle.objectName():
             Sekai_Subtitle.setObjectName(u"Sekai_Subtitle")
-        Sekai_Subtitle.resize(800, 400)
+        Sekai_Subtitle.resize(800, 500)
         sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Sekai_Subtitle.sizePolicy().hasHeightForWidth())
         Sekai_Subtitle.setSizePolicy(sizePolicy)
-        Sekai_Subtitle.setMinimumSize(QSize(800, 400))
+        Sekai_Subtitle.setMinimumSize(QSize(800, 500))
         Sekai_Subtitle.setBaseSize(QSize(800, 300))
         self.widget_main = QWidget(Sekai_Subtitle)
         self.widget_main.setObjectName(u"widget_main")
@@ -88,24 +88,34 @@ class Ui_Sekai_Subtitle(object):
 
         self.verticalLayout_16.addWidget(self.subtitle_label_video_name)
 
-        self.horizontalLayout_7 = QHBoxLayout()
+        self.widget = QWidget(self.groupBox)
+        self.widget.setObjectName(u"widget")
+        self.horizontalLayout_7 = QHBoxLayout(self.widget)
         self.horizontalLayout_7.setSpacing(0)
+        self.horizontalLayout_7.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
-        self.horizontalLayout_7.setSizeConstraint(QLayout.SetMaximumSize)
-        self.subtitle_button_video_select = QPushButton(self.groupBox)
+        self.horizontalLayout_7.setSizeConstraint(QLayout.SetDefaultConstraint)
+        self.subtitle_button_video_select = QPushButton(self.widget)
         self.subtitle_button_video_select.setObjectName(u"subtitle_button_video_select")
         sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.subtitle_button_video_select.sizePolicy().hasHeightForWidth())
         self.subtitle_button_video_select.setSizePolicy(sizePolicy2)
-        self.subtitle_button_video_select.setMinimumSize(QSize(55, 22))
-        self.subtitle_button_video_select.setMaximumSize(QSize(120, 22))
+        self.subtitle_button_video_select.setMinimumSize(QSize(50, 24))
+        self.subtitle_button_video_select.setMaximumSize(QSize(70, 22))
 
         self.horizontalLayout_7.addWidget(self.subtitle_button_video_select)
 
+        self.subtitle_button_video_clear = QPushButton(self.widget)
+        self.subtitle_button_video_clear.setObjectName(u"subtitle_button_video_clear")
+        self.subtitle_button_video_clear.setMinimumSize(QSize(50, 24))
+        self.subtitle_button_video_clear.setMaximumSize(QSize(70, 16777215))
 
-        self.verticalLayout_16.addLayout(self.horizontalLayout_7)
+        self.horizontalLayout_7.addWidget(self.subtitle_button_video_clear)
+
+
+        self.verticalLayout_16.addWidget(self.widget)
 
 
         self.verticalLayout_3.addWidget(self.groupBox)
@@ -165,10 +175,17 @@ class Ui_Sekai_Subtitle(object):
         self.horizontalLayout_13.setContentsMargins(5, 5, 5, 5)
         self.subtitle_button_json_load = QPushButton(self.subtitle_offline_group)
         self.subtitle_button_json_load.setObjectName(u"subtitle_button_json_load")
-        self.subtitle_button_json_load.setMinimumSize(QSize(55, 22))
-        self.subtitle_button_json_load.setMaximumSize(QSize(120, 24))
+        self.subtitle_button_json_load.setMinimumSize(QSize(50, 24))
+        self.subtitle_button_json_load.setMaximumSize(QSize(70, 24))
 
         self.horizontalLayout_13.addWidget(self.subtitle_button_json_load)
+
+        self.subtitle_button_json_clear = QPushButton(self.subtitle_offline_group)
+        self.subtitle_button_json_clear.setObjectName(u"subtitle_button_json_clear")
+        self.subtitle_button_json_clear.setMinimumSize(QSize(50, 24))
+        self.subtitle_button_json_clear.setMaximumSize(QSize(70, 16777215))
+
+        self.horizontalLayout_13.addWidget(self.subtitle_button_json_clear)
 
 
         self.verticalLayout_12.addWidget(self.subtitle_offline_group)
@@ -211,34 +228,40 @@ class Ui_Sekai_Subtitle(object):
 
         self.verticalLayout_11.addWidget(self.subtitle_combo_episode)
 
-        self.horizontalLayout_14 = QHBoxLayout()
+        self.widget1 = QWidget(self.subtitle_online_group)
+        self.widget1.setObjectName(u"widget1")
+        self.horizontalLayout_14 = QHBoxLayout(self.widget1)
         self.horizontalLayout_14.setSpacing(5)
+        self.horizontalLayout_14.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
-        self.subtitle_button_flush_list = QPushButton(self.subtitle_online_group)
+        self.subtitle_button_flush_list = QPushButton(self.widget1)
         self.subtitle_button_flush_list.setObjectName(u"subtitle_button_flush_list")
         sizePolicy3 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         sizePolicy3.setHorizontalStretch(0)
         sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.subtitle_button_flush_list.sizePolicy().hasHeightForWidth())
         self.subtitle_button_flush_list.setSizePolicy(sizePolicy3)
-        self.subtitle_button_flush_list.setMinimumSize(QSize(50, 0))
-        self.subtitle_button_flush_list.setMaximumSize(QSize(50, 22))
+        self.subtitle_button_flush_list.setMinimumSize(QSize(50, 24))
+        self.subtitle_button_flush_list.setMaximumSize(QSize(120, 24))
 
         self.horizontalLayout_14.addWidget(self.subtitle_button_flush_list)
 
-        self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_14.addItem(self.horizontalSpacer_4)
-
-        self.subtitle_button_json_load_online = QPushButton(self.subtitle_online_group)
+        self.subtitle_button_json_load_online = QPushButton(self.widget1)
         self.subtitle_button_json_load_online.setObjectName(u"subtitle_button_json_load_online")
-        self.subtitle_button_json_load_online.setMinimumSize(QSize(50, 22))
-        self.subtitle_button_json_load_online.setMaximumSize(QSize(50, 24))
+        self.subtitle_button_json_load_online.setMinimumSize(QSize(50, 24))
+        self.subtitle_button_json_load_online.setMaximumSize(QSize(120, 24))
 
         self.horizontalLayout_14.addWidget(self.subtitle_button_json_load_online)
 
+        self.subtitle_button_json_clear_online = QPushButton(self.widget1)
+        self.subtitle_button_json_clear_online.setObjectName(u"subtitle_button_json_clear_online")
+        self.subtitle_button_json_clear_online.setMinimumSize(QSize(50, 24))
+        self.subtitle_button_json_clear_online.setMaximumSize(QSize(120, 24))
 
-        self.verticalLayout_11.addLayout(self.horizontalLayout_14)
+        self.horizontalLayout_14.addWidget(self.subtitle_button_json_clear_online)
+
+
+        self.verticalLayout_11.addWidget(self.widget1)
 
 
         self.verticalLayout_12.addWidget(self.subtitle_online_group)
@@ -246,14 +269,60 @@ class Ui_Sekai_Subtitle(object):
 
         self.verticalLayout_3.addWidget(self.verticalGroupBox)
 
+        self.subtitle_fitting_box = QGroupBox(self.subtitle_widget)
+        self.subtitle_fitting_box.setObjectName(u"subtitle_fitting_box")
+        self.subtitle_fitting_box.setCheckable(True)
+        self.subtitle_fitting_box.setChecked(True)
+        self.verticalLayout_10 = QVBoxLayout(self.subtitle_fitting_box)
+        self.verticalLayout_10.setSpacing(5)
+        self.verticalLayout_10.setContentsMargins(5, 5, 5, 5)
+        self.verticalLayout_10.setObjectName(u"verticalLayout_10")
+        self.subtitle_label_fitting = QLabel(self.subtitle_fitting_box)
+        self.subtitle_label_fitting.setObjectName(u"subtitle_label_fitting")
+        self.subtitle_label_fitting.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_10.addWidget(self.subtitle_label_fitting)
+
+        self.subtitle_fitting_widget = QWidget(self.subtitle_fitting_box)
+        self.subtitle_fitting_widget.setObjectName(u"subtitle_fitting_widget")
+        self.subtitle_fitting_choice = QHBoxLayout(self.subtitle_fitting_widget)
+        self.subtitle_fitting_choice.setSpacing(5)
+        self.subtitle_fitting_choice.setContentsMargins(5, 5, 5, 5)
+        self.subtitle_fitting_choice.setObjectName(u"subtitle_fitting_choice")
+        self.subtitle_button_fitting_select = QPushButton(self.subtitle_fitting_widget)
+        self.subtitle_button_fitting_select.setObjectName(u"subtitle_button_fitting_select")
+        self.subtitle_button_fitting_select.setMinimumSize(QSize(50, 24))
+        self.subtitle_button_fitting_select.setMaximumSize(QSize(70, 24))
+        self.subtitle_button_fitting_select.setCheckable(False)
+        self.subtitle_button_fitting_select.setChecked(False)
+        self.subtitle_button_fitting_select.setAutoRepeat(False)
+
+        self.subtitle_fitting_choice.addWidget(self.subtitle_button_fitting_select)
+
+        self.subtitle_button_fitting_clear = QPushButton(self.subtitle_fitting_widget)
+        self.subtitle_button_fitting_clear.setObjectName(u"subtitle_button_fitting_clear")
+        self.subtitle_button_fitting_clear.setMinimumSize(QSize(50, 24))
+        self.subtitle_button_fitting_clear.setMaximumSize(QSize(70, 24))
+
+        self.subtitle_fitting_choice.addWidget(self.subtitle_button_fitting_clear)
+
+
+        self.verticalLayout_10.addWidget(self.subtitle_fitting_widget)
+
+
+        self.verticalLayout_3.addWidget(self.subtitle_fitting_box)
+
         self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout_3.addItem(self.verticalSpacer_2)
 
-        self.horizontalLayout_11 = QHBoxLayout()
+        self.subtitle_group_insert = QWidget(self.subtitle_widget)
+        self.subtitle_group_insert.setObjectName(u"subtitle_group_insert")
+        self.horizontalLayout_11 = QHBoxLayout(self.subtitle_group_insert)
         self.horizontalLayout_11.setSpacing(0)
+        self.horizontalLayout_11.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
-        self.subtitle_buttom_insert = QPushButton(self.subtitle_widget)
+        self.subtitle_buttom_insert = QPushButton(self.subtitle_group_insert)
         self.subtitle_buttom_insert.setObjectName(u"subtitle_buttom_insert")
         sizePolicy4 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         sizePolicy4.setHorizontalStretch(0)
@@ -265,7 +334,7 @@ class Ui_Sekai_Subtitle(object):
 
         self.horizontalLayout_11.addWidget(self.subtitle_buttom_insert)
 
-        self.subtitle_button_video_select_dir = QPushButton(self.subtitle_widget)
+        self.subtitle_button_video_select_dir = QPushButton(self.subtitle_group_insert)
         self.subtitle_button_video_select_dir.setObjectName(u"subtitle_button_video_select_dir")
         self.subtitle_button_video_select_dir.setMinimumSize(QSize(22, 22))
         self.subtitle_button_video_select_dir.setMaximumSize(QSize(22, 22))
@@ -273,7 +342,7 @@ class Ui_Sekai_Subtitle(object):
         self.horizontalLayout_11.addWidget(self.subtitle_button_video_select_dir)
 
 
-        self.verticalLayout_3.addLayout(self.horizontalLayout_11)
+        self.verticalLayout_3.addWidget(self.subtitle_group_insert)
 
 
         self.horizontalLayout_4.addLayout(self.verticalLayout_3)
@@ -674,6 +743,7 @@ class Ui_Sekai_Subtitle(object):
         self.groupBox.setTitle(QCoreApplication.translate("Sekai_Subtitle", u"\u89c6\u9891\u6587\u4ef6", None))
         self.subtitle_label_video_name.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u672a\u9009\u62e9", None))
         self.subtitle_button_video_select.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u9009\u62e9", None))
+        self.subtitle_button_video_clear.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u6e05\u7a7a", None))
         self.verticalGroupBox.setTitle(QCoreApplication.translate("Sekai_Subtitle", u"\u6570\u636e\u6587\u4ef6", None))
         self.subtitle_label_json_name.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u672a\u9009\u62e9", None))
         self.label_2.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u6765\u6e90\uff1a", None))
@@ -682,8 +752,14 @@ class Ui_Sekai_Subtitle(object):
         self.subtitle_combo_json_source.setItemText(2, QCoreApplication.translate("Sekai_Subtitle", u"\u5728\u7ebf\uff1aBest\u7ad9", None))
 
         self.subtitle_button_json_load.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u8f7d\u5165", None))
+        self.subtitle_button_json_clear.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u6e05\u7a7a", None))
         self.subtitle_button_flush_list.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u5237\u65b0", None))
-        self.subtitle_button_json_load_online.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u4e0b\u8f7d", None))
+        self.subtitle_button_json_load_online.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u8f7d\u5165", None))
+        self.subtitle_button_json_clear_online.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u6e05\u7a7a", None))
+        self.subtitle_fitting_box.setTitle(QCoreApplication.translate("Sekai_Subtitle", u"\u5408\u610f\u6587\u4ef6", None))
+        self.subtitle_label_fitting.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u672a\u9009\u62e9", None))
+        self.subtitle_button_fitting_select.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u8f7d\u5165", None))
+        self.subtitle_button_fitting_clear.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u6e05\u7a7a", None))
         self.subtitle_buttom_insert.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u52a0\u5165\u961f\u5217", None))
         self.subtitle_button_video_select_dir.setText(QCoreApplication.translate("Sekai_Subtitle", u"...", None))
         self.subtitle_button_clear_list.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u6e05\u7a7a\u961f\u5217", None))

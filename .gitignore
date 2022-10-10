@@ -7,3 +7,6 @@ video
 json
 venv
 data
+build
+dist
+ui

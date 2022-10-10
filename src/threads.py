@@ -22,7 +22,6 @@ class DownloadThread(QtCore.QThread):
                               'Chrome/106.0.0.0 Safari/537.36'
             }
             r = requests.get(self.url, headers=headers, stream=True, proxies={"http": self.proxy, "https": self.proxy})
-            print(r)
             json_data = r.json()
             if r.status_code != 200:
                 logging.info("Download Failed")

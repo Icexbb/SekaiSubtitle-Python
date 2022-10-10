@@ -8,6 +8,8 @@ from PySide6.QtCore import Signal
 
 from . import check_distance
 from .reference import get_area_mask_size, get_area_mask
+from .data import point as template_point
+from .data import menu as template_menu
 
 
 def check_similar_color(image: np.ndarray, color: tuple):
@@ -44,42 +46,46 @@ class VideoProcessor:
         self.constant_point_center = None
         self.pointer = None
         self.frame_count = None
-        self.point_pattern_path: str = os.path.join(os.path.dirname(__file__), r"asset/point.png")
-        self.menu_pattern_path: str = os.path.join(os.path.dirname(__file__), r"asset/menu.png")
+        # self.point_pattern_path: str = r"asset/point.png"
+        # self.menu_pattern_path: str = r"asset/menu.png"
 
     def initial(self):
         assert os.path.exists(self.video_path), "Video Not Exists"
-        assert os.path.exists(self.point_pattern_path), "Pattern Not Exists"
-        self.video: cv2.VideoCapture = cv2.VideoCapture(self.video_path)
-        self.frame_count: int = int(self.video.get(7))
-        self.second_count: float = int((self.frame_count / self.video.get(5)) * 100) / 100
-        self.get_pointer()
-        self.pointer_size: int = self.pointer.shape[0]
 
-        self.constant_point_center: tuple[int, int] | None = None
+        self.video: cv2.VideoCapture = cv2.VideoCapture(self.video_path)
         self.frame_height = int(self.video.get(4))
         self.frame_width = int(self.video.get(3))
+        self.frame_count: int = int(self.video.get(7))
+        self.second_count: float = int((self.frame_count / self.video.get(5)) * 100) / 100
+
+        self.initial_sign()
         self.check_area_mask()
+
+        self.pointer_size: int = self.pointer.shape[0]
+        self.constant_point_center: tuple[int, int] | None = None
         self.initialed = True
 
     def check_area_mask(self):
-
         mask = get_area_mask_size((self.frame_width, self.frame_height))
         mask_string = [i for i in get_area_mask(mask).split(' ') if i.isdigit()]
         x_a = sorted(map(int, mask_string[::2]))[1:3]
         y_a = sorted(set(map(int, mask_string[1::2])))
         self.area_mask = y_a + x_a
 
-    def get_pointer(self):
+    def initial_sign(self):
         height, width = (self.video.get(4), self.video.get(3))
         if (width / height) > (16 / 9):
             size = int((int((height / 1080) * 136)) * (886 / 136))
         else:
             size = int((width / 1920) * 886)
-        template = cv2.imread(self.point_pattern_path, 0)
+        # template = cv2.imread(self.point_pattern_path, 0)
         i = size / 886
+        template = template_point
+        template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
         pointer = cv2.resize(template, (int(template.shape[0] * i), int(template.shape[1] * i)))
-        template = cv2.imread(self.menu_pattern_path, 0)
+        # template = cv2.imread(self.menu_pattern_path, 0)
+        template = template_menu
+        template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
         menu = cv2.resize(template, (int(template.shape[0] * i), int(template.shape[1] * i)))
 
         self.pointer = pointer

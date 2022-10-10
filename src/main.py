@@ -8,7 +8,7 @@ from PySide6 import QtWidgets, QtCore
 from PySide6.QtGui import QCloseEvent
 
 from gui.mainGUI import Ui_Sekai_Subtitle
-from lib import chara_name
+from lib.data import chara_name
 from progress import VideoProcessThread, ProgressBar
 from threads import DownloadThread
 
@@ -31,6 +31,7 @@ class SekaiSubtitleMain(QtWidgets.QMainWindow, Ui_Sekai_Subtitle):
     def __init__(self):
         super().__init__()
 
+        self.subtitle_fitting_file_selected = None
         self.setupUi(self)
         self.setting = None
         self.root = os.path.realpath(os.path.join(os.path.split(os.path.abspath(sys.argv[0]))[0], "../"))
@@ -52,6 +53,13 @@ class SekaiSubtitleMain(QtWidgets.QMainWindow, Ui_Sekai_Subtitle):
         self.subtitle_button_start.clicked.connect(self.subtitle_task_start)
         self.subtitle_button_flush_list.clicked.connect(self.network_update_tree)
         self.subtitle_button_clear_list.clicked.connect(self.subtitle_list_clear)
+        self.subtitle_button_video_clear.clicked.connect(self.subtitle_clear_video)
+        self.subtitle_button_json_clear.clicked.connect(self.subtitle_clear_json)
+        self.subtitle_button_json_clear_online.clicked.connect(self.subtitle_clear_json)
+        self.subtitle_button_json_load_online.clicked.connect(self.subtitle_load_json_online)
+        self.subtitle_list_tasks.clicked.connect(self.subtitle_show_info)
+        self.subtitle_button_fitting_select.clicked.connect(self.subtitle_open_fitting)
+        self.subtitle_button_fitting_clear.clicked.connect(self.subtitle_clear_fitting)
         self.subtitle_text_count = None
         self.subtitle_processing = None
         self.subtitle_progress.setValue(0)
@@ -59,7 +67,6 @@ class SekaiSubtitleMain(QtWidgets.QMainWindow, Ui_Sekai_Subtitle):
         self.subtitle_task_wait: list[VideoProcessThread] = []
         self.subtitle_task_processing: list[VideoProcessThread] = []
         self.subtitle_task_finished: list[VideoProcessThread] = []
-        self.subtitle_list_tasks.clicked.connect(self.subtitle_show_info)
         self.subtitle_process_item: ProgressBar | None = None
         self.subtitle_json_selected_network = None
         self.receive_data = None
@@ -82,10 +89,10 @@ class SekaiSubtitleMain(QtWidgets.QMainWindow, Ui_Sekai_Subtitle):
         processor_bar: ProgressBar = self.subtitle_list_tasks.itemWidget(item)
         self.subtitle_process_item = processor_bar
 
-    def subtitle_insert_task(self, json_path, video_path):
+    def subtitle_insert_task(self, json_path, video_path, fitting_file):
         item = QtWidgets.QListWidgetItem()
         item.setSizeHint(QtCore.QSize(240, 60))
-        processor = VideoProcessThread(video_path, json_path)
+        processor = VideoProcessThread(video_path, json_path, fitting_file)
         self.subtitle_list_tasks.addItem(item)
         self.subtitle_list_tasks.setItemWidget(item, processor.bar)
         self.subtitle_task_list.append(processor)
@@ -95,16 +102,22 @@ class SekaiSubtitleMain(QtWidgets.QMainWindow, Ui_Sekai_Subtitle):
             self.subtitle_text_count = 0
 
     def subtitle_task_insert(self):
-        if self.subtitle_json_selected and self.subtitle_video_selected:
-            self.subtitle_insert_task(self.subtitle_json_selected, self.subtitle_video_selected)
+        if self.subtitle_json_selected and self.subtitle_video_selected and \
+                ((self.subtitle_fitting_box.isChecked() and self.subtitle_fitting_file_selected)
+                 or not self.subtitle_fitting_box.isChecked()):
+            self.subtitle_insert_task(self.subtitle_json_selected, self.subtitle_video_selected,
+                                      self.subtitle_fitting_file_selected)
             self.subtitle_video_selected = None
             self.subtitle_json_selected = None
+            self.subtitle_fitting_file_selected = None
         else:
             not_type = []
             if not self.subtitle_video_selected:
                 not_type.append("视频文件")
             if not self.subtitle_json_selected:
                 not_type.append("数据文件")
+            if self.subtitle_fitting_box.isChecked() and not self.subtitle_fitting_file_selected:
+                not_type.append("合意文件")
             QtWidgets.QMessageBox.warning(
                 self, "错误", "、".join(not_type) + "未选择",
                 QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.Yes)
@@ -156,13 +169,28 @@ class SekaiSubtitleMain(QtWidgets.QMainWindow, Ui_Sekai_Subtitle):
                 if os.path.exists(default_json_file):
                     json_file = default_json_file
                 if json_file:
-                    self.subtitle_insert_task(json_file, video_file)
+                    self.subtitle_insert_task(json_file, video_file, None)
                     count += 1
         if count:
             self.msgbox.setText(f"自动导入了文件夹中的{count}个视频任务")
         else:
             self.msgbox.setText(f"未找到视频任务<br>请确保json文件与视频文件同名")
         self.msgbox.show()
+
+    def subtitle_clear_video(self):
+        self.subtitle_video_selected = None
+
+    def subtitle_clear_json(self):
+        self.subtitle_json_selected = None
+
+    def subtitle_clear_fitting(self):
+        self.subtitle_fitting_file_selected = None
+
+    def subtitle_open_fitting(self):
+        file_name_choose, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self, "选取文件", dir=self.root, filter="世界计划翻译文件 (*.txt);;全部文件 (*)"
+        )
+        self.subtitle_fitting_file_selected = file_name_choose if file_name_choose else None
 
     def subtitle_open_json(self):
         source = self.subtitle_combo_json_source.currentIndex()
@@ -171,28 +199,33 @@ class SekaiSubtitleMain(QtWidgets.QMainWindow, Ui_Sekai_Subtitle):
                 self, "选取文件", dir=self.root, filter="世界计划剧情文件 (*.json);;全部文件 (*)"
             )
             self.subtitle_json_selected = file_name_choose if file_name_choose else None
-        else:
-            if self.subtitle_json_selected_network:
-                from urllib.parse import urlsplit
-                url = self.subtitle_json_selected_network
-                name = os.path.split(urlsplit(url).path)[-1]
-                s = "pjsekai" if source == 1 else "best"
-                root = os.path.join(self.root, f"data/{s}/source/")
-                os.makedirs(root, exist_ok=True)
-                path = os.path.join(root, name)
-                self.subtitle_button_json_load.setText("正在下载")
-                self.subtitle_button_json_load.setEnabled(False)
-                if self.network_download_json(url):
-                    data = self.receive_data
-                    save_json(path, data)
-                    file_name_choose = path
-                    self.subtitle_json_selected = file_name_choose if file_name_choose else None
-                    self.subtitle_button_json_load.setText("下载完成！")
-                else:
-                    self.subtitle_button_json_load.setText("下载失败！")
-                time.sleep(1)
-                self.subtitle_button_json_load.setText("载入")
-                self.subtitle_button_json_load.setEnabled(True)
+
+    def subtitle_load_json_online(self):
+        self.subtitle_button_json_load_online.setEnabled(False)
+        self.subtitle_button_json_load_online.setText("下载中")
+
+        source = self.subtitle_combo_json_source.currentIndex()
+        if source and self.subtitle_json_selected_network:
+            from urllib.parse import urlsplit
+            url = self.subtitle_json_selected_network
+            name = os.path.split(urlsplit(url).path)[-1]
+            s = "pjsekai" if source == 1 else "best"
+            root = os.path.join(self.root, f"data/{s}/source/")
+            os.makedirs(root, exist_ok=True)
+            path = os.path.join(root, name)
+            self.subtitle_button_json_load_online.setText("下载中")
+            self.subtitle_button_json_load_online.setEnabled(False)
+            if self.network_download_json(url):
+                data = self.receive_data
+                save_json(path, data)
+                file_name_choose = path
+                self.subtitle_json_selected = file_name_choose if file_name_choose else None
+                self.subtitle_button_json_load_online.setText("成功！")
+            else:
+                self.subtitle_button_json_load_online.setText("失败！")
+            time.sleep(1)
+            self.subtitle_button_json_load_online.setText("载入")
+            self.subtitle_button_json_load_online.setEnabled(True)
 
     def setting_load(self, initial=False):
         self.setting = read_json(self.setting_file) or {}
@@ -209,8 +242,8 @@ class SekaiSubtitleMain(QtWidgets.QMainWindow, Ui_Sekai_Subtitle):
         return self.setting.get(key)
 
     def setting_save(self):
-        proxy = self.setting_text_proxy.text()
-        thread_limit = int(self.setting_text_thread.text())
+        proxy = self.setting_text_proxy.text() or None
+        thread_limit = int(self.setting_text_thread.text()) if self.setting_text_thread.text().isdigit() else 2
         self.setting['proxy'] = proxy if proxy else None
         self.setting['thread_limit'] = thread_limit if thread_limit else 4
         with open(self.setting_file, 'w', encoding='utf8') as fp:
@@ -220,12 +253,13 @@ class SekaiSubtitleMain(QtWidgets.QMainWindow, Ui_Sekai_Subtitle):
     def update_content(self) -> None:
         self.update_tree()
         self.update_bar()
+        self.update_fitting()
         # subtitle text
         self.subtitle_text_processing.clear()
         self.subtitle_text_processing.verticalScrollBar().setHidden(True)
         if self.subtitle_process_item:
             for line in self.subtitle_process_item.strings:
-                self.subtitle_text_processing.insertPlainText(f"{line}\n")
+                self.subtitle_text_processing.insertPlainText(line)
             self.subtitle_text_processing.verticalScrollBar().setValue(
                 self.subtitle_text_processing.verticalScrollBar().maximum()
             )
@@ -264,6 +298,20 @@ class SekaiSubtitleMain(QtWidgets.QMainWindow, Ui_Sekai_Subtitle):
             elif processor.started == 1:
                 processing.append(processor)
         self.subtitle_task_processing = processing
+
+    def update_fitting(self):
+        if self.subtitle_fitting_box.isChecked():
+            self.subtitle_fitting_widget.setHidden(False)
+            if not self.subtitle_fitting_file_selected:
+                self.subtitle_label_fitting.setText("未选择")
+            else:
+                subtitle_fitting_name = os.path.split(self.subtitle_fitting_file_selected)[-1]
+                self.subtitle_label_fitting.setText(subtitle_fitting_name)
+
+        else:
+            self.subtitle_label_fitting.setText("不进行合意替换")
+            self.subtitle_fitting_widget.setHidden(True)
+        self.subtitle_label_fitting.repaint()
 
     def update_bar(self):
         count = 0
