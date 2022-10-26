@@ -1,5 +1,7 @@
 # Sekai Subtitle
 
+**最近事比较多 开发进程缓慢 敬请谅解**
+
 新一代世界计划多彩舞台剧情对话自动打轴姬 使用Python语言编写 基于OpenCV
 自动获取的数据文件来自于 https://pjseka.ai/ 和 [Sekai Viewer](https://github.com/Sekai-World/sekai-master-db-diff)
 
