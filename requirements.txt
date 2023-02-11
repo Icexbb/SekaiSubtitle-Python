@@ -1,6 +1,0 @@
-opencv-contrib-python
-numpy~=1.23.3
-tqdm~=4.64.1
-ass~=0.5.2
-PySide6~=6.3.2
-httpx~=0.23.0

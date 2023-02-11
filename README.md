@@ -4,6 +4,7 @@
 自动获取的数据文件来自于 https://pjseka.ai/ 和 [Sekai Viewer](https://github.com/Sekai-World/sekai-master-db-diff)
 
 ## 开发进度
+
 - [x] 自适应视频分辨率样式、遮罩
 
 - [x] 防抖处理
@@ -15,6 +16,7 @@
 - [x] 整合Sekai Support - 合并翻译文件与json文件
 
 - [ ] 对视频处理流程进行改进 多线程运行
+    - ~~视频处理进程分离 失败 会导致帧序列错乱~~
 
 - [ ] 整合Sekai Text - 一站式世界计划剧情翻译平台
 
