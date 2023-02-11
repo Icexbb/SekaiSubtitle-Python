@@ -1,12 +1,16 @@
 *.pyc
 __pycache__
 .idea
+.vscode
+.fleet
 
-img
-video
-json
 venv
 data
 build
 dist
 ui
+test
+*.json
+*.txt
+*.mp4
+*.ass

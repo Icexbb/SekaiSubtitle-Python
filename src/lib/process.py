@@ -1,0 +1,497 @@
+import copy
+import json
+import os
+import re
+import time
+from datetime import timedelta
+
+import cv2
+from PySide6 import QtCore
+
+import script.tools
+from lib.data import DISPLAY_NAME_STYLE, subtitle_styles
+from lib.reference import get_dialog_mask, get_frame_data, get_area_mask, get_area_mask_size
+from lib.subtitle import Subtitle
+from script import match
+
+
+class SekaiJsonVideoProcess:
+    def __init__(self, video_file: str, json_file: str = None, translate_file: str = None, output_file: str = None,
+                 signal: QtCore.Signal(dict) = None, overwrite: bool = False):
+        self.json_data = None
+
+        self.signal = signal
+
+        self.video_file = video_file
+        if not os.path.exists(self.video_file):
+            raise FileNotFoundError
+
+        self.json_file = json_file
+        if not self.json_file:
+            predict_path = os.path.splitext(self.video_file)[0] + ".json"
+            if os.path.exists(predict_path):
+                self.json_file = predict_path
+                self.log(f"[Initial] 自动选择了JSON文件 {predict_path}")
+            else:
+                self.log(f"[Initial] JSON文件 {predict_path} 不存在")
+                raise FileNotFoundError("Json File Not Found")
+        elif not os.path.exists(self.json_file):
+            self.log(f"[Initial] JSON文件 {self.json_file} 不存在")
+            raise FileNotFoundError("Json File Not Found")
+
+        self.translate_file = translate_file
+        if not self.translate_file:
+            predict_path = os.path.splitext(self.video_file)[0] + ".txt"
+            if os.path.exists(predict_path):
+                self.translate_file = predict_path
+                self.log(f"[Initial] 自动选择了翻译文件 {predict_path}")
+        elif not os.path.exists(self.translate_file):
+            self.log(f"[Initial] 翻译文件 {self.translate_file} 不存在")
+            raise FileNotFoundError("Translate File Not Found")
+
+        self.overwrite = overwrite
+        self.output_path = output_file
+
+        if not self.output_path:
+            predict_path = os.path.splitext(self.video_file)[0] + ".ass"
+            if (not os.path.exists(predict_path)) or self.overwrite:
+                self.output_path = predict_path
+                self.log(f"[Initial] 自动选择了输出位置 {predict_path}")
+            else:
+                raise FileExistsError
+        elif os.path.exists(self.output_path):
+            if not self.overwrite:
+                raise FileExistsError
+            else:
+                os.remove(self.output_path)
+                self.log(f"[Initial] 已清除已存在的输出同名文件 {self.output_path}")
+
+        self.load_json()
+        self.log("[Initial] 初始化完成")
+
+    def log(self, message: str):
+        if self.signal:
+            self.signal.emit({"type": str, "data": message})
+        else:
+            print(message)
+
+    def emit(self, data):
+        if self.signal:
+            self.signal.emit({'type': data.__class__, 'data': data})
+
+    def load_json(self):
+        if os.path.exists(self.json_file):
+            self.json_data = json.load(open(self.json_file, 'r', encoding='utf-8'))
+            if self.translate_file and os.path.exists(self.translate_file):
+                pattern_body = re.compile(r"^(?P<name>\S*)：(?P<body>.+)$")
+                pattern_place = re.compile(r"^(?P<place>\S[^：]*)$")
+                with open(self.translate_file, 'r', encoding='utf-8') as fp:
+                    translate_data = fp.readlines()
+                body = [
+                    re.match(pattern_body, string).group("body") for string in translate_data if
+                    re.match(pattern_body, string.strip())
+                ]
+                place = [
+                    re.match(pattern_place, string).group("place") for string in translate_data if
+                    re.match(pattern_place, string.strip())
+                ]
+                if len(body) == len(self.json_data['TalkData']):
+                    result = []
+                    for i in range(len(body)):
+                        item = self.json_data['TalkData'][i]
+                        item["Body"] = body[i]
+                        result.append(item)
+                    self.json_data['TalkData'] = result
+
+                if len(place) == len([item for item in self.json_data['SpecialEffectData'] if item['EffectType'] == 8]):
+                    raw = self.json_data['SpecialEffectData']
+                    result = []
+                    for item in raw:
+                        if item['EffectType'] == 8:
+                            item["StringVal"] = place.pop(0)
+                        result.append(item)
+                    self.json_data['SpecialEffectData'] = result
+            self.log("[Initial] 已进行中文替换")
+        else:
+            self.log("[Error] JSON文件不存在")
+            assert False, "[Error] JSON文件不存在"
+        self.log("[Initial] JSON数据读取完成")
+
+    def dialog_match(self, results: list):
+        vc = cv2.VideoCapture(self.video_file)
+        total_frame_count = int(vc.get(7))
+        video_fps = vc.get(5)
+        last_center = None
+        last_status = 0
+        height, width = (vc.get(4), vc.get(3))
+        pointer = match.get_resized_dialog_pointer(height, width)
+
+        dialogs: list[dict] = copy.deepcopy(self.json_data['TalkData'])
+
+        dialog_processing = None
+        dialog_processing_frames = []
+
+        dialog_events = []
+        dialog_count_total = len(dialogs)
+
+        now_frame_count = 0
+        last_end_frame = None
+        last_end_event = None
+        constant_pc = None
+        dialog_processed = 0
+
+        self.emit({"total": dialog_count_total})
+
+        time_start = time.time()
+        while True:
+            ret, frame = vc.read()
+            if not ret:
+                break
+            if ((not now_frame_count % int(
+                    total_frame_count / 10)) or now_frame_count == total_frame_count) and now_frame_count:
+                self.log(f"[Processing] Dialog: Frame {now_frame_count}/{total_frame_count}, "
+                         f"FPS {now_frame_count / (time.time() - time_start):.2f}")
+
+            g_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            pc = match.check_frame_pointer_position(g_frame, pointer, last_center)
+            status = match.check_frame_dialog_status(g_frame, pointer, pc)
+
+            if status in [1, 2]:
+                dialog_processing_frames.append({"frame": now_frame_count, "point_center": pc})
+            if status == 2 and not constant_pc:
+                constant_pc = pc
+            if status in [0, 1] and last_status == 2:
+                dialog_processed += 1
+                self.emit({"done": 1})
+
+                # End Dialog
+
+                events = self.dialog_make_sequence(
+                    dialog_processing_frames, dialog_processing, int(pointer.shape[0]),
+                    height, width, video_fps, last_end_frame, last_end_event)
+
+                last_end_frame = dialog_processing_frames[-1]
+                last_end_event = events[-1]
+
+                self.log(f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events, "
+                         f"Remain {dialog_count_total - dialog_processed}/{dialog_count_total}")
+
+                dialog_events += events
+
+                dialog_processing = None
+                dialog_processing_frames = []
+
+                if not dialogs:
+                    break
+            if last_status in [0, 2] and status == 1:
+                # Start Dialog
+                if not dialog_processing:
+                    try:
+                        dialog_processing = dialogs.pop(0)
+                    except IndexError:
+                        break
+
+            last_status = status
+            last_center = pc
+            now_frame_count += 1
+
+        dialog_styles = self.dialog_make_styles(
+            point_center=constant_pc,
+            point_size=int(pointer.shape[0]),
+            screen_data=get_frame_data((width, height), constant_pc))
+        for i in (dialog_events, dialog_styles, height, width):
+            results.append(i)
+
+        self.log("[Processing] Dialog Matching Process Finished" + (" But not Fully Matched" if dialogs else ""))
+        # return dialog_events, dialog_styles, height, width
+
+    @staticmethod
+    def dialog_make_styles(point_center, point_size: int, screen_data: dict):
+        res = []
+        for key in subtitle_styles:
+            item = subtitle_styles[key]
+            if item["Fontname"] == "思源黑体 CN Bold":
+                item["Fontname"] = "思源黑体 CN"
+                item['Bold'] = True
+            if item["MarginL"] == 325:
+                item["MarginL"] = int(point_center[0] - 0.5 * point_size)
+                item["MarginV"] = int(point_center[1] + 1.25 * point_size)
+                item["Fontsize"] = screen_data['pattern_coefficient'] * point_size
+            res.append(item)
+        return res
+
+    @staticmethod
+    def dialog_body_typer(body: str, char_interval: int = 50):
+        body_list = list(body)
+        res = []
+        return_count = 0
+        for index, char in enumerate(body_list):
+            return_count += 1 if char in ["\n", "\\n", "\\N"] else 0
+            res.append(
+                rf"{{\alphaFF\t({char_interval * (index * 2 + 1) + return_count * 300},"
+                rf"{char_interval * (index * 2 + 2) + return_count * 300},1,\alpha0)}}"
+                + char)
+        return "".join(res)
+
+    @staticmethod
+    def dialog_body_typer_calculater(body: str, frame_count: int, frame_time: timedelta, char_interval: int = 50):
+        now_time = frame_time * frame_count
+        now_time_ms = int(now_time.total_seconds() * 1000)
+        trans_alpha_string = r"{\alpha&HFF&}"
+        is_trans_now = False
+        body_list = list(body)
+        res = []
+        char_time = 0
+        for index, char in enumerate(body_list):
+            char_time += 300 + char_interval if char in ["\n", "\\n", "\\N"] else char_interval
+            n_char = char
+            if char_time < now_time_ms < char_time + char_interval:
+                la = 255 - int((now_time_ms - char_time) / char_interval * 255)
+                la_string = rf"{{\alpha{int(la)}}}"
+                n_char = la_string + char
+            elif char_time > now_time_ms:
+                if not is_trans_now:
+                    n_char = trans_alpha_string + char
+                    is_trans_now = True
+            res.append(n_char)
+        return "".join(res)
+
+    @staticmethod
+    def dialog_make_sequence(
+            dialog_frames: list[dict], dialog_data: dict,
+            point_size: int, video_height: int, video_width: int,
+            fps: float = 60, last_dialog_frame: int = None, last_dialog_event: dict = None
+    ):
+        frame_time = timedelta(seconds=1 / fps)
+        start_frame = dialog_frames[0]
+        end_frame = dialog_frames[-1]
+        results = []
+
+        style = DISPLAY_NAME_STYLE[dialog_data['WindowDisplayName']] \
+            if dialog_data['WindowDisplayName'] in DISPLAY_NAME_STYLE else "関連人物"
+
+        dialog_body = SekaiJsonVideoProcess.dialog_body_typer(dialog_data["Body"], 50)
+        raw_dialog_body = dialog_data["Body"]
+
+        jitter = False
+        for item in dialog_frames:
+            if script.tools.check_distance(item["point_center"], start_frame["point_center"]) > pow(pow(5, 2) * 2, 0.5):
+                jitter = True
+                break
+
+        if not jitter:
+            start_time = script.tools.timedelta_to_string(frame_time * start_frame['frame'])
+            if last_dialog_frame and last_dialog_event:
+                if start_frame['frame'] - last_dialog_frame['frame'] <= 1:
+                    start_time = last_dialog_event['End']
+
+            event_data = {
+                "Layer": 1,
+                "Start": start_time,
+                "End": script.tools.timedelta_to_string(frame_time * end_frame['frame']),
+                "Style": style,
+                "Name": dialog_data['WindowDisplayName'],
+                "MarginL": 0, "MarginR": 0, "MarginV": 0,
+                "Effect": '',
+                "Text": dialog_body.replace("\n", r"\N")
+            }
+            mask_data = copy.deepcopy(event_data)
+
+            mask_data["Text"] = get_dialog_mask(
+                get_frame_data((video_width, video_height), dialog_frames[0]['point_center']), None)
+            mask_data["Style"] = 'screen'
+            results.append(mask_data)
+            results.append(event_data)
+            return results
+        else:
+            masks = []
+            dialogs = []
+            frame_data = get_frame_data((video_width, video_height), dialog_frames[0]['point_center'])
+            for index, frame in enumerate(dialog_frames):
+                move = r"{\an7\pos(" \
+                       f"{int(frame['point_center'][0] - 0.5 * point_size)}," \
+                       f"{int(frame['point_center'][1] + 1.25 * point_size)}" \
+                       r")}"
+                frame_body = move + SekaiJsonVideoProcess.dialog_body_typer_calculater(
+                    raw_dialog_body, index, frame_time, 50).replace("\n", r"\N")
+
+                event_data = {
+                    "Layer": 1,
+                    "Start": script.tools.timedelta_to_string(frame_time * frame['frame']),
+                    "End": script.tools.timedelta_to_string(frame_time * (frame['frame'] + 1)),
+                    "Style": style,
+                    "Name": dialog_data['WindowDisplayName'],
+                    "MarginL": 0, "MarginR": 0, "MarginV": 0,
+                    "Effect": '',
+                    "Text": frame_body  # move + trans + dialog_body.replace("\n", r"\N")
+                }
+
+                if dialogs and dialogs[-1]['Text'] == event_data["Text"]:
+                    ev = copy.deepcopy(dialogs[-1])
+                    ev["End"] = event_data["End"]
+                    dialogs[-1] = ev
+                else:
+                    dialogs.append(event_data)
+
+                pc_str = 'point_center'
+                mask_move = [(frame[pc_str][i] - start_frame[pc_str][i]) for i in range(len(frame[pc_str]))]
+
+                mask = get_dialog_mask(frame_data, mask_move)
+
+                mask_data = {
+                    "Layer": 1,
+                    "Start": script.tools.timedelta_to_string(frame_time * frame['frame']),
+                    "End": script.tools.timedelta_to_string(frame_time * (frame['frame'] + 1)),
+                    "Style": 'screen',
+                    "Name": dialog_data['WindowDisplayName'],
+                    "MarginL": 0, "MarginR": 0, "MarginV": 0, "Effect": '',
+                    "Text": mask
+                }
+
+                if masks and masks[-1]['Text'] == mask_data["Text"]:
+                    ev = copy.deepcopy(masks[-1])
+                    ev["End"] = mask_data["End"]
+                    masks[-1] = ev
+                else:
+                    masks.append(mask_data)
+
+            return masks + dialogs
+
+    def area_match(self, result: list):
+        vc = cv2.VideoCapture(self.video_file)
+        total_frame_count = int(vc.get(7))
+        video_fps = vc.get(5)
+
+        height, width = (vc.get(4), vc.get(3))
+        area_mask = get_area_mask(get_area_mask_size((width, height)))
+        area_data: list[dict] = [item for item in self.json_data['SpecialEffectData'] if item['EffectType'] == 8]
+
+        area_events = []
+        area_mask_area = match.get_square_mask_area(height, width)
+        now_frame_count = 0
+
+        area_processing = None
+        area_processing_frames = []
+        area_processed = 0
+        area_count_total = len(area_data)
+        content_started = False
+        last_result = False
+        time_start = time.time()
+        self.emit({"total": area_count_total})
+
+        while True:
+            ret, frame = vc.read()
+            if not ret:
+                break
+            if ((not now_frame_count % int(
+                    total_frame_count / 10)) or now_frame_count == total_frame_count) and now_frame_count:
+                self.log(f"[Processing] AreaInfo: Frame {now_frame_count}/{total_frame_count}, "
+                         f"FPS {now_frame_count / (time.time() - time_start):.2f}")
+
+            frame_result: bool = match.check_frame_area_mask(frame, area_mask_area, content_started)
+            if frame_result:
+                content_started = True
+                area_processing_frames.append(now_frame_count)
+
+            if frame_result and not last_result:
+                if not area_processing:
+                    try:
+                        area_processing = area_data.pop(0)
+                    except IndexError:
+                        break
+            if last_result and not frame_result:
+                area_processed += 1
+                self.emit({"done": 1})
+
+                events = self.area_make_sequence(area_processing_frames, area_processing, area_mask, video_fps)
+
+                self.log(f"[Processing] AreaInfo {area_processed}: Output {len(events)} Events, "
+                         f"Remain {area_count_total - area_processed}/{area_count_total}")
+                area_events += events
+
+                area_processing = None
+                area_processing_frames = []
+
+                if not area_data:
+                    break
+
+            now_frame_count += 1
+            last_result = frame_result
+        result.append(area_events)
+        # return area_events
+        self.log("[Processing] AreaInfo Matching Process Finished" + (" But not Fully Matched" if area_data else ""))
+
+    @staticmethod
+    def area_make_sequence(frame_array: list[int], area_info: dict, area_mask, fps):
+        events = []
+        frame_time = timedelta(seconds=1 / fps)
+        event_mask = {
+            "Layer": 0,
+            "Start": script.tools.timedelta_to_string(frame_array[0] * frame_time),
+            "End": script.tools.timedelta_to_string(frame_array[-1] * frame_time),
+            "Style": "address", "Name": '',
+            "MarginL": 0, "MarginR": 0, "MarginV": 0, "Effect": '',
+            "Text": r"{\fad(100,100)}" + area_mask
+        }
+        event_data = {
+            "Layer": 1,
+            "Start": script.tools.timedelta_to_string(frame_array[0] * frame_time),
+            "End": script.tools.timedelta_to_string(frame_array[-1] * frame_time),
+            "Style": "address", "Name": '',
+            "MarginL": 0, "MarginR": 0, "MarginV": 0, "Effect": '',
+            "Text": area_info["StringVal"]
+        }
+        events.append(event_mask)
+        events.append(event_data)
+        return events
+
+    def run(self):
+        time_start = time.time()
+        self.log(f"[Processing] Start Processing {os.path.split(self.video_file)[-1]}")
+        self.emit(1)
+        try:
+            from threading import Thread
+            t1r = []
+            t2r = []
+            t1 = Thread(target=self.dialog_match, args=(t1r,))
+            t2 = Thread(target=self.area_match, args=(t2r,))
+
+            t1.start()
+            t2.start()
+            t1.join()
+            t2.join()
+
+            [dialogs_events, dialog_styles, video_height, video_width] = t1r
+            [area_events] = t2r
+
+        except KeyboardInterrupt:
+            pass
+        except Exception as e:
+            self.log(f"[Error] {e}")
+            self.emit(4)
+        else:
+            res = {
+                "ScriptInfo": {"PlayResX": video_width, "PlayResY": video_height},
+                "Garbage": {"video": self.video_file},
+                "Styles": dialog_styles,
+                "Events": Subtitle.Events(area_events + dialogs_events).list,
+            }
+            subtitle = Subtitle(res)
+            if os.path.exists(self.output_path):
+                if self.overwrite:
+                    self.log("[Output] File Exists,Removed")
+                    os.remove(self.output_path)
+                else:
+                    raise FileExistsError
+
+            with open(self.output_path, 'w', encoding='utf8') as fp:
+                fp.write(subtitle.string)
+
+            time_end = time.time()
+
+            self.log(f"[Success] Output into {os.path.realpath(self.output_path)}")
+            self.log(f"[Success] Make ASS File Succeeded, Used {time_end - time_start:.2f}s")
+            if self.signal:
+                self.emit(2)
+                self.emit(True)
+                self.signal.emit({"type": bool, "data": True})
