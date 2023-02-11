@@ -1,11 +1,12 @@
 import datetime
 import os
+from typing import Union
 
 import ass
 import json
 from ass.data import Color
 
-from . import timedelta_to_string
+from script.tools import timedelta_to_string
 
 
 class Subtitle:
@@ -234,3 +235,96 @@ def from_file_generate(file_path: str) -> Subtitle:
             "Events": events
         }
         return Subtitle(data)
+
+
+class AssDraw:
+    class Move:
+        def __init__(self, point: list[int, int]):
+            self.point = point
+
+        def move(self, offset: list[int, int]):
+            self.point[0] = int(self.point[0] + offset[0])
+            self.point[1] = int(self.point[1] + offset[1])
+
+        def scale(self, coefficient: list[float, float]):
+            self.point[0] = int(self.point[0] * coefficient[0])
+            self.point[1] = int(self.point[1] * coefficient[1])
+
+        @property
+        def string(self):
+            return f'm {self.point[0]} {self.point[1]}'
+
+    class Bezier:
+        def __init__(self, points: list[list[int, int], list[int, int], list[int, int]]):
+            self.points = points
+
+        def move(self, offset: list[int, int]):
+            for i in [0, 1, 2]:
+                self.points[i][0] = int(self.points[i][0] + offset[0])
+                self.points[i][1] = int(self.points[i][1] + offset[1])
+
+        def scale(self, coefficient: list[float, float]):
+            for i in [0, 1, 2]:
+                self.points[i][0] = int(self.points[i][0] * coefficient[0])
+                self.points[i][1] = int(self.points[i][1] * coefficient[1])
+
+        @property
+        def string(self):
+            return f'b ' + ' '.join([' '.join(map(str, x)) for x in self.points])
+
+    class Line:
+        def __init__(self, point: list[int, int]):
+            self.point = point
+
+        def move(self, offset: list[int, int]):
+            self.point[0] = int(self.point[0] + offset[0])
+            self.point[1] = int(self.point[1] + offset[1])
+
+        def scale(self, coefficient: list[float, float]):
+            self.point[0] = int(self.point[0] * coefficient[0])
+            self.point[1] = int(self.point[1] * coefficient[1])
+
+        @property
+        def string(self):
+            return f'l {self.point[0]} {self.point[1]}'
+
+    def __init__(self, string: str):
+        self.ad_list: list[Union[AssDraw.Move, AssDraw.Bezier, AssDraw.Line]] = self.generate_ad_string(string)
+
+    def generate_ad_string(self, string: str) -> list:
+        i = 0
+        blist = string.split(' ')
+        blist: list = [int(x) if x.isdigit() else x for x in blist]
+        result = []
+        while i < len(blist):
+            if blist[i] == 'm':
+                result.append(self.Move([int(blist[i + 1]), int(blist[i + 2])]))
+                i += 3
+            elif blist[i] == 'b':
+                result.append(
+                    self.Bezier(
+                        [[int(blist[i + 1]), int(blist[i + 2])],
+                         [int(blist[i + 3]), int(blist[i + 4])],
+                         [int(blist[i + 5]), int(blist[i + 6])]]
+                    )
+                )
+                i += 7
+            elif blist[i] == 'l':
+                result.append(self.Line([int(blist[i + 1]), int(blist[i + 2])]))
+                i += 3
+        return result
+
+    def move(self, offset: list[int, int]):
+        for x in self.ad_list:
+            x.move(offset)
+
+    def scale(self, coefficient: Union[list[float, float], float]):
+        if not isinstance(coefficient, list):
+            c = [coefficient, coefficient]
+        else:
+            c = coefficient
+        for x in self.ad_list:
+            x.scale(c)
+
+    def string(self):
+        return ' '.join([x.string for x in self.ad_list])

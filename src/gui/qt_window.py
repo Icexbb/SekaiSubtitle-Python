@@ -9,30 +9,31 @@
 ################################################################################
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
+                            QMetaObject, QObject, QPoint, QRect,
+                            QSize, QTime, QUrl, Qt)
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
+                           QFont, QFontDatabase, QGradient, QIcon,
+                           QImage, QKeySequence, QLinearGradient, QPainter,
+                           QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFormLayout,
-    QGroupBox, QHBoxLayout, QHeaderView, QLabel,
-    QLayout, QLineEdit, QListWidget, QListWidgetItem,
-    QMainWindow, QProgressBar, QPushButton, QRadioButton,
-    QSizePolicy, QSpacerItem, QTabWidget, QTableView,
-    QTextBrowser, QVBoxLayout, QWidget)
+                               QGroupBox, QHBoxLayout, QHeaderView, QLabel,
+                               QLayout, QLineEdit, QListWidget, QListWidgetItem,
+                               QMainWindow, QProgressBar, QPushButton, QRadioButton,
+                               QSizePolicy, QSpacerItem, QTabWidget, QTableView,
+                               QTextBrowser, QVBoxLayout, QWidget)
+
 
 class Ui_Sekai_Subtitle(object):
     def setupUi(self, Sekai_Subtitle):
         if not Sekai_Subtitle.objectName():
             Sekai_Subtitle.setObjectName(u"Sekai_Subtitle")
-        Sekai_Subtitle.resize(800, 500)
+        Sekai_Subtitle.resize(750, 500)
         sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Sekai_Subtitle.sizePolicy().hasHeightForWidth())
         Sekai_Subtitle.setSizePolicy(sizePolicy)
-        Sekai_Subtitle.setMinimumSize(QSize(800, 500))
+        Sekai_Subtitle.setMinimumSize(QSize(750, 500))
         Sekai_Subtitle.setBaseSize(QSize(800, 300))
         self.widget_main = QWidget(Sekai_Subtitle)
         self.widget_main.setObjectName(u"widget_main")
@@ -82,7 +83,7 @@ class Ui_Sekai_Subtitle(object):
         self.subtitle_label_video_name = QLabel(self.groupBox)
         self.subtitle_label_video_name.setObjectName(u"subtitle_label_video_name")
         self.subtitle_label_video_name.setMinimumSize(QSize(0, 22))
-        self.subtitle_label_video_name.setMaximumSize(QSize(1000, 22))
+        self.subtitle_label_video_name.setMaximumSize(QSize(16777215, 22))
         self.subtitle_label_video_name.setTextFormat(Qt.AutoText)
         self.subtitle_label_video_name.setAlignment(Qt.AlignCenter)
 
@@ -114,9 +115,7 @@ class Ui_Sekai_Subtitle(object):
 
         self.horizontalLayout_7.addWidget(self.subtitle_button_video_clear)
 
-
         self.verticalLayout_16.addWidget(self.widget)
-
 
         self.verticalLayout_3.addWidget(self.groupBox)
 
@@ -130,7 +129,7 @@ class Ui_Sekai_Subtitle(object):
         self.subtitle_label_json_name = QLabel(self.verticalGroupBox)
         self.subtitle_label_json_name.setObjectName(u"subtitle_label_json_name")
         self.subtitle_label_json_name.setMinimumSize(QSize(0, 22))
-        self.subtitle_label_json_name.setMaximumSize(QSize(200, 22))
+        self.subtitle_label_json_name.setMaximumSize(QSize(16777215, 22))
         self.subtitle_label_json_name.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_12.addWidget(self.subtitle_label_json_name)
@@ -163,7 +162,6 @@ class Ui_Sekai_Subtitle(object):
 
         self.horizontalLayout_17.addWidget(self.subtitle_combo_json_source)
 
-
         self.verticalLayout_12.addWidget(self.subtitle_json_source_widget)
 
         self.subtitle_offline_group = QWidget(self.verticalGroupBox)
@@ -187,7 +185,6 @@ class Ui_Sekai_Subtitle(object):
 
         self.horizontalLayout_13.addWidget(self.subtitle_button_json_clear)
 
-
         self.verticalLayout_12.addWidget(self.subtitle_offline_group)
 
         self.subtitle_online_group = QWidget(self.verticalGroupBox)
@@ -202,7 +199,7 @@ class Ui_Sekai_Subtitle(object):
         self.subtitle_combo_type.setObjectName(u"subtitle_combo_type")
         self.subtitle_combo_type.setEnabled(True)
         self.subtitle_combo_type.setMinimumSize(QSize(75, 22))
-        self.subtitle_combo_type.setMaximumSize(QSize(1000, 22))
+        self.subtitle_combo_type.setMaximumSize(QSize(16777215, 22))
         self.subtitle_combo_type.setFocusPolicy(Qt.WheelFocus)
         self.subtitle_combo_type.setAutoFillBackground(False)
         self.subtitle_combo_type.setSizeAdjustPolicy(QComboBox.AdjustToContents)
@@ -213,7 +210,7 @@ class Ui_Sekai_Subtitle(object):
         self.subtitle_combo_source = QComboBox(self.subtitle_online_group)
         self.subtitle_combo_source.setObjectName(u"subtitle_combo_source")
         self.subtitle_combo_source.setMinimumSize(QSize(75, 22))
-        self.subtitle_combo_source.setMaximumSize(QSize(1000, 22))
+        self.subtitle_combo_source.setMaximumSize(QSize(16777215, 22))
         self.subtitle_combo_source.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.subtitle_combo_source.setFrame(True)
 
@@ -222,7 +219,7 @@ class Ui_Sekai_Subtitle(object):
         self.subtitle_combo_episode = QComboBox(self.subtitle_online_group)
         self.subtitle_combo_episode.setObjectName(u"subtitle_combo_episode")
         self.subtitle_combo_episode.setMinimumSize(QSize(75, 22))
-        self.subtitle_combo_episode.setMaximumSize(QSize(1000, 22))
+        self.subtitle_combo_episode.setMaximumSize(QSize(16777215, 22))
         self.subtitle_combo_episode.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.subtitle_combo_episode.setFrame(True)
 
@@ -260,19 +257,16 @@ class Ui_Sekai_Subtitle(object):
 
         self.horizontalLayout_14.addWidget(self.subtitle_button_json_clear_online)
 
-
         self.verticalLayout_11.addWidget(self.widget1)
 
-
         self.verticalLayout_12.addWidget(self.subtitle_online_group)
-
 
         self.verticalLayout_3.addWidget(self.verticalGroupBox)
 
         self.subtitle_fitting_box = QGroupBox(self.subtitle_widget)
         self.subtitle_fitting_box.setObjectName(u"subtitle_fitting_box")
         self.subtitle_fitting_box.setCheckable(True)
-        self.subtitle_fitting_box.setChecked(True)
+        self.subtitle_fitting_box.setChecked(False)
         self.verticalLayout_10 = QVBoxLayout(self.subtitle_fitting_box)
         self.verticalLayout_10.setSpacing(5)
         self.verticalLayout_10.setContentsMargins(5, 5, 5, 5)
@@ -306,9 +300,7 @@ class Ui_Sekai_Subtitle(object):
 
         self.subtitle_fitting_choice.addWidget(self.subtitle_button_fitting_clear)
 
-
         self.verticalLayout_10.addWidget(self.subtitle_fitting_widget)
-
 
         self.verticalLayout_3.addWidget(self.subtitle_fitting_box)
 
@@ -330,7 +322,7 @@ class Ui_Sekai_Subtitle(object):
         sizePolicy4.setHeightForWidth(self.subtitle_buttom_insert.sizePolicy().hasHeightForWidth())
         self.subtitle_buttom_insert.setSizePolicy(sizePolicy4)
         self.subtitle_buttom_insert.setMinimumSize(QSize(25, 22))
-        self.subtitle_buttom_insert.setMaximumSize(QSize(200, 22))
+        self.subtitle_buttom_insert.setMaximumSize(QSize(16777215, 22))
 
         self.horizontalLayout_11.addWidget(self.subtitle_buttom_insert)
 
@@ -341,9 +333,7 @@ class Ui_Sekai_Subtitle(object):
 
         self.horizontalLayout_11.addWidget(self.subtitle_button_video_select_dir)
 
-
         self.verticalLayout_3.addWidget(self.subtitle_group_insert)
-
 
         self.horizontalLayout_4.addLayout(self.verticalLayout_3)
 
@@ -354,7 +344,7 @@ class Ui_Sekai_Subtitle(object):
         self.subtitle_list_tasks.setObjectName(u"subtitle_list_tasks")
         self.subtitle_list_tasks.setEnabled(True)
         self.subtitle_list_tasks.setMinimumSize(QSize(250, 0))
-        self.subtitle_list_tasks.setMaximumSize(QSize(250, 16777215))
+        self.subtitle_list_tasks.setMaximumSize(QSize(16777215, 16777215))
 
         self.verticalLayout_6.addWidget(self.subtitle_list_tasks)
 
@@ -371,9 +361,7 @@ class Ui_Sekai_Subtitle(object):
 
         self.horizontalLayout_20.addWidget(self.subtitle_button_start)
 
-
         self.verticalLayout_6.addLayout(self.horizontalLayout_20)
-
 
         self.horizontalLayout_4.addLayout(self.verticalLayout_6)
 
@@ -382,6 +370,7 @@ class Ui_Sekai_Subtitle(object):
         self.verticalLayout_7.setObjectName(u"verticalLayout_7")
         self.subtitle_text_processing = QTextBrowser(self.subtitle_widget)
         self.subtitle_text_processing.setObjectName(u"subtitle_text_processing")
+        self.subtitle_text_processing.setMinimumSize(QSize(300, 0))
         self.subtitle_text_processing.setMaximumSize(QSize(16777215, 16777215))
 
         self.verticalLayout_7.addWidget(self.subtitle_text_processing)
@@ -400,15 +389,13 @@ class Ui_Sekai_Subtitle(object):
 
         self.horizontalLayout_9.addWidget(self.subtitle_progress)
 
-
         self.verticalLayout_7.addLayout(self.horizontalLayout_9)
-
 
         self.horizontalLayout_4.addLayout(self.verticalLayout_7)
 
-        self.horizontalLayout_4.setStretch(0, 3)
+        self.horizontalLayout_4.setStretch(0, 1)
         self.horizontalLayout_4.setStretch(1, 1)
-        self.horizontalLayout_4.setStretch(2, 4)
+        self.horizontalLayout_4.setStretch(2, 2)
 
         self.formLayout_3.setLayout(0, QFormLayout.SpanningRole, self.horizontalLayout_4)
 
@@ -476,7 +463,6 @@ class Ui_Sekai_Subtitle(object):
 
         self.horizontalLayout_15.addWidget(self.translate_button_flush)
 
-
         self.verticalLayout_2.addLayout(self.horizontalLayout_15)
 
         self.horizontalLayout_16 = QHBoxLayout()
@@ -508,9 +494,7 @@ class Ui_Sekai_Subtitle(object):
 
         self.horizontalLayout_16.addWidget(self.translate_button_json_load)
 
-
         self.verticalLayout_2.addLayout(self.horizontalLayout_16)
-
 
         self.verticalLayout_9.addLayout(self.verticalLayout_2)
 
@@ -518,7 +502,6 @@ class Ui_Sekai_Subtitle(object):
         self.translate_table_json.setObjectName(u"translate_table_json")
 
         self.verticalLayout_9.addWidget(self.translate_table_json)
-
 
         self.horizontalLayout_3.addLayout(self.verticalLayout_9)
 
@@ -555,7 +538,6 @@ class Ui_Sekai_Subtitle(object):
         self.translate_radio_mean.setMaximumSize(QSize(16777215, 22))
 
         self.horizontalLayout_5.addWidget(self.translate_radio_mean)
-
 
         self.verticalLayout_5.addLayout(self.horizontalLayout_5)
 
@@ -601,9 +583,7 @@ class Ui_Sekai_Subtitle(object):
 
         self.horizontalLayout_6.addWidget(self.translate_button_check)
 
-
         self.verticalLayout_5.addLayout(self.horizontalLayout_6)
-
 
         self.horizontalLayout_8.addLayout(self.verticalLayout_5)
 
@@ -625,9 +605,7 @@ class Ui_Sekai_Subtitle(object):
 
         self.verticalLayout_4.addWidget(self.translate_check_enter)
 
-
         self.horizontalLayout_8.addLayout(self.verticalLayout_4)
-
 
         self.verticalLayout_8.addLayout(self.horizontalLayout_8)
 
@@ -635,7 +613,6 @@ class Ui_Sekai_Subtitle(object):
         self.translate_table_text.setObjectName(u"translate_table_text")
 
         self.verticalLayout_8.addWidget(self.translate_table_text)
-
 
         self.horizontalLayout_3.addLayout(self.verticalLayout_8)
 
@@ -673,7 +650,6 @@ class Ui_Sekai_Subtitle(object):
 
         self.horizontalLayout.addWidget(self.setting_text_proxy)
 
-
         self.verticalLayout.addLayout(self.horizontalLayout)
 
         self.horizontalLayout_10 = QHBoxLayout()
@@ -693,7 +669,6 @@ class Ui_Sekai_Subtitle(object):
         self.setting_text_thread.setObjectName(u"setting_text_thread")
 
         self.horizontalLayout_10.addWidget(self.setting_text_thread)
-
 
         self.verticalLayout.addLayout(self.horizontalLayout_10)
 
@@ -718,9 +693,7 @@ class Ui_Sekai_Subtitle(object):
 
         self.horizontalLayout_2.addWidget(self.setting_button_save)
 
-
         self.verticalLayout.addLayout(self.horizontalLayout_2)
-
 
         self.formLayout.setLayout(0, QFormLayout.SpanningRole, self.verticalLayout)
 
@@ -734,48 +707,74 @@ class Ui_Sekai_Subtitle(object):
 
         self.tabWidget.setCurrentIndex(0)
 
-
         QMetaObject.connectSlotsByName(Sekai_Subtitle)
+
     # setupUi
 
     def retranslateUi(self, Sekai_Subtitle):
         Sekai_Subtitle.setWindowTitle(QCoreApplication.translate("Sekai_Subtitle", u"Sekai \u8f74\u59ec", None))
         self.groupBox.setTitle(QCoreApplication.translate("Sekai_Subtitle", u"\u89c6\u9891\u6587\u4ef6", None))
-        self.subtitle_label_video_name.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u672a\u9009\u62e9", None))
+        self.subtitle_label_video_name.setText(
+            QCoreApplication.translate("Sekai_Subtitle", u"\u672a\u9009\u62e9", None))
         self.subtitle_button_video_select.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u9009\u62e9", None))
         self.subtitle_button_video_clear.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u6e05\u7a7a", None))
         self.verticalGroupBox.setTitle(QCoreApplication.translate("Sekai_Subtitle", u"\u6570\u636e\u6587\u4ef6", None))
         self.subtitle_label_json_name.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u672a\u9009\u62e9", None))
         self.label_2.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u6765\u6e90\uff1a", None))
-        self.subtitle_combo_json_source.setItemText(0, QCoreApplication.translate("Sekai_Subtitle", u"\u672c\u5730\u8f7d\u5165", None))
-        self.subtitle_combo_json_source.setItemText(1, QCoreApplication.translate("Sekai_Subtitle", u"\u5728\u7ebf\uff1aAI\u7ad9", None))
-        self.subtitle_combo_json_source.setItemText(2, QCoreApplication.translate("Sekai_Subtitle", u"\u5728\u7ebf\uff1aBest\u7ad9", None))
+        self.subtitle_combo_json_source.setItemText(0, QCoreApplication.translate("Sekai_Subtitle",
+                                                                                  u"\u672c\u5730\u8f7d\u5165", None))
+        self.subtitle_combo_json_source.setItemText(1, QCoreApplication.translate("Sekai_Subtitle",
+                                                                                  u"\u5728\u7ebf\uff1aAI\u7ad9", None))
+        self.subtitle_combo_json_source.setItemText(2, QCoreApplication.translate("Sekai_Subtitle",
+                                                                                  u"\u5728\u7ebf\uff1aBest\u7ad9",
+                                                                                  None))
 
         self.subtitle_button_json_load.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u8f7d\u5165", None))
         self.subtitle_button_json_clear.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u6e05\u7a7a", None))
         self.subtitle_button_flush_list.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u5237\u65b0", None))
-        self.subtitle_button_json_load_online.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u8f7d\u5165", None))
-        self.subtitle_button_json_clear_online.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u6e05\u7a7a", None))
-        self.subtitle_fitting_box.setTitle(QCoreApplication.translate("Sekai_Subtitle", u"\u5408\u610f\u6587\u4ef6", None))
+        self.subtitle_button_json_load_online.setText(
+            QCoreApplication.translate("Sekai_Subtitle", u"\u8f7d\u5165", None))
+        self.subtitle_button_json_clear_online.setText(
+            QCoreApplication.translate("Sekai_Subtitle", u"\u6e05\u7a7a", None))
+        self.subtitle_fitting_box.setTitle(
+            QCoreApplication.translate("Sekai_Subtitle", u"\u5408\u610f\u6587\u4ef6", None))
         self.subtitle_label_fitting.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u672a\u9009\u62e9", None))
         self.subtitle_button_fitting_select.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u8f7d\u5165", None))
         self.subtitle_button_fitting_clear.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u6e05\u7a7a", None))
-        self.subtitle_buttom_insert.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u52a0\u5165\u961f\u5217", None))
+        self.subtitle_buttom_insert.setText(
+            QCoreApplication.translate("Sekai_Subtitle", u"\u52a0\u5165\u961f\u5217", None))
         self.subtitle_button_video_select_dir.setText(QCoreApplication.translate("Sekai_Subtitle", u"...", None))
-        self.subtitle_button_clear_list.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u6e05\u7a7a\u961f\u5217", None))
-        self.subtitle_button_start.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u5f00\u59cb\u5904\u7406", None))
+        self.subtitle_button_clear_list.setText(
+            QCoreApplication.translate("Sekai_Subtitle", u"\u6e05\u7a7a\u961f\u5217", None))
+        self.subtitle_button_start.setText(
+            QCoreApplication.translate("Sekai_Subtitle", u"\u5f00\u59cb\u5904\u7406", None))
         self.label.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u603b\u8fdb\u5ea6", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.subtitle_widget), QCoreApplication.translate("Sekai_Subtitle", u"\u8f74\u673a", None))
-        self.translate_combo_type.setItemText(0, QCoreApplication.translate("Sekai_Subtitle", u"\u4e3b\u7ebf\u5267\u60c5", None))
-        self.translate_combo_type.setItemText(1, QCoreApplication.translate("Sekai_Subtitle", u"\u6d3b\u52a8\u5267\u60c5", None))
-        self.translate_combo_type.setItemText(2, QCoreApplication.translate("Sekai_Subtitle", u"\u7279\u6b8a\u5267\u60c5", None))
-        self.translate_combo_type.setItemText(3, QCoreApplication.translate("Sekai_Subtitle", u"\u5361\u9762\u5267\u60c5", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.subtitle_widget),
+                                  QCoreApplication.translate("Sekai_Subtitle", u"\u8f74\u673a", None))
+        self.translate_combo_type.setItemText(0,
+                                              QCoreApplication.translate("Sekai_Subtitle", u"\u4e3b\u7ebf\u5267\u60c5",
+                                                                         None))
+        self.translate_combo_type.setItemText(1,
+                                              QCoreApplication.translate("Sekai_Subtitle", u"\u6d3b\u52a8\u5267\u60c5",
+                                                                         None))
+        self.translate_combo_type.setItemText(2,
+                                              QCoreApplication.translate("Sekai_Subtitle", u"\u7279\u6b8a\u5267\u60c5",
+                                                                         None))
+        self.translate_combo_type.setItemText(3,
+                                              QCoreApplication.translate("Sekai_Subtitle", u"\u5361\u9762\u5267\u60c5",
+                                                                         None))
 
         self.translate_button_flush.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u5237\u65b0", None))
-        self.translate_label_json.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u6570\u636e\u6587\u4ef6\uff1a", None))
-        self.translate_combo_json_source.setItemText(0, QCoreApplication.translate("Sekai_Subtitle", u"\u672c\u5730\u8f7d\u5165", None))
-        self.translate_combo_json_source.setItemText(1, QCoreApplication.translate("Sekai_Subtitle", u"\u81ea\u52a8\u83b7\u53d6\uff1apjsek.ai", None))
-        self.translate_combo_json_source.setItemText(2, QCoreApplication.translate("Sekai_Subtitle", u"\u81ea\u52a8\u83b7\u53d6\uff1asekai.best", None))
+        self.translate_label_json.setText(
+            QCoreApplication.translate("Sekai_Subtitle", u"\u6570\u636e\u6587\u4ef6\uff1a", None))
+        self.translate_combo_json_source.setItemText(0, QCoreApplication.translate("Sekai_Subtitle",
+                                                                                   u"\u672c\u5730\u8f7d\u5165", None))
+        self.translate_combo_json_source.setItemText(1, QCoreApplication.translate("Sekai_Subtitle",
+                                                                                   u"\u81ea\u52a8\u83b7\u53d6\uff1apjsek.ai",
+                                                                                   None))
+        self.translate_combo_json_source.setItemText(2, QCoreApplication.translate("Sekai_Subtitle",
+                                                                                   u"\u81ea\u52a8\u83b7\u53d6\uff1asekai.best",
+                                                                                   None))
 
         self.translate_button_json_load.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u8f7d\u5165", None))
         self.translate_radio_trans.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u7ffb\u8bd1", None))
@@ -786,13 +785,17 @@ class Ui_Sekai_Subtitle(object):
         self.translate_button_save.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u4fdd\u5b58", None))
         self.translate_button_clear.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u6e05\u7a7a", None))
         self.translate_button_check.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u68c0\u67e5", None))
-        self.translate_check_fore.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u663e\u793a\u4fee\u6539\u524d\u5185\u5bb9", None))
-        self.translate_check_enter.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u4fdd\u5b58\u6362\u884c\u7b26", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.translate_widget), QCoreApplication.translate("Sekai_Subtitle", u"\u7ffb\u8bd1", None))
+        self.translate_check_fore.setText(
+            QCoreApplication.translate("Sekai_Subtitle", u"\u663e\u793a\u4fee\u6539\u524d\u5185\u5bb9", None))
+        self.translate_check_enter.setText(
+            QCoreApplication.translate("Sekai_Subtitle", u"\u4fdd\u5b58\u6362\u884c\u7b26", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.translate_widget),
+                                  QCoreApplication.translate("Sekai_Subtitle", u"\u7ffb\u8bd1", None))
         self.setting_label_proxy.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u4ee3\u7406", None))
         self.setting_label_thread.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u7ebf\u7a0b", None))
-        self.setting_button_default.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u6062\u590d\u9ed8\u8ba4", None))
+        self.setting_button_default.setText(
+            QCoreApplication.translate("Sekai_Subtitle", u"\u6062\u590d\u9ed8\u8ba4", None))
         self.setting_button_save.setText(QCoreApplication.translate("Sekai_Subtitle", u"\u4fdd\u5b58", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.setting_widget), QCoreApplication.translate("Sekai_Subtitle", u"\u8bbe\u7f6e", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.setting_widget),
+                                  QCoreApplication.translate("Sekai_Subtitle", u"\u8bbe\u7f6e", None))
     # retranslateUi
-
