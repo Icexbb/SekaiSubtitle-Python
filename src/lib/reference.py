@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from lib.subtitle import AssDraw
 
 
@@ -40,7 +41,7 @@ def get_pattern_size(frame_shape: tuple):
     }
 
 
-def get_frame_data(frame_shape: tuple, point_center: tuple|list) -> dict:
+def get_frame_data(frame_shape: tuple, point_center: tuple | list) -> dict:
     height = frame_shape[1]
     width = frame_shape[0]
 

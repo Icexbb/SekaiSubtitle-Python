@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 import argparse
-import os.path
 import sys
 
 from gui.main import start_gui
