@@ -9,7 +9,7 @@ from PySide6 import QtWidgets, QtCore
 from PySide6.QtGui import QCloseEvent
 
 from gui.thread_process import VideoProcessThread, ProgressBar
-from gui.qt_window import Ui_Sekai_Subtitle
+from gui.widgets.qt_window import Ui_Sekai_Subtitle
 from lib.data import chara_name
 from gui.thread_download import DownloadThread
 from script.tools import read_json, save_json
@@ -41,6 +41,7 @@ class SekaiSubtitleMain(QtWidgets.QMainWindow, Ui_Sekai_Subtitle):
         self.subtitle_buttom_insert.clicked.connect(self.subtitle_task_insert)
         self.subtitle_button_start.clicked.connect(self.subtitle_task_start)
         self.subtitle_button_flush_list.clicked.connect(self.network_update_tree)
+        self.subtitle_button_clear_list.clicked.connect(self.subtitle_list_clear)
         self.subtitle_button_clear_list.clicked.connect(self.subtitle_list_clear)
         self.subtitle_button_video_clear.clicked.connect(self.subtitle_clear_video)
         self.subtitle_button_json_clear.clicked.connect(self.subtitle_clear_json)

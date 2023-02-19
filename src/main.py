@@ -2,7 +2,7 @@
 import argparse
 import sys
 
-from gui.main import start_gui
+from gui.gui_main import start_gui
 from lib.process import SekaiJsonVideoProcess
 
 

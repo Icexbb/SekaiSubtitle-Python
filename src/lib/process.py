@@ -495,4 +495,3 @@ class SekaiJsonVideoProcess:
             if self.signal:
                 self.emit(2)
                 self.emit(True)
-                self.signal.emit({"type": bool, "data": True})

@@ -44,7 +44,7 @@
 
 ```shell
 cd src
-python main.py
+python gui_old_main.py
 ```
 
 ### 自动打轴

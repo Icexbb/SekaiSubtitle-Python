@@ -3,7 +3,7 @@ import os
 
 from PySide6 import QtWidgets, QtCore
 
-from gui.qt_bar import Ui_Form as Bar
+from gui.widgets.qt_bar import Ui_Form as Bar
 
 
 class VideoProcessThread(QtCore.QThread):
@@ -20,34 +20,9 @@ class VideoProcessThread(QtCore.QThread):
 
     def run(self):
         from lib.process import SekaiJsonVideoProcess
-
         self.started = 1
         self.signal_data.emit({"type": int, "data": 1})
         output = os.path.realpath(os.path.splitext(self.video_file)[0] + ".ass")
-        # # ===== Analyze Video =====
-        # v = VideoProcessor(self.video_file, self.signal_data, self.json_file)
-        # v.initial()
-        # self.signal_data.emit(
-        #     {"type": str, "data": f"[Video] Total frame: {v.frame_count} Video length:{v.second_count}s"}
-        # )
-        #
-        #
-        #
-        # t1 = time.time()
-        # frames = v.video_process()
-        # t2 = time.time()
-        # self.signal_data.emit(
-        #     {"type": str, "data": f"[Finish] Use Time: {t2 - t1:.2f}s Process Rate:{v.second_count / (t2 - t1):.2f}"})
-        # screen_data = get_frame_data((v.frame_width, v.frame_height), v.constant_point_center)
-        # # ===== Generate Subtitle =====
-        # episode = JsonProcessor(
-        #     self.video_file, self.json_file, self.translate_file, output,
-        #     frames, screen_data, v.constant_point_center, v.pointer_size,
-        #     (v.frame_width, v.frame_height), self.signal_data
-        # )
-        # episode.save_ass()
-        # self.started = 2
-        # # self.signal_data.emit({"type": int, "data": 2})
         vp = SekaiJsonVideoProcess(self.video_file, self.json_file, self.translate_file, output, self.signal_data, True)
         vp.run()
 
@@ -55,7 +30,6 @@ class VideoProcessThread(QtCore.QThread):
 class ProgressBar(QtWidgets.QWidget, Bar):
     def __init__(self, video_file):
         super(ProgressBar, self).__init__()
-        self.task_processing = None
         self.video_name = os.path.split(video_file)[-1]
         self.setupUi(self)
         self.strings = []
@@ -91,7 +65,6 @@ class ProgressBar(QtWidgets.QWidget, Bar):
             if s := data.get("total"):
                 self.bar_progress.setMaximum(self.bar_progress.maximum() + s)
             if data.get("done"):
-                print(self.bar_progress.maximum())
                 self.bar_progress.setValue(self.bar_progress.value() + 1)
             # total_fps = data['frame'] / data['time']
             # current_speed = 1 / (data['time'] - self.last_emit_time) if (data['time'] - self.last_emit_time) else 0
