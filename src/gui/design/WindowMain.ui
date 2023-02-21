@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>605</height>
+    <width>650</width>
+    <height>421</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -107,12 +107,71 @@ QFrame#MenuFrame{	border-radius:20px;	background-color: rgba(238, 238, 238,128);
              </spacer>
             </item>
             <item>
+             <widget class="QWidget" name="widget_2" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>150</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>150</height>
+               </size>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_4">
+               <item>
+                <widget class="QLabel" name="FigureLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>140</width>
+                   <height>140</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>140</width>
+                   <height>140</height>
+                  </size>
+                 </property>
+                 <property name="layoutDirection">
+                  <enum>Qt::LeftToRight</enum>
+                 </property>
+                 <property name="autoFillBackground">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
              <widget class="QWidget" name="widget_5" native="true">
               <layout class="QHBoxLayout" name="horizontalLayout_6">
                <item>
                 <widget class="QPushButton" name="FuncButtonSetting">
                  <property name="text">
                   <string>设置</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="FuncButtonAbout">
+                 <property name="text">
+                  <string>关于</string>
                  </property>
                 </widget>
                </item>

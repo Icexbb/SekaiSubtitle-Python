@@ -19,6 +19,7 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
         self.parent = parent
         self.root = os.getcwd()
         self.download_url = None
+        self.DownloadButton.clicked.connect(self.download_data)
         self.RefreshButton.clicked.connect(self.load_data_list)
         self.DataSourceBox.currentTextChanged.connect(self.change_source)
         self.DataTypeBox.currentTextChanged.connect(self.change_type)
@@ -27,7 +28,6 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
         self.msgbox = QtWidgets.QMessageBox(self)
         self.msgbox.setWindowTitle("消息")
         self.msgbox.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
-
         self.change_source()
 
     @property
@@ -35,7 +35,6 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
         return self.parent.proxy
 
     def load_data_list(self):
-        source = self.DataSourceBox.currentIndex()
 
         def update_ai_data(type_name: str, json_url: str):
             ai_root = os.path.join(self.root, "data/pjsekai/tree")
@@ -251,24 +250,20 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
 
             json.dump(result, open(path, 'w', encoding='utf8'), ensure_ascii=False, indent=4)
 
-        update_source_best()
-        update_source_ai()
-        # self.SavePlaceLabel.setText("获取中")
-        # self.RefreshButton.setEnabled(False)
-        # try:
-        #     if self.DataSourceBox.currentIndex():
-        #         update_source_ai()
-        #     else:
-        #         update_source_best()
-        # except Exception as e:
-        #     self.SavePlaceLabel.setText(f"获取失败:{e}")
-        # else:
-        #     self.SavePlaceLabel.setText("获取成功")
-        # finally:
-        #     time.sleep(5)
-        #     self.SavePlaceLabel.setText("")
-        #     self.RefreshButton.setEnabled(True)
-        #     self.change_source()
+        self.SavePlaceLabel.setText("获取中")
+        self.RefreshButton.setEnabled(False)
+        try:
+            update_source_ai()
+            update_source_best()
+        except Exception as e:
+            self.SavePlaceLabel.setText(f"获取失败:{e}")
+        else:
+            self.SavePlaceLabel.setText("获取成功")
+        finally:
+            time.sleep(5)
+            self.SavePlaceLabel.setText("")
+            self.RefreshButton.setEnabled(True)
+            self.change_source()
 
     def download_check(self, status):
         if status:
@@ -328,8 +323,6 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
             self.SavePlaceLabel.setText(f"成功！文件保存到{path}")
         else:
             self.SavePlaceLabel.setText("失败！")
-        time.sleep(5)
-        self.SavePlaceLabel.setText("")
         self.DownloadButton.setEnabled(True)
 
     def load_tree_data(self):
@@ -378,6 +371,7 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
             self.DataPeriodBox.clear()
 
     def change_episode(self):
+        self.SavePlaceLabel.setText("")
         data = self.load_tree_data()
         if data:
             type_key = self.DataTypeBox.currentText()

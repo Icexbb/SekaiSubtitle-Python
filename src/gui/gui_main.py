@@ -1,11 +1,14 @@
 import os
 import platform
+import random
 import sys
 
+import cv2
 from PySide6 import QtWidgets, QtCore, QtGui
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QPixmap, QImage
 from qframelesswindow import FramelessMainWindow
 
+from gui.widgets.dialog_about import AboutDialog
 from gui.widgets.qt_main import Ui_MainWindow
 from gui.widgets.widget_download import DownloadWidget
 from gui.widgets.widget_subtitleProcess import ProcessWidget
@@ -35,7 +38,11 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
             titleIcon = os.path.join(self.iconPath, "icon.ico")
         if os.path.exists(titleIcon):
             self.setWindowIcon(QIcon(titleIcon))
-
+        try:
+            i=os.path.realpath(self.iconPath+"/chibi/"+random.choice(os.listdir(self.iconPath+"/chibi")))
+            self.FigureLabel.setPixmap(QtGui.QPixmap(i).scaledToHeight(self.FigureLabel.height(),QtCore.Qt.TransformationMode.SmoothTransformation))
+        except:
+            self.FigureLabel.setText("")
         self.FormProcessWidget = ProcessWidget(self)
         self.FormDownloadWidget = DownloadWidget(self)
         self.MainLayout = QtWidgets.QStackedLayout()
@@ -50,7 +57,12 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         self.FuncButtonText.clicked.connect(self.NotCompleteWarning)
         self.FuncButtonDownload.clicked.connect(self.switchToDownload)
         self.FuncButtonSetting.clicked.connect(self.NotCompleteWarning)
+        self.FuncButtonAbout.clicked.connect(self.AboutWindow)
         self.switchToSubtitle()
+
+    def AboutWindow(self):
+        dia = AboutDialog()
+        dia.exec_()
 
     def takeCurrentWidget(self):
         for i in reversed(range(self.ProcessGridLayout.count())):

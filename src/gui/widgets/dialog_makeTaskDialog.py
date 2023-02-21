@@ -69,7 +69,7 @@ class NewTaskDialog(FramelessDialog, Dialog):
         self.setTitleBar(self.TitleBar)
 
         self.VideoSelector = FileSelector(self, "视频", ['*.mp4', '*.avi', '*.wmv', "*.mkv"])
-        self.JsonSelector = FileSelector(self, "数据", ['*.json'])
+        self.JsonSelector = FileSelector(self, "数据", ['*.json',".asset"])
         self.TranslateSelector = FileSelector(self, "翻译", ['*.txt'])
         self.VideoSelector.FileLabel.textChanged.connect(self.fileAutoSelect)
 

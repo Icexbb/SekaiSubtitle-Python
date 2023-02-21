@@ -16,14 +16,14 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
-    QMainWindow, QPushButton, QSizePolicy, QSpacerItem,
-    QVBoxLayout, QWidget)
+    QLabel, QMainWindow, QPushButton, QSizePolicy,
+    QSpacerItem, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(800, 605)
+        MainWindow.resize(650, 421)
         MainWindow.setStyleSheet(u"QWidget#MainFrame{background-color: rgb(255, 255, 255);border-color: rgb(204, 204, 204);border-size: 2px;border-radius:20px;}\n"
 "QFrame#CenterFrame{border-radius:20px;background-color: rgb(238, 238, 238);}\n"
 "QFrame#MenuFrame{	border-radius:20px;	background-color: rgba(238, 238, 238,128);}\n"
@@ -88,6 +88,30 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_4.addItem(self.verticalSpacer)
 
+        self.widget_2 = QWidget(self.MenuFrame)
+        self.widget_2.setObjectName(u"widget_2")
+        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.widget_2.sizePolicy().hasHeightForWidth())
+        self.widget_2.setSizePolicy(sizePolicy)
+        self.widget_2.setMinimumSize(QSize(0, 150))
+        self.widget_2.setMaximumSize(QSize(16777215, 150))
+        self.horizontalLayout_4 = QHBoxLayout(self.widget_2)
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.FigureLabel = QLabel(self.widget_2)
+        self.FigureLabel.setObjectName(u"FigureLabel")
+        self.FigureLabel.setMinimumSize(QSize(140, 140))
+        self.FigureLabel.setMaximumSize(QSize(140, 140))
+        self.FigureLabel.setLayoutDirection(Qt.LeftToRight)
+        self.FigureLabel.setAutoFillBackground(False)
+        self.FigureLabel.setAlignment(Qt.AlignCenter)
+
+        self.horizontalLayout_4.addWidget(self.FigureLabel)
+
+
+        self.verticalLayout_4.addWidget(self.widget_2)
+
         self.widget_5 = QWidget(self.MenuFrame)
         self.widget_5.setObjectName(u"widget_5")
         self.horizontalLayout_6 = QHBoxLayout(self.widget_5)
@@ -96,6 +120,11 @@ class Ui_MainWindow(object):
         self.FuncButtonSetting.setObjectName(u"FuncButtonSetting")
 
         self.horizontalLayout_6.addWidget(self.FuncButtonSetting)
+
+        self.FuncButtonAbout = QPushButton(self.widget_5)
+        self.FuncButtonAbout.setObjectName(u"FuncButtonAbout")
+
+        self.horizontalLayout_6.addWidget(self.FuncButtonAbout)
 
 
         self.verticalLayout_4.addWidget(self.widget_5)
@@ -129,6 +158,8 @@ class Ui_MainWindow(object):
         self.FuncButtonSubtitle.setText(QCoreApplication.translate("MainWindow", u"\u81ea\u52a8\u8f74\u673a", None))
         self.FuncButtonDownload.setText(QCoreApplication.translate("MainWindow", u"\u6570\u636e\u4e0b\u8f7d", None))
         self.FuncButtonText.setText(QCoreApplication.translate("MainWindow", u"SekaiText", None))
+        self.FigureLabel.setText("")
         self.FuncButtonSetting.setText(QCoreApplication.translate("MainWindow", u"\u8bbe\u7f6e", None))
+        self.FuncButtonAbout.setText(QCoreApplication.translate("MainWindow", u"\u5173\u4e8e", None))
     # retranslateUi
 

@@ -18,7 +18,7 @@ class TaskAcceptWidget(QtWidgets.QWidget, Ui_AccWidget):
 
     def dragEnterEvent(self, event: QtGui.QDragEnterEvent) -> None:
         path = event.mimeData().text()
-        if path.endswith((".mp4", ".mkv", ".wmv", ".avi", ".json", ".txt")):
+        if path.endswith((".mp4", ".mkv", ".wmv", ".avi", ".json", ".asset",".txt")):
             event.accept()
         else:
             event.ignore()
@@ -56,9 +56,9 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
         if path and os.path.exists(path):
             if path.endswith((".mp4", ".mkv", ".wmv", ".avi",)):
                 dialog.VideoSelector.FileLabel.setText(path)
-            elif path.endswith(".json"):
+            elif path.endswith((".json",".asset")):
                 dialog.JsonSelector.FileLabel.setText(path)
-            elif path.endswith(".txt"):
+            elif path.endswith((".txt",)):
                 dialog.TranslateSelector.FileLabel.setText(path)
 
         dialog.signal.connect(self.ProcessSignal)
