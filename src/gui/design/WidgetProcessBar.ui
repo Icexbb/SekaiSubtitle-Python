@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>474</width>
-    <height>212</height>
+    <height>200</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,6 +20,12 @@
    <size>
     <width>0</width>
     <height>100</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>200</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -89,6 +95,13 @@ QListWidget::item{background-color: rgba(255, 255, 255, 0);border: none;outline:
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="PercentLabel">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QPushButton" name="StartButton">

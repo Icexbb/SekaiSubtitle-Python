@@ -49,26 +49,30 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
         if not self.processing:
             self.Thread = VideoProcessThread(self, self.video, self.json, self.translate)
             self.Thread.signal_data.connect(self.signal_process)
-            self.processing = True
             self.StartButton.setStyleSheet("background-color:rgb(255,255,100);")
             # self.StatusLog.setText("")
             self.StatusLogList.clear()
-
             self.Thread.start()
-        else:
-            self.Thread.signal_data.emit({"type": "stop", "data": None})
-            self.signal_process({"type": int, "data": 0})
-            self.signal_process({"type": bool, "data": False})
-            self.StartButton.setStyleSheet(None)
-            self.Thread.terminate()
-            self.Thread = None
+            self.processing = True
 
+        else:
+            self.pause_process()
             # self.StatusLog.setText("")
 
-    def delete_process(self):
-        if self.processing:
-            self.Thread.terminate()
+    def pause_process(self):
+        self.Thread.signal_stop.emit(True)
+        self.Thread.signal_data.emit({"type": "stop", "data": None})
+        self.signal_process({"type": int, "data": 0})
+        self.signal_process({"type": bool, "data": False})
+        self.StartButton.setStyleSheet(None)
+        self.PercentLabel.setText("")
+        self.processing = False
 
+    def delete_process(self):
+        try:
+            self.pause_process()
+        except:
+            pass
         self.signal.emit({"id": self.id, 'data': 0})
 
     def signal_process(self, msg):
@@ -85,18 +89,25 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
             if data == 0:
                 self.processing = False
                 self.TaskStatus.setText("未开始")
+                self.ProgressBar.setStyleSheet("")
             elif data == 1:
                 self.processing = True
                 self.TaskStatus.setText("处理中")
+                self.ProgressBar.setStyleSheet("")
+
             elif data == 2:
                 self.processing = False
                 self.TaskStatus.setText("已完成")
+                self.ProgressBar.setStyleSheet("")
             elif data == 3:
                 self.processing = False
                 self.TaskStatus.setText("队列中")
+                self.ProgressBar.setStyleSheet("QProgressBar::chunk{background-color:#CCCC00;}")
             elif data == 4:
                 self.processing = False
                 self.TaskStatus.setText("错误")
+                self.ProgressBar.setValue(self.ProgressBar.maximum())
+                self.ProgressBar.setStyleSheet("QProgressBar::chunk{background-color:#FF0000;}")
         elif msg['type'] == bool:
             if msg['data']:
                 self.ProgressBar.setMaximum(1)
@@ -112,6 +123,14 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
                 self.ProgressBar.setMaximum(self.ProgressBar.maximum() + s)
             if data.get("done"):
                 self.ProgressBar.setValue(self.ProgressBar.value() + 1)
+                time_spend = data.get("time")
+                percent = self.ProgressBar.value() / (self.ProgressBar.maximum() or 1) * 100
+                fps = self.ProgressBar.value()/(time_spend or 1)
+                eta = (self.ProgressBar.maximum()-self.ProgressBar.value())/(fps or 1)
+                self.PercentLabel.setText(f"FPS: {fps:.1f} ETA: {eta:.1f}s {percent:.1f}%")
+                if not self.processing:
+                    self.PercentLabel.setText("")
+                self.PercentLabel.repaint()
 
         self.ProgressBar.repaint()
         self.TaskStatus.repaint()

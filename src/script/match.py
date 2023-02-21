@@ -10,9 +10,14 @@ from lib.reference import get_area_mask_size, get_area_mask
 from script.tools import check_aberration, check_dark
 
 
-def get_resized_dialog_pointer(h, w) -> np.ndarray:
+def __scaling_ratio(h, w) -> float:
     size = int((int((h / 1080) * 136)) * (886 / 136)) if (w / h) > (16 / 9) else int((w / 1920) * 886)
     i = size / 886
+    return i
+
+
+def get_resized_dialog_pointer(h, w) -> np.ndarray:
+    i = __scaling_ratio(h,w)
     template = template_point
     template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
     pointer = cv2.resize(template, (int(template.shape[0] * i), int(template.shape[1] * i)))
@@ -20,8 +25,7 @@ def get_resized_dialog_pointer(h, w) -> np.ndarray:
 
 
 def get_resized_interface_menu(h, w) -> np.ndarray:
-    size = int((int((h / 1080) * 136)) * (886 / 136)) if (w / h) > (16 / 9) else int((w / 1920) * 886)
-    i = size / 886
+    i = __scaling_ratio(h,w)
     template = template_menu
     template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
     menu = cv2.resize(template, (int(template.shape[0] * i), int(template.shape[1] * i)))
@@ -116,9 +120,9 @@ def check_frame_area_mask(frame: np.ndarray, area_mask: List[int], content_start
         for array in cut1:
             for pixel in array:
                 dis = check_aberration(pixel, area_purple)
-                if dis < 15:
+                if dis < 20:
                     exist += 1
-    res = True if exist > num * 0.90 else False
+    res = True if exist > num * 0.85 else False
     return res
 
 

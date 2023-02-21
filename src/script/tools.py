@@ -9,8 +9,14 @@ import numpy as np
 def read_json(path, alt=None):
     if alt is None:
         alt = {}
+
     if os.path.exists(path):
-        return json.load(open(path, 'r', encoding="utf8"))
+        try:
+            data = json.load(open(path, 'r', encoding="utf8"))
+        except:
+            data = alt
+            os.remove(path)
+        return data
     else:
         return alt
 

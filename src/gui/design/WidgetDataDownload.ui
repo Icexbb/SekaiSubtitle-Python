@@ -105,6 +105,16 @@ QPushButton{border: 2px solid grey; border-radius: 10px;}
        </widget>
       </item>
       <item>
+       <widget class="QLabel" name="SavePlaceLabel">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,1,0,1,0">
         <item>
          <spacer name="horizontalSpacer_3">

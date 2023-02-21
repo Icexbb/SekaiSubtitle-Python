@@ -106,6 +106,12 @@ class Ui_DownloadWidget(object):
 
         self.verticalLayout.addWidget(self.frame_4)
 
+        self.SavePlaceLabel = QLabel(self.MainFrame)
+        self.SavePlaceLabel.setObjectName(u"SavePlaceLabel")
+        self.SavePlaceLabel.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout.addWidget(self.SavePlaceLabel)
+
         self.horizontalLayout_5 = QHBoxLayout()
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
         self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -153,6 +159,7 @@ class Ui_DownloadWidget(object):
         self.label_2.setText(QCoreApplication.translate("DownloadWidget", u"\u5267\u60c5\u7c7b\u578b", None))
         self.label_3.setText(QCoreApplication.translate("DownloadWidget", u"\u5267\u60c5\u671f\u6570", None))
         self.label_4.setText(QCoreApplication.translate("DownloadWidget", u"\u5267\u60c5\u8bdd\u6570", None))
+        self.SavePlaceLabel.setText("")
         self.RefreshButton.setText(QCoreApplication.translate("DownloadWidget", u"\u5237\u65b0", None))
         self.DownloadButton.setText(QCoreApplication.translate("DownloadWidget", u"\u5f00\u59cb\u4e0b\u8f7d", None))
     # retranslateUi

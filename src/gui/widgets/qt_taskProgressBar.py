@@ -69,6 +69,11 @@ class Ui_ProgressBarWidget(object):
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
 
+        self.PercentLabel = QLabel(self.MainFrame)
+        self.PercentLabel.setObjectName(u"PercentLabel")
+
+        self.horizontalLayout.addWidget(self.PercentLabel)
+
         self.StartButton = QPushButton(self.MainFrame)
         self.StartButton.setObjectName(u"StartButton")
         sizePolicy2 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
@@ -159,6 +164,7 @@ class Ui_ProgressBarWidget(object):
         ProgressBarWidget.setWindowTitle(QCoreApplication.translate("ProgressBarWidget", u"Form", None))
         self.TaskStatus.setText(QCoreApplication.translate("ProgressBarWidget", u"\u672a\u5f00\u59cb", None))
         self.TaskName.setText(QCoreApplication.translate("ProgressBarWidget", u"TaskName", None))
+        self.PercentLabel.setText("")
         self.StartButton.setText("")
         self.DeleteButton.setText("")
         self.LogShowButton.setText(QCoreApplication.translate("ProgressBarWidget", u"<", None))

@@ -5,8 +5,10 @@ import os
 import re
 import time
 from datetime import timedelta
+from queue import Queue
 
 import cv2
+import numpy
 from PySide6 import QtCore
 
 import script.tools
@@ -17,6 +19,7 @@ from script import match
 
 
 class SekaiJsonVideoProcess:
+
     def __init__(
             self,
             video_file: str,
@@ -24,8 +27,10 @@ class SekaiJsonVideoProcess:
             translate_file: str = None,
             output_file: str = None,
             signal: QtCore.Signal(dict) = None,
-            overwrite: bool = False
+            overwrite: bool = False,
+            queue_in: Queue = Queue()
     ):
+        self.time_start = time.time()
         self.json_data = None
 
         self.signal = signal
@@ -72,13 +77,13 @@ class SekaiJsonVideoProcess:
                 raise FileExistsError
 
         self.load_json()
+        self.VideoCapture = cv2.VideoCapture(self.video_file)
         self.log("[Initial] 初始化完成")
-        self.signal.connect(self.setStop)
         self.stop = False
+        self.queue = queue_in
 
-    def setStop(self, data):
-        if data["type"] == "stop":
-            self.stop = True
+    def set_stop(self):
+        self.stop = True
 
     def log(self, message: str):
         if self.signal:
@@ -128,22 +133,23 @@ class SekaiJsonVideoProcess:
             assert False, "[Error] JSON文件不存在"
         self.log("[Initial] JSON数据读取完成")
 
-    def dialog_match(self, results: list):
-        vc = cv2.VideoCapture(self.video_file)
+    def dialog_match(self, queue: Queue, results: list):
+        vc = self.VideoCapture
         total_frame_count = int(vc.get(7))
         video_fps = vc.get(5)
+        height, width = (vc.get(4), vc.get(3))
+
         last_center = None
         last_status = 0
-        height, width = (vc.get(4), vc.get(3))
         pointer = match.get_resized_dialog_pointer(height, width)
 
-        dialogs: list[dict] = copy.deepcopy(self.json_data['TalkData'])
+        dialog_data: list[dict] = copy.deepcopy(self.json_data['TalkData'])
 
         dialog_processing = None
         dialog_processing_frames = []
 
         dialog_events = []
-        dialog_count_total = len(dialogs)
+        dialog_count_total = len(dialog_data)
 
         now_frame_count = 0
         last_end_frame = None
@@ -155,55 +161,56 @@ class SekaiJsonVideoProcess:
 
         time_start = time.time()
         while not self.stop:
-            ret, frame = vc.read()
-            if not ret:
-                break
-            if ((not now_frame_count % int(
-                    total_frame_count / 10)) or now_frame_count == total_frame_count) and now_frame_count:
-                self.log(f"[Processing] Dialog: Frame {now_frame_count}/{total_frame_count}, "
-                         f"FPS {now_frame_count / (time.time() - time_start):.2f}")
+            # ret, frame = vc.read()
+            frame = queue.get()
 
-            g_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            pc = match.check_frame_pointer_position(g_frame, pointer, last_center)
-            status = match.check_frame_dialog_status(g_frame, pointer, pc)
-            if status in [1, 2]:
-                dialog_processing_frames.append({"frame": now_frame_count, "point_center": pc})
-            if status == 2 and not constant_pc:
-                constant_pc = pc
-            if status in [0, 1] and last_status == 2:
-                dialog_processed += 1
-                self.emit({"done": 1})
+            if isinstance(frame, numpy.ndarray) and dialog_data:
 
-                # End Dialog
+                g_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                pc = match.check_frame_pointer_position(g_frame, pointer, last_center)
+                status = match.check_frame_dialog_status(g_frame, pointer, pc)
 
-                events = self.dialog_make_sequence(
-                    dialog_processing_frames, dialog_processing, int(pointer.shape[0]),
-                    height, width, video_fps, last_end_frame, last_end_event)
+                if status in [1, 2]:
+                    dialog_processing_frames.append({"frame": now_frame_count, "point_center": pc})
+                if status == 2 and not constant_pc:
+                    constant_pc = pc
+                if status in [0, 1] and last_status == 2:  # End Dialog
+                    dialog_processed += 1
+                    self.emit({"done": 1, "time": time.time() - self.time_start})
 
-                last_end_frame = dialog_processing_frames[-1]
-                last_end_event = events[-1]
+                    events = self.dialog_make_sequence(
+                        dialog_processing_frames, dialog_processing, int(pointer.shape[0]),
+                        height, width, video_fps, last_end_frame, last_end_event)
 
-                self.log(f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events, "
-                         f"Remain {dialog_count_total - dialog_processed}/{dialog_count_total}")
+                    last_end_frame = dialog_processing_frames[-1]
+                    last_end_event = events[-1]
 
-                dialog_events += events
+                    self.log(f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events, "
+                             f"Remain {dialog_count_total - dialog_processed}/{dialog_count_total}")
 
-                dialog_processing = None
-                dialog_processing_frames = []
+                    dialog_events += events
 
-                if not dialogs:
-                    break
-            if last_status in [0, 2] and status == 1:
-                # Start Dialog
-                if not dialog_processing:
-                    try:
-                        dialog_processing = dialogs.pop(0)
-                    except IndexError:
+                    dialog_processing = None
+                    dialog_processing_frames = []
+
+                    if not dialog_data:
                         break
+                if last_status in [0, 2] and status == 1:
+                    # Start Dialog
+                    if not (dialog_processing and dialog_data):
+                        try:
+                            dialog_processing = dialog_data.pop(0)
+                        except IndexError:
+                            dialog_processing = None
 
-            last_status = status
-            last_center = pc
-            now_frame_count += 1
+                last_status = status
+                last_center = pc
+                now_frame_count += 1
+
+            else:
+                if not isinstance(frame, numpy.ndarray):
+                    break
+            self.emit({"done": 1, "time": time.time() - self.time_start})
 
         if not self.stop:
             dialog_styles = self.dialog_make_styles(
@@ -213,7 +220,8 @@ class SekaiJsonVideoProcess:
             for i in (dialog_events, dialog_styles, height, width):
                 results.append(i)
 
-            self.log("[Processing] Dialog Matching Process Finished" + (" But not Fully Matched" if dialogs else ""))
+            self.log(
+                "[Processing] Dialog Matching Process Finished" + (" But not Fully Matched" if dialog_data else ""))
 
     @staticmethod
     def dialog_make_styles(point_center, point_size: int, screen_data: dict):
@@ -367,12 +375,12 @@ class SekaiJsonVideoProcess:
 
             return masks + dialogs
 
-    def area_match(self, result: list):
-        vc = cv2.VideoCapture(self.video_file)
+    def area_match(self, queue: Queue, result: list):
+        vc = self.VideoCapture
         total_frame_count = int(vc.get(7))
         video_fps = vc.get(5)
-
         height, width = (vc.get(4), vc.get(3))
+
         area_mask = get_area_mask(get_area_mask_size((width, height)))
         area_data: list[dict] = [item for item in self.json_data['SpecialEffectData'] if item['EffectType'] == 8]
 
@@ -390,43 +398,43 @@ class SekaiJsonVideoProcess:
         self.emit({"total": area_count_total})
 
         while not self.stop:
-            ret, frame = vc.read()
-            if not ret:
-                break
-            if ((not now_frame_count % int(
-                    total_frame_count / 10)) or now_frame_count == total_frame_count) and now_frame_count:
-                self.log(f"[Processing] AreaInfo: Frame {now_frame_count}/{total_frame_count}, "
-                         f"FPS {now_frame_count / (time.time() - time_start):.2f}")
+            # ret, frame = vc.read()
+            frame = queue.get()
+            if isinstance(frame, numpy.ndarray) and area_data:
 
-            frame_result: bool = match.check_frame_area_mask(frame, area_mask_area, content_started)
-            if frame_result:
-                content_started = True
-                area_processing_frames.append(now_frame_count)
+                frame_result: bool = match.check_frame_area_mask(frame, area_mask_area, content_started)
+                if frame_result:
+                    content_started = True
+                    area_processing_frames.append(now_frame_count)
 
-            if frame_result and not last_result:
-                if not area_processing:
-                    try:
-                        area_processing = area_data.pop(0)
-                    except IndexError:
+                if frame_result and not last_result:
+                    if not (area_processing and area_data):
+                        try:
+                            area_processing = area_data.pop(0)
+                        except IndexError:
+                            area_processing = None
+                if last_result and not frame_result:
+                    area_processed += 1
+                    self.emit({"done": 1, "time": time.time() - self.time_start})
+
+                    events = self.area_make_sequence(area_processing_frames, area_processing, area_mask, video_fps)
+
+                    self.log(f"[Processing] AreaInfo {area_processed}: Output {len(events)} Events, "
+                             f"Remain {area_count_total - area_processed}/{area_count_total}")
+                    area_events += events
+
+                    area_processing = None
+                    area_processing_frames = []
+
+                    if not area_data:
                         break
-            if last_result and not frame_result:
-                area_processed += 1
-                self.emit({"done": 1})
 
-                events = self.area_make_sequence(area_processing_frames, area_processing, area_mask, video_fps)
-
-                self.log(f"[Processing] AreaInfo {area_processed}: Output {len(events)} Events, "
-                         f"Remain {area_count_total - area_processed}/{area_count_total}")
-                area_events += events
-
-                area_processing = None
-                area_processing_frames = []
-
-                if not area_data:
+                now_frame_count += 1
+                last_result = frame_result
+            else:
+                if not isinstance(frame, numpy.ndarray):
                     break
-
-            now_frame_count += 1
-            last_result = frame_result
+            self.emit({"done": 1, "time": time.time() - self.time_start})
         if not self.stop:
             result.append(area_events)
             # return area_events
@@ -457,27 +465,48 @@ class SekaiJsonVideoProcess:
         events.append(event_data)
         return events
 
+    def queue_video_frame(self, queue1: Queue, queue2: Queue):
+        ret = True
+        self.emit({"total": 2 * self.VideoCapture.get(7)})
+        while ret:
+            ret, frame = self.VideoCapture.read()
+            queue1.put(frame)
+            queue2.put(frame)
+            if not self.queue.empty():
+                self.set_stop()
+                break
+        queue1.put(None)
+        queue2.put(None)
+
+    def process(self):
+
+        from threading import Thread
+        t1r = []
+        t2r = []
+        q1 = Queue()
+        q2 = Queue()
+        thread_read_video = Thread(target=self.queue_video_frame, args=(q1, q2,))
+        t1 = Thread(target=self.dialog_match, args=(q1, t1r,))
+        t2 = Thread(target=self.area_match, args=(q2, t2r,))
+        thread_read_video.start()
+        t1.start()
+        t2.start()
+        t1.join()
+        t2.join()
+        thread_read_video.join()
+        if self.stop:
+            raise KeyboardInterrupt
+        else:
+            [dialogs_events, dialog_styles, video_height, video_width] = t1r
+            [area_events] = t2r
+            return dialogs_events, dialog_styles, video_height, video_width, area_events
+
     def run(self):
-        time_start = time.time()
+        self.time_start = time.time()
         self.log(f"[Processing] Start Processing {os.path.split(self.video_file)[-1]}")
         self.emit(1)
         try:
-            from threading import Thread
-            t1r = []
-            t2r = []
-            t1 = Thread(target=self.dialog_match, args=(t1r,))
-            t2 = Thread(target=self.area_match, args=(t2r,))
-
-            t1.start()
-            t2.start()
-            t1.join()
-            t2.join()
-
-            if self.stop:
-                raise KeyboardInterrupt
-            else:
-                [dialogs_events, dialog_styles, video_height, video_width] = t1r
-                [area_events] = t2r
+            dialogs_events, dialog_styles, video_height, video_width, area_events = self.process()
 
         except KeyboardInterrupt:
             self.log(f"[Terminated] Process Terminated Prematurely By User")
@@ -508,7 +537,7 @@ class SekaiJsonVideoProcess:
             time_end = time.time()
 
             self.log(f"[Success] Output into {os.path.realpath(self.output_path)}")
-            self.log(f"[Success] Make ASS File Succeeded, Used {time_end - time_start:.2f}s")
+            self.log(f"[Success] Make ASS File Succeeded, Used {time_end - self.time_start:.2f}s")
             if self.signal:
                 self.emit(2)
                 self.emit(True)
