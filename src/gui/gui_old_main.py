@@ -8,10 +8,10 @@ import time
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtGui import QCloseEvent
 
+from gui.thread_download import DownloadThread
 from gui.thread_process import VideoProcessThread, ProgressBar
 from gui.widgets.qt_window import Ui_Sekai_Subtitle
 from lib.data import chara_name
-from gui.thread_download import DownloadThread
 from script.tools import read_json, save_json
 
 
@@ -595,3 +595,7 @@ def start_gui():
     main_ui = SekaiSubtitleMain()
     main_ui.show()
     app.exec()
+
+
+if __name__ == '__main__':
+    start_gui()

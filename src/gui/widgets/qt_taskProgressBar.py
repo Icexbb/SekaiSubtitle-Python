@@ -15,28 +15,41 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
-    QLabel, QProgressBar, QPushButton, QSizePolicy,
-    QSpacerItem, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QFrame, QGridLayout,
+    QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
+    QProgressBar, QPushButton, QSizePolicy, QSpacerItem,
+    QVBoxLayout, QWidget)
 
 class Ui_ProgressBarWidget(object):
     def setupUi(self, ProgressBarWidget):
         if not ProgressBarWidget.objectName():
             ProgressBarWidget.setObjectName(u"ProgressBarWidget")
-        ProgressBarWidget.resize(393, 100)
+        ProgressBarWidget.resize(474, 212)
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(ProgressBarWidget.sizePolicy().hasHeightForWidth())
+        ProgressBarWidget.setSizePolicy(sizePolicy)
         ProgressBarWidget.setMinimumSize(QSize(0, 100))
-        ProgressBarWidget.setMaximumSize(QSize(16777215, 100))
         ProgressBarWidget.setStyleSheet(u"QProgressBar{height : 10px; border: 2px solid grey; border-radius: 5px; background-color: #FFFFFF;}\n"
 "QProgressBar::chunk { background-color: #007FFF; width: 10px;}\n"
-"\n"
-"QFrame#MainFrame{background-color: rgb(255, 255, 255);border-color: rgb(204, 204, 204);border-size: 2px;border-radius:20px;}\n"
+"QFrame#MainFrame{ background-color:rgb(248, 248, 248);border-color: rgb(204, 204, 204);border-size: 2px;border-radius:20px;}\n"
 "QPushButton#StartButton{background-color:rgb(100,255,100);border: 2px solid grey; border-radius: 10px;}\n"
-"QPushButton#DeleteButton{background-color:rgb(255,100,100);border: 2px solid grey; border-radius: 10px;}")
+"QPushButton#DeleteButton{background-color:rgb(255,100,100);border: 2px solid grey; border-radius: 10px;}\n"
+"QPushButton#LogShowButton{border: 2px solid grey; border-radius: 10px;}\n"
+"QListWidget#StatusLogList{	background-color: rgba(255, 255, 255, 0);	border: none;outline:0px;}\n"
+"QListWidget::item{background-color: rgba(255, 255, 255, 0);border: none;outline:0px;}\n"
+"")
         self.gridLayout = QGridLayout(ProgressBarWidget)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(5, 5, 5, 5)
         self.MainFrame = QFrame(ProgressBarWidget)
         self.MainFrame.setObjectName(u"MainFrame")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.MainFrame.sizePolicy().hasHeightForWidth())
+        self.MainFrame.setSizePolicy(sizePolicy1)
         self.MainFrame.setStyleSheet(u"")
         self.verticalLayout = QVBoxLayout(self.MainFrame)
         self.verticalLayout.setObjectName(u"verticalLayout")
@@ -58,11 +71,11 @@ class Ui_ProgressBarWidget(object):
 
         self.StartButton = QPushButton(self.MainFrame)
         self.StartButton.setObjectName(u"StartButton")
-        sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.StartButton.sizePolicy().hasHeightForWidth())
-        self.StartButton.setSizePolicy(sizePolicy)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.StartButton.sizePolicy().hasHeightForWidth())
+        self.StartButton.setSizePolicy(sizePolicy2)
         self.StartButton.setMinimumSize(QSize(20, 20))
         self.StartButton.setMaximumSize(QSize(20, 20))
         self.StartButton.setStyleSheet(u"")
@@ -71,8 +84,8 @@ class Ui_ProgressBarWidget(object):
 
         self.DeleteButton = QPushButton(self.MainFrame)
         self.DeleteButton.setObjectName(u"DeleteButton")
-        sizePolicy.setHeightForWidth(self.DeleteButton.sizePolicy().hasHeightForWidth())
-        self.DeleteButton.setSizePolicy(sizePolicy)
+        sizePolicy2.setHeightForWidth(self.DeleteButton.sizePolicy().hasHeightForWidth())
+        self.DeleteButton.setSizePolicy(sizePolicy2)
         self.DeleteButton.setMinimumSize(QSize(20, 20))
         self.DeleteButton.setMaximumSize(QSize(20, 20))
 
@@ -83,22 +96,55 @@ class Ui_ProgressBarWidget(object):
 
         self.ProgressBar = QProgressBar(self.MainFrame)
         self.ProgressBar.setObjectName(u"ProgressBar")
+        sizePolicy3 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.ProgressBar.sizePolicy().hasHeightForWidth())
+        self.ProgressBar.setSizePolicy(sizePolicy3)
         self.ProgressBar.setValue(24)
         self.ProgressBar.setTextVisible(False)
 
         self.verticalLayout.addWidget(self.ProgressBar)
 
-        self.StatusLog = QLabel(self.MainFrame)
-        self.StatusLog.setObjectName(u"StatusLog")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.StatusLog.sizePolicy().hasHeightForWidth())
-        self.StatusLog.setSizePolicy(sizePolicy1)
-        self.StatusLog.setScaledContents(False)
-        self.StatusLog.setAlignment(Qt.AlignCenter)
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.StatusLogList = QListWidget(self.MainFrame)
+        self.StatusLogList.setObjectName(u"StatusLogList")
+        sizePolicy4 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Minimum)
+        sizePolicy4.setHorizontalStretch(0)
+        sizePolicy4.setVerticalStretch(0)
+        sizePolicy4.setHeightForWidth(self.StatusLogList.sizePolicy().hasHeightForWidth())
+        self.StatusLogList.setSizePolicy(sizePolicy4)
+        self.StatusLogList.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.StatusLogList.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.StatusLogList.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
+        self.StatusLogList.setWordWrap(True)
 
-        self.verticalLayout.addWidget(self.StatusLog)
+        self.horizontalLayout_2.addWidget(self.StatusLogList)
+
+        self.verticalLayout_2 = QVBoxLayout()
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.LogShowButton = QPushButton(self.MainFrame)
+        self.LogShowButton.setObjectName(u"LogShowButton")
+        sizePolicy5 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+        sizePolicy5.setHorizontalStretch(0)
+        sizePolicy5.setVerticalStretch(0)
+        sizePolicy5.setHeightForWidth(self.LogShowButton.sizePolicy().hasHeightForWidth())
+        self.LogShowButton.setSizePolicy(sizePolicy5)
+        self.LogShowButton.setMinimumSize(QSize(20, 20))
+        self.LogShowButton.setMaximumSize(QSize(20, 20))
+
+        self.verticalLayout_2.addWidget(self.LogShowButton)
+
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_2.addItem(self.verticalSpacer)
+
+
+        self.horizontalLayout_2.addLayout(self.verticalLayout_2)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_2)
 
 
         self.gridLayout.addWidget(self.MainFrame, 0, 0, 1, 1)
@@ -115,6 +161,6 @@ class Ui_ProgressBarWidget(object):
         self.TaskName.setText(QCoreApplication.translate("ProgressBarWidget", u"TaskName", None))
         self.StartButton.setText("")
         self.DeleteButton.setText("")
-        self.StatusLog.setText("")
+        self.LogShowButton.setText(QCoreApplication.translate("ProgressBarWidget", u"<", None))
     # retranslateUi
 

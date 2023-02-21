@@ -17,8 +17,15 @@ from script import match
 
 
 class SekaiJsonVideoProcess:
-    def __init__(self, video_file: str, json_file: str = None, translate_file: str = None, output_file: str = None,
-                 signal: QtCore.Signal(dict) = None, overwrite: bool = False):
+    def __init__(
+            self,
+            video_file: str,
+            json_file: str = None,
+            translate_file: str = None,
+            output_file: str = None,
+            signal: QtCore.Signal(dict) = None,
+            overwrite: bool = False
+    ):
         self.json_data = None
 
         self.signal = signal
@@ -63,12 +70,15 @@ class SekaiJsonVideoProcess:
         elif os.path.exists(self.output_path):
             if not self.overwrite:
                 raise FileExistsError
-            else:
-                os.remove(self.output_path)
-                self.log(f"[Initial] 已清除已存在的输出同名文件 {self.output_path}")
 
         self.load_json()
         self.log("[Initial] 初始化完成")
+        self.signal.connect(self.setStop)
+        self.stop = False
+
+    def setStop(self, data):
+        if data["type"] == "stop":
+            self.stop = True
 
     def log(self, message: str):
         if self.signal:
@@ -112,7 +122,7 @@ class SekaiJsonVideoProcess:
                             item["StringVal"] = place.pop(0)
                         result.append(item)
                     self.json_data['SpecialEffectData'] = result
-            self.log("[Initial] 已进行中文替换")
+                self.log("[Initial] 已进行中文替换")
         else:
             self.log("[Error] JSON文件不存在")
             assert False, "[Error] JSON文件不存在"
@@ -144,7 +154,7 @@ class SekaiJsonVideoProcess:
         self.emit({"total": dialog_count_total})
 
         time_start = time.time()
-        while True:
+        while not self.stop:
             ret, frame = vc.read()
             if not ret:
                 break
@@ -156,7 +166,6 @@ class SekaiJsonVideoProcess:
             g_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             pc = match.check_frame_pointer_position(g_frame, pointer, last_center)
             status = match.check_frame_dialog_status(g_frame, pointer, pc)
-
             if status in [1, 2]:
                 dialog_processing_frames.append({"frame": now_frame_count, "point_center": pc})
             if status == 2 and not constant_pc:
@@ -196,15 +205,15 @@ class SekaiJsonVideoProcess:
             last_center = pc
             now_frame_count += 1
 
-        dialog_styles = self.dialog_make_styles(
-            point_center=constant_pc,
-            point_size=int(pointer.shape[0]),
-            screen_data=get_frame_data((width, height), constant_pc))
-        for i in (dialog_events, dialog_styles, height, width):
-            results.append(i)
+        if not self.stop:
+            dialog_styles = self.dialog_make_styles(
+                point_center=constant_pc,
+                point_size=int(pointer.shape[0]),
+                screen_data=get_frame_data((width, height), constant_pc))
+            for i in (dialog_events, dialog_styles, height, width):
+                results.append(i)
 
-        self.log("[Processing] Dialog Matching Process Finished" + (" But not Fully Matched" if dialogs else ""))
-        # return dialog_events, dialog_styles, height, width
+            self.log("[Processing] Dialog Matching Process Finished" + (" But not Fully Matched" if dialogs else ""))
 
     @staticmethod
     def dialog_make_styles(point_center, point_size: int, screen_data: dict):
@@ -261,7 +270,7 @@ class SekaiJsonVideoProcess:
     def dialog_make_sequence(
             dialog_frames: list[dict], dialog_data: dict,
             point_size: int, video_height: int, video_width: int,
-            fps: float = 60, last_dialog_frame: int = None, last_dialog_event: dict = None
+            fps: float = 60, last_dialog_frame: dict = None, last_dialog_event: dict = None
     ):
         frame_time = timedelta(seconds=1 / fps)
         start_frame = dialog_frames[0]
@@ -380,7 +389,7 @@ class SekaiJsonVideoProcess:
         time_start = time.time()
         self.emit({"total": area_count_total})
 
-        while True:
+        while not self.stop:
             ret, frame = vc.read()
             if not ret:
                 break
@@ -418,9 +427,11 @@ class SekaiJsonVideoProcess:
 
             now_frame_count += 1
             last_result = frame_result
-        result.append(area_events)
-        # return area_events
-        self.log("[Processing] AreaInfo Matching Process Finished" + (" But not Fully Matched" if area_data else ""))
+        if not self.stop:
+            result.append(area_events)
+            # return area_events
+            self.log(
+                "[Processing] AreaInfo Matching Process Finished" + (" But not Fully Matched" if area_data else ""))
 
     @staticmethod
     def area_make_sequence(frame_array: list[int], area_info: dict, area_mask, fps):
@@ -462,11 +473,16 @@ class SekaiJsonVideoProcess:
             t1.join()
             t2.join()
 
-            [dialogs_events, dialog_styles, video_height, video_width] = t1r
-            [area_events] = t2r
+            if self.stop:
+                raise KeyboardInterrupt
+            else:
+                [dialogs_events, dialog_styles, video_height, video_width] = t1r
+                [area_events] = t2r
 
         except KeyboardInterrupt:
-            pass
+            self.log(f"[Terminated] Process Terminated Prematurely By User")
+            self.log(f"[Terminated] No File Changed")
+
         except Exception as e:
             self.log(f"[Error] {e}")
             self.emit(4)
@@ -482,6 +498,7 @@ class SekaiJsonVideoProcess:
                 if self.overwrite:
                     self.log("[Output] File Exists,Removed")
                     os.remove(self.output_path)
+                    self.log(f"[Success] Existing output files with the same name have been purged {self.output_path}")
                 else:
                     raise FileExistsError
 

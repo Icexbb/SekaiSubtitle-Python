@@ -19,5 +19,7 @@ class VideoProcessThread(QtCore.QThread):
         self.started = 1
         self.signal_data.emit({"type": int, "data": 1})
         output = os.path.realpath(os.path.splitext(self.video_file)[0] + ".ass")
-        vp = SekaiJsonVideoProcess(self.video_file, self.json_file, self.translate_file, output, self.signal_data, True)
+        vp = SekaiJsonVideoProcess(
+            self.video_file, self.json_file, self.translate_file, output, self.signal_data, True
+        )
         vp.run()

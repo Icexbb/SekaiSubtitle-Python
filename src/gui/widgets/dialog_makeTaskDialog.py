@@ -16,10 +16,10 @@ class FileSelector(QtWidgets.QWidget, Selector):
         self.HintLabel.setText(f"{filetype}文件")
         self.acceptFileTypes = filetype_list
         self.setAcceptDrops(True)
+        self.FileLabel.setText("未选择")
         self.SelectButton.clicked.connect(self.chooseFile)
 
     def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
-        # if self.childAt(event.position().x(), event.position().y()).objectName() == "SelectButton":
         if event.button() == QtCore.Qt.MouseButton.RightButton:
             self.FileLabel.setText("未选择")
 
@@ -36,7 +36,7 @@ class FileSelector(QtWidgets.QWidget, Selector):
         return filepath if os.path.exists(filepath) else None
 
     def dragEnterEvent(self, event: QtGui.QDragEnterEvent) -> None:
-        if event.mimeData().text().endswith(tuple(self.acceptFileTypes)):  # 如果是.srt结尾的路径接受
+        if event.mimeData().text().endswith(tuple(self.acceptFileTypes)):
             event.accept()
         else:
             event.ignore()
@@ -67,7 +67,6 @@ class NewTaskDialog(FramelessDialog, Dialog):
         self.TitleBar.WindowMinButton.setHidden(True)
         self.TitleBar.mouseDoubleClickEvent = lambda x: {None}
         self.setTitleBar(self.TitleBar)
-
 
         self.VideoSelector = FileSelector(self, "视频", ['*.mp4', '*.avi', '*.wmv', "*.mkv"])
         self.JsonSelector = FileSelector(self, "数据", ['*.json'])
@@ -135,4 +134,3 @@ class NewTaskDialog(FramelessDialog, Dialog):
             self._isTracking = False
             self._startPos = None
             self._endPos = None
-

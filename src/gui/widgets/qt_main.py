@@ -24,7 +24,11 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(800, 605)
-        MainWindow.setStyleSheet(u"")
+        MainWindow.setStyleSheet(u"QWidget#MainFrame{background-color: rgb(255, 255, 255);border-color: rgb(204, 204, 204);border-size: 2px;border-radius:20px;}\n"
+"QFrame#CenterFrame{border-radius:20px;background-color: rgb(238, 238, 238);}\n"
+"QFrame#MenuFrame{	border-radius:20px;	background-color: rgba(238, 238, 238,128);}\n"
+"#MenuFrame QPushButton{font: 500 14pt \"Microsoft YaHei UI\";border:none}\n"
+"")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -33,7 +37,7 @@ class Ui_MainWindow(object):
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.MainFrame = QWidget(self.centralwidget)
         self.MainFrame.setObjectName(u"MainFrame")
-        self.MainFrame.setStyleSheet(u"QWidget#MainFrame{background-color: rgb(255, 255, 255);border-color: rgb(204, 204, 204);border-size: 2px;border-radius:20px;}")
+        self.MainFrame.setStyleSheet(u"")
         self.gridLayout_2 = QGridLayout(self.MainFrame)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_2.setContentsMargins(-1, 40, -1, -1)
@@ -41,9 +45,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.MenuFrame = QFrame(self.MainFrame)
         self.MenuFrame.setObjectName(u"MenuFrame")
-        self.MenuFrame.setStyleSheet(u"QFrame#MenuFrame{	border-radius:20px;	background-color: rgba(238, 238, 238,128);}\n"
-"QPushButton{font: 500 14pt \"Microsoft YaHei UI\";border:none}\n"
-"")
+        self.MenuFrame.setStyleSheet(u"")
         self.verticalLayout_4 = QVBoxLayout(self.MenuFrame)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.widget = QWidget(self.MenuFrame)
@@ -101,17 +103,11 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.MenuFrame)
 
-        self.ProcessFrame = QFrame(self.MainFrame)
-        self.ProcessFrame.setObjectName(u"ProcessFrame")
-        self.ProcessFrame.setStyleSheet(u"QFrame#ProcessFrame{\n"
-"border-radius:20px;\n"
-"background-color: rgb(238, 238, 238);\n"
-"}\n"
-"")
-        self.ProcessGridLayout = QGridLayout(self.ProcessFrame)
-        self.ProcessGridLayout.setObjectName(u"ProcessGridLayout")
+        self.CenterFrame = QFrame(self.MainFrame)
+        self.CenterFrame.setObjectName(u"CenterFrame")
+        self.CenterFrame.setStyleSheet(u"")
 
-        self.horizontalLayout.addWidget(self.ProcessFrame)
+        self.horizontalLayout.addWidget(self.CenterFrame)
 
         self.horizontalLayout.setStretch(0, 2)
         self.horizontalLayout.setStretch(1, 7)

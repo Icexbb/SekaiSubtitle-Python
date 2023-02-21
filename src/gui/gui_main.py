@@ -1,9 +1,13 @@
+import os
+import platform
 import sys
 
 from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6.QtGui import QIcon
 from qframelesswindow import FramelessMainWindow
 
 from gui.widgets.qt_main import Ui_MainWindow
+from gui.widgets.widget_download import DownloadWidget
 from gui.widgets.widget_subtitleProcess import ProcessWidget
 from gui.widgets.widget_titlebar import TitleBar
 
@@ -22,14 +26,45 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 
-        self.FormProcessWidget = ProcessWidget(self.ProcessFrame)
-        self.ProcessGridLayout.addWidget(self.FormProcessWidget, 0, 0, 1, 1)
+        self.iconPath = "asset"
+        if getattr(sys, 'frozen', False):
+            self.iconPath = os.path.join(sys._MEIPASS, self.iconPath)
+        if platform.system() == "Darwin":
+            titleIcon = os.path.join(self.iconPath, "icon.icns")
+        else:
+            titleIcon = os.path.join(self.iconPath, "icon.ico")
+        if os.path.exists(titleIcon):
+            self.setWindowIcon(QIcon(titleIcon))
+
+        self.FormProcessWidget = ProcessWidget(self)
+        self.FormDownloadWidget = DownloadWidget(self)
+        self.MainLayout = QtWidgets.QStackedLayout()
+        self.CenterFrame.setLayout(self.MainLayout)
+        self.MainLayout.addWidget(self.FormProcessWidget)
+        self.MainLayout.addWidget(self.FormDownloadWidget)
+
         self.TitleBar = TitleBar(self)
-        self.TitleBar.TitleLabel.setText("SekaiSubtitle Python Alpha")
+        self.TitleBar.TitleLabel.setText("SekaiSubtitle Alpha")
         self.setTitleBar(self.TitleBar)
+        self.FuncButtonSubtitle.clicked.connect(self.switchToSubtitle)
         self.FuncButtonText.clicked.connect(self.NotCompleteWarning)
-        self.FuncButtonDownload.clicked.connect(self.NotCompleteWarning)
+        self.FuncButtonDownload.clicked.connect(self.switchToDownload)
         self.FuncButtonSetting.clicked.connect(self.NotCompleteWarning)
+        self.switchToSubtitle()
+
+    def takeCurrentWidget(self):
+        for i in reversed(range(self.ProcessGridLayout.count())):
+            item = self.ProcessGridLayout.takeAt(i)
+            if isinstance(item, ProcessWidget):
+                self.FormProcessWidget = item
+            elif isinstance(item, DownloadWidget):
+                self.FormDownloadWidget = item
+
+    def switchToSubtitle(self):
+        self.MainLayout.setCurrentIndex(0)
+
+    def switchToDownload(self):
+        self.MainLayout.setCurrentIndex(1)
 
     # 鼠标移动事件
     def mouseMoveEvent(self, a0: QtGui.QMouseEvent):
@@ -65,6 +100,10 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         QtWidgets.QMessageBox.warning(
             self, "错误", "模块暂未完成，敬请期待", QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.Yes
         )
+
+    @property
+    def proxy(self):
+        return None
 
 
 def start_gui():

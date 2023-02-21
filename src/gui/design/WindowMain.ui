@@ -14,7 +14,11 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true"/>
+   <string notr="true">QWidget#MainFrame{background-color: rgb(255, 255, 255);border-color: rgb(204, 204, 204);border-size: 2px;border-radius:20px;}
+QFrame#CenterFrame{border-radius:20px;background-color: rgb(238, 238, 238);}
+QFrame#MenuFrame{	border-radius:20px;	background-color: rgba(238, 238, 238,128);}
+#MenuFrame QPushButton{font: 500 14pt &quot;Microsoft YaHei UI&quot;;border:none}
+</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -36,7 +40,7 @@
     <item row="0" column="0">
      <widget class="QWidget" name="MainFrame" native="true">
       <property name="styleSheet">
-       <string notr="true">QWidget#MainFrame{background-color: rgb(255, 255, 255);border-color: rgb(204, 204, 204);border-size: 2px;border-radius:20px;}</string>
+       <string notr="true"/>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
        <property name="topMargin">
@@ -47,9 +51,7 @@
          <item>
           <widget class="QFrame" name="MenuFrame">
            <property name="styleSheet">
-            <string notr="true">QFrame#MenuFrame{	border-radius:20px;	background-color: rgba(238, 238, 238,128);}
-QPushButton{font: 500 14pt &quot;Microsoft YaHei UI&quot;;border:none}
-</string>
+            <string notr="true"/>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_4">
             <item>
@@ -121,15 +123,10 @@ QPushButton{font: 500 14pt &quot;Microsoft YaHei UI&quot;;border:none}
           </widget>
          </item>
          <item>
-          <widget class="QFrame" name="ProcessFrame">
+          <widget class="QFrame" name="CenterFrame">
            <property name="styleSheet">
-            <string notr="true">QFrame#ProcessFrame{
-border-radius:20px;
-background-color: rgb(238, 238, 238);
-}
-</string>
+            <string notr="true"/>
            </property>
-           <layout class="QGridLayout" name="ProcessGridLayout"/>
           </widget>
          </item>
         </layout>

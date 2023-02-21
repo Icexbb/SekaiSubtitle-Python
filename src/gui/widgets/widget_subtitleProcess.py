@@ -32,6 +32,12 @@ class TaskAcceptWidget(QtWidgets.QWidget, Ui_AccWidget):
             self.signal.emit("")
 
 
+class ListWidgetItem(QtWidgets.QListWidgetItem):
+    def __init__(self):
+        super().__init__()
+        self.id = None
+
+
 class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
     def __init__(self, parent):
 
@@ -43,6 +49,7 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
         self.TaskAcceptWidget = TaskAcceptWidget()
         self.TaskAcceptWidget.signal.connect(self.NewTaskDialog)
         self.horizontalLayout.addWidget(self.TaskAcceptWidget)
+        self.bars = []
 
     def NewTaskDialog(self, path):
         dialog = NewTaskDialog(self.parent)
@@ -59,18 +66,36 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
 
     def ProcessSignal(self, data):
         bar = ProgressBar(self, data)
-        item = QtWidgets.QListWidgetItem()
+        item = ListWidgetItem()
         item.setSizeHint(bar.size())
-        item.setData(0, bar.id)
-
+        item.id = bar.id
         self.ProcessingListWidget.addItem(item)
         self.ProcessingListWidget.setItemWidget(item, bar)
+        self.bars.append(bar)
 
     def ProcessSignalFromChild(self, data):
+        child_id = data.get("id")
+        child_data = data.get("data")
+
         count = self.ProcessingListWidget.count()
         for i in range(count):
-            item = self.ProcessingListWidget.takeItem(i)
-            if item.data(0) == data:
-                index = i
-                break
-        self.ProcessingListWidget.removeItemWidget(self.ProcessingListWidget.takeItem(index))
+            item = self.ProcessingListWidget.item(i)
+            if item.id == child_id:
+                if child_data == 0:
+                    self.ProcessingListWidget.removeItemWidget(self.ProcessingListWidget.takeItem(i))
+                else:
+                    self.ProcessingListWidget.item(i).setSizeHint(child_data)
+        for bar in self.bars:
+            if bar.id == child_id:
+                if child_data == 0:
+                    self.bars.remove(bar)
+
+    def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
+        count = self.ProcessingListWidget.count()
+        add_width = event.size() - event.oldSize()
+        add_width = QtCore.QSize(add_width.width(), 0)
+        for i in range(count):
+            item: ListWidgetItem = self.ProcessingListWidget.item(i)
+            item.setSizeHint(item.sizeHint() + add_width)
+        for bar in self.bars:
+            bar.setFixedSize(bar.size() + add_width)

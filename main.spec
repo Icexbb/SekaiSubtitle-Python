@@ -6,9 +6,9 @@ block_cipher = None
 
 a = Analysis(
     ['src\\main.py'],
-    pathex=[],
+    pathex=['E:\\Project Sekai\\SekaiSubtitle-Python'],
     binaries=[],
-    datas=[],
+    datas=[('asset', 'asset')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -28,7 +28,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='Sekai Subtitle',
+    name='main',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -41,4 +41,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon='asset/icon.png',
 )

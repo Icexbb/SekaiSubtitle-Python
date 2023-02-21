@@ -15,19 +15,28 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QGridLayout, QHBoxLayout,
-    QListWidget, QListWidgetItem, QSizePolicy, QWidget)
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QFrame, QGridLayout,
+    QHBoxLayout, QListWidget, QListWidgetItem, QSizePolicy,
+    QVBoxLayout, QWidget)
 
 class Ui_ProcessWidget(object):
     def setupUi(self, ProcessWidget):
         if not ProcessWidget.objectName():
             ProcessWidget.setObjectName(u"ProcessWidget")
-        ProcessWidget.resize(295, 293)
+        ProcessWidget.resize(448, 462)
         ProcessWidget.setStyleSheet(u"QListWidget#ProcessingListWidget{	background-color: rgba(255, 255, 255, 0);	border: none;outline:0px;}\n"
-"QListWidget::item{background-color: rgba(255, 255, 255, 0);	border: none;outline:0px;}")
+"QListWidget::item{background-color: rgba(255, 255, 255, 0);	border: none;outline:0px;}\n"
+"QFrame{background-color:rgb(248, 248, 248);border-color: rgb(204, 204, 204);border-size: 2px;border-radius:20px;}\n"
+"QFrame#MainFrame{background-color: rgb(255, 255, 255);}")
         self.gridLayout = QGridLayout(ProcessWidget)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.StatusWidget = QWidget(ProcessWidget)
+        self.MainFrame = QFrame(ProcessWidget)
+        self.MainFrame.setObjectName(u"MainFrame")
+        self.MainFrame.setFrameShape(QFrame.StyledPanel)
+        self.MainFrame.setFrameShadow(QFrame.Raised)
+        self.verticalLayout = QVBoxLayout(self.MainFrame)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.StatusWidget = QWidget(self.MainFrame)
         self.StatusWidget.setObjectName(u"StatusWidget")
         sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
@@ -37,18 +46,20 @@ class Ui_ProcessWidget(object):
         self.horizontalLayout = QHBoxLayout(self.StatusWidget)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
 
-        self.gridLayout.addWidget(self.StatusWidget, 0, 0, 1, 1)
+        self.verticalLayout.addWidget(self.StatusWidget)
 
-        self.ProcessingListWidget = QListWidget(ProcessWidget)
+        self.ProcessingListWidget = QListWidget(self.MainFrame)
         self.ProcessingListWidget.setObjectName(u"ProcessingListWidget")
         self.ProcessingListWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.ProcessingListWidget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.ProcessingListWidget.setProperty("showDropIndicator", False)
         self.ProcessingListWidget.setSelectionMode(QAbstractItemView.NoSelection)
 
-        self.gridLayout.addWidget(self.ProcessingListWidget, 2, 0, 1, 1)
+        self.verticalLayout.addWidget(self.ProcessingListWidget)
 
-        self.gridLayout.setRowStretch(0, 1)
+
+        self.gridLayout.addWidget(self.MainFrame, 0, 0, 1, 1)
+
 
         self.retranslateUi(ProcessWidget)
 
