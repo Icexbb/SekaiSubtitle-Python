@@ -15,7 +15,6 @@ def read_json(path, alt=None):
             data = json.load(open(path, 'r', encoding="utf8"))
         except:
             data = alt
-            os.remove(path)
         return data
     else:
         return alt

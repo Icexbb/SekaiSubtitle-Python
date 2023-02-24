@@ -24,13 +24,14 @@ class Ui_ProgressBarWidget(object):
     def setupUi(self, ProgressBarWidget):
         if not ProgressBarWidget.objectName():
             ProgressBarWidget.setObjectName(u"ProgressBarWidget")
-        ProgressBarWidget.resize(474, 212)
+        ProgressBarWidget.resize(474, 200)
         sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(ProgressBarWidget.sizePolicy().hasHeightForWidth())
         ProgressBarWidget.setSizePolicy(sizePolicy)
         ProgressBarWidget.setMinimumSize(QSize(0, 100))
+        ProgressBarWidget.setMaximumSize(QSize(16777215, 200))
         ProgressBarWidget.setStyleSheet(u"QProgressBar{height : 10px; border: 2px solid grey; border-radius: 5px; background-color: #FFFFFF;}\n"
 "QProgressBar::chunk { background-color: #007FFF; width: 10px;}\n"
 "QFrame#MainFrame{ background-color:rgb(248, 248, 248);border-color: rgb(204, 204, 204);border-size: 2px;border-radius:20px;}\n"

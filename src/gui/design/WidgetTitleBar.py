@@ -22,7 +22,7 @@ class Ui_TitleBar(object):
     def setupUi(self, TitleBar):
         if not TitleBar.objectName():
             TitleBar.setObjectName(u"TitleBar")
-        TitleBar.resize(752, 38)
+        TitleBar.resize(752, 39)
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)

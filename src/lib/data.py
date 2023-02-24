@@ -10,7 +10,7 @@ chara_name = {
     "21": "MIKU", "22": "RIN", "23": "LEN",
     "24": "LUKA", "25": "MEIKO", "26": "KAITO",
 }
-subtitle_styles = {
+subtitle_styles_format = {
     "初音ミク": {
         "Name": "初音ミク",
         "Fontname": "思源黑体 CN Bold",

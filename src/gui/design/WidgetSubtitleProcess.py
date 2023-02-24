@@ -26,8 +26,7 @@ class Ui_ProcessWidget(object):
         ProcessWidget.resize(448, 462)
         ProcessWidget.setStyleSheet(u"QListWidget#ProcessingListWidget{	background-color: rgba(255, 255, 255, 0);	border: none;outline:0px;}\n"
 "QListWidget::item{background-color: rgba(255, 255, 255, 0);	border: none;outline:0px;}\n"
-"QFrame{background-color:rgb(248, 248, 248);border-color: rgb(204, 204, 204);border-size: 2px;border-radius:20px;}\n"
-"QFrame#MainFrame{background-color: rgb(255, 255, 255);}")
+"QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:20px;}")
         self.gridLayout = QGridLayout(ProcessWidget)
         self.gridLayout.setObjectName(u"gridLayout")
         self.MainFrame = QFrame(ProcessWidget)
@@ -50,8 +49,14 @@ class Ui_ProcessWidget(object):
 
         self.ProcessingListWidget = QListWidget(self.MainFrame)
         self.ProcessingListWidget.setObjectName(u"ProcessingListWidget")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.ProcessingListWidget.sizePolicy().hasHeightForWidth())
+        self.ProcessingListWidget.setSizePolicy(sizePolicy1)
         self.ProcessingListWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.ProcessingListWidget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.ProcessingListWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.ProcessingListWidget.setProperty("showDropIndicator", False)
         self.ProcessingListWidget.setSelectionMode(QAbstractItemView.NoSelection)
 

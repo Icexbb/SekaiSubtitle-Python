@@ -23,7 +23,7 @@ class Ui_DownloadWidget(object):
     def setupUi(self, DownloadWidget):
         if not DownloadWidget.objectName():
             DownloadWidget.setObjectName(u"DownloadWidget")
-        DownloadWidget.resize(631, 377)
+        DownloadWidget.resize(653, 377)
         DownloadWidget.setStyleSheet(u"QFrame{background-color:rgb(248, 248, 248);border-color: rgb(204, 204, 204);border-size: 2px;border-radius:20px;}\n"
 "QFrame#MainFrame{background-color: rgb(255, 255, 255);}\n"
 "QPushButton{border: 2px solid grey; border-radius: 10px;}\n"
@@ -52,6 +52,8 @@ class Ui_DownloadWidget(object):
 
         self.horizontalLayout.addWidget(self.DataSourceBox)
 
+        self.horizontalLayout.setStretch(0, 1)
+        self.horizontalLayout.setStretch(1, 3)
 
         self.verticalLayout.addWidget(self.frame)
 
@@ -69,6 +71,8 @@ class Ui_DownloadWidget(object):
 
         self.horizontalLayout_2.addWidget(self.DataTypeBox)
 
+        self.horizontalLayout_2.setStretch(0, 1)
+        self.horizontalLayout_2.setStretch(1, 3)
 
         self.verticalLayout.addWidget(self.frame_2)
 
@@ -86,6 +90,8 @@ class Ui_DownloadWidget(object):
 
         self.horizontalLayout_3.addWidget(self.DataPeriodBox)
 
+        self.horizontalLayout_3.setStretch(0, 1)
+        self.horizontalLayout_3.setStretch(1, 3)
 
         self.verticalLayout.addWidget(self.frame_3)
 
@@ -103,11 +109,18 @@ class Ui_DownloadWidget(object):
 
         self.horizontalLayout_4.addWidget(self.DataEpisodeBox)
 
+        self.horizontalLayout_4.setStretch(0, 1)
+        self.horizontalLayout_4.setStretch(1, 3)
 
         self.verticalLayout.addWidget(self.frame_4)
 
         self.SavePlaceLabel = QLabel(self.MainFrame)
         self.SavePlaceLabel.setObjectName(u"SavePlaceLabel")
+        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.SavePlaceLabel.sizePolicy().hasHeightForWidth())
+        self.SavePlaceLabel.setSizePolicy(sizePolicy)
         self.SavePlaceLabel.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout.addWidget(self.SavePlaceLabel)

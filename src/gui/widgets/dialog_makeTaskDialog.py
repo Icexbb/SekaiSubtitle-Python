@@ -4,8 +4,8 @@ from PySide6 import QtCore, QtWidgets, QtGui
 from qframelesswindow import FramelessDialog
 
 from gui.widgets.widget_titlebar import TitleBar
-from gui.widgets.qt_fileSelect import Ui_SelectWidget as Selector
-from gui.widgets.qt_taskMakeDialog import Ui_NewSubProcessDialog as Dialog
+from gui.design.WidgetNewTaskSelector import Ui_SelectWidget as Selector
+from gui.design.WindowDialogNewSubTask import Ui_NewSubProcessDialog as Dialog
 
 
 class FileSelector(QtWidgets.QWidget, Selector):
@@ -87,7 +87,7 @@ class NewTaskDialog(FramelessDialog, Dialog):
             if os.path.exists(predict_json):
                 self.JsonSelector.FileLabel.setText(predict_json)
             if os.path.exists(predict_translate):
-                self.VideoSelector.FileLabel.setText(predict_translate)
+                self.TranslateSelector.FileLabel.setText(predict_translate)
 
     def emitTask(self):
         video_file = self.VideoSelector.fileSelected

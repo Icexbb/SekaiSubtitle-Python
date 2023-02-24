@@ -2,8 +2,8 @@ import os.path
 
 from PySide6 import QtWidgets, QtCore
 
+from gui.design.WidgetProcessBar import Ui_ProgressBarWidget
 from gui.thread_process_new import VideoProcessThread
-from gui.widgets.qt_taskProgressBar import Ui_ProgressBarWidget
 
 
 class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
@@ -50,14 +50,11 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
             self.Thread = VideoProcessThread(self, self.video, self.json, self.translate)
             self.Thread.signal_data.connect(self.signal_process)
             self.StartButton.setStyleSheet("background-color:rgb(255,255,100);")
-            # self.StatusLog.setText("")
             self.StatusLogList.clear()
             self.Thread.start()
             self.processing = True
-
         else:
             self.pause_process()
-            # self.StatusLog.setText("")
 
     def pause_process(self):
         self.Thread.signal_stop.emit(True)
@@ -125,8 +122,8 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
                 self.ProgressBar.setValue(self.ProgressBar.value() + 1)
                 time_spend = data.get("time")
                 percent = self.ProgressBar.value() / (self.ProgressBar.maximum() or 1) * 100
-                fps = self.ProgressBar.value()/(time_spend or 1)
-                eta = (self.ProgressBar.maximum()-self.ProgressBar.value())/(fps or 1)
+                fps = self.ProgressBar.value() / (time_spend or 1)
+                eta = (self.ProgressBar.maximum() - self.ProgressBar.value()) / (fps or 1)
                 self.PercentLabel.setText(f"FPS: {fps:.1f} ETA: {eta:.1f}s {percent:.1f}%")
                 if not self.processing:
                     self.PercentLabel.setText("")

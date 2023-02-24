@@ -1,13 +1,29 @@
 import json
 import os
-import time
+import urllib.parse
+from urllib import parse
 
-from PySide6 import QtWidgets
+from PySide6 import QtNetwork, QtCore, QtWidgets
+from PySide6.QtCore import SIGNAL
 
-from gui.thread_download import DownloadThread
-from gui.widgets.qt_downloadWidget import Ui_DownloadWidget
+from gui.design.WidgetDataDownload import Ui_DownloadWidget
 from lib.data import chara_name, areaDict, characterDict
 from script.tools import save_json, read_json
+
+
+class NetworkAccessManager(QtNetwork.QNetworkAccessManager):
+    def __init__(self, proxy_addr):
+        super().__init__()
+        self.proxy_addr = proxy_addr
+        if self.proxy_addr:
+            proxy_parse = parse.urlparse(self.proxy_addr)
+
+            if proxy_parse.scheme == "http":
+                proxy_type = QtNetwork.QNetworkProxy.ProxyType.HttpProxy
+            else:
+                proxy_type = QtNetwork.QNetworkProxy.ProxyType.Socks5Proxy
+            proxy = QtNetwork.QNetworkProxy(proxy_type, proxy_parse.hostname, proxy_parse.port)
+            self.setProxy(proxy)
 
 
 class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
@@ -21,94 +37,176 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
         self.download_url = None
         self.DownloadButton.clicked.connect(self.download_data)
         self.RefreshButton.clicked.connect(self.load_data_list)
+
         self.DataSourceBox.currentTextChanged.connect(self.change_source)
         self.DataTypeBox.currentTextChanged.connect(self.change_type)
         self.DataPeriodBox.currentTextChanged.connect(self.change_period)
         self.DataEpisodeBox.currentTextChanged.connect(self.change_episode)
+
         self.msgbox = QtWidgets.QMessageBox(self)
         self.msgbox.setWindowTitle("消息")
         self.msgbox.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
         self.change_source()
+        self.tree_updater = QtNetwork.QNetworkAccessManager()
+        self.connect(self.tree_updater, SIGNAL("finished(QNetworkReply*)"), self.received_list_part)
+        self.downloader = QtNetwork.QNetworkAccessManager()
+        self.connect(self.downloader, SIGNAL("finished(QNetworkReply*)"), self.received_acquired_data)
+        source = self.DataSourceBox.currentIndex()
+        self.update_tree("pjsekai" if source else "best")
 
     @property
     def proxy(self) -> str:
         return self.parent.proxy
 
+    @property
+    def nam_proxy(self) -> None | QtNetwork.QNetworkProxy:
+        if self.proxy:
+            proxy_parse = parse.urlparse(self.proxy)
+
+            if proxy_parse.scheme == "http":
+                proxy_type = QtNetwork.QNetworkProxy.ProxyType.HttpProxy
+            else:
+                proxy_type = QtNetwork.QNetworkProxy.ProxyType.Socks5Proxy
+            proxy = QtNetwork.QNetworkProxy(proxy_type, proxy_parse.hostname, proxy_parse.port)
+            return proxy
+
     def load_data_list(self):
 
-        def update_ai_data(type_name: str, json_url: str):
-            ai_root = os.path.join(self.root, "data/pjsekai/tree")
-            os.makedirs(ai_root, exist_ok=True)
-            json_path = os.path.join(ai_root, f"{type_name}.json")
-            json_data = read_json(json_path)
-            skip = len(json_data.get("data")) if json_data.get("data") else 0
-            json_url = f"{json_url}&$skip={skip}"
-            if self.download_json(json_url):
-                receive = self.receive_data
-                if json_data:
-                    json_data['data'] += receive['data']
-                else:
-                    json_data = receive
-                save_json(json_path, json_data)
-                if json_data and "data" in json_data:
-                    json_data = json_data["data"]
-                return json_data
-            else:
-                assert False, f"Get {type_name} Info Error"
-
-        def update_best_data(type_name: str, json_url: str):
-            best_root = os.path.join(self.root, "data/best/tree")
-            os.makedirs(best_root, exist_ok=True)
-            json_path = os.path.join(best_root, f"{type_name}.json")
-            json_data = read_json(json_path, [])
-            if self.download_json(json_url):
-                json_data += self.receive_data
-                save_json(json_path, json_data)
-                return json_data
-            else:
-                assert False, f"Get {type_name} Info Error"
-
         def update_source_ai():
-            events = update_ai_data("events", "https://api.pjsek.ai/database/master/events?$limit=200")
-            cards = update_ai_data("cards", "https://api.pjsek.ai/database/master/cards?$limit=1000")
-            l2ds = update_best_data("l2d", "https://sekai-world.github.io/sekai-master-db-diff/character2ds.json")
-            result = {}
-            data = update_ai_data(
-                "unitStories", "https://api.pjsek.ai/database/master/unitStories?$limit=20&$sort[seq]=1")
-            result['主线剧情'] = {}
-            for unit in data:
-                for chapters in unit['chapters']:
-                    eps = {}
-                    for episodes in chapters["episodes"]:
-                        key = f"{episodes['episodeNoLabel']}: {episodes['title']}"
-                        url = "https://assets.pjsek.ai/file/pjsekai-assets/startapp/scenario/unitstory/" + \
-                              f"{chapters['assetbundleName']}/{episodes['scenarioId']}.json"
-                        eps[key] = url
-                    result['主线剧情'][chapters['title']] = eps
+            root = "https://api.pjsek.ai/database/master/"
+            events_url = root + "events?$limit=1000"
+            cards_url = root + "cards?$limit=1000"
+            character2ds_url = root + "character2ds?$limit=1000"
+            unitStories_url = root + "unitStories?$limit=1000"
+            eventStories_url = root + "eventStories?$limit=1000"
+            cardEpisodes_url = root + "cardEpisodes?$limit=2000"
+            actionSets_url = root + "actionSets?$limit=3000"
+            specialStories_url = root + "specialStories?$limit=1000"
 
-            data = update_ai_data(
-                "eventStories",
-                "https://api.pjsek.ai/database/master/eventStories?$limit=20&&$sort[eventId]=-1"
-            )
-            result['活动剧情'] = {}
-            for item in data:
-                try:
-                    ev_name = f"{item['eventId']}:{events[item['eventId']]['name']}"
-                except IndexError:
-                    ev_name = f"Event{item['eventId']}"
-                ev_ep = {
-                    f"{ep['episodeNo']}: {ep['title']}":
-                        f"https://assets.pjsek.ai/file/pjsekai-assets/ondemand/event_story/" +
-                        f"{item['assetbundleName']}/scenario/{ep['scenarioId']}.json"
-                    for ep in item["eventStoryEpisodes"]
-                }
-                result['活动剧情'][ev_name] = ev_ep
+            urls = [events_url, cards_url, character2ds_url, unitStories_url, eventStories_url, cardEpisodes_url,
+                    actionSets_url, specialStories_url]
+            for url in urls:
+                do_request(url)
 
-            data = update_ai_data(
-                "cardEpisodes",
-                "https://api.pjsek.ai/database/master/cardEpisodes?$limit=2000&$sort[cardId]=-1&$sort[seq]=1"
-            )
-            result['卡牌剧情'] = {}
+        def update_source_best():
+            root = "https://sekai-world.github.io/sekai-master-db-diff/"
+            events_url = root + "events.json"
+            cards_url = root + "cards.json"
+            character2ds_url = root + "character2ds.json"
+            unitStories_url = root + "unitStories.json"
+            eventStories_url = root + "eventStories.json"
+            cardEpisodes_url = root + "cardEpisodes.json"
+            actionSets_url = root + "actionSets.json"
+            specialStories_url = root + "specialStories.json"
+            urls = [events_url, cards_url, character2ds_url, unitStories_url, eventStories_url, cardEpisodes_url,
+                    actionSets_url, specialStories_url]
+            for url in urls:
+                do_request(url)
+
+        def do_request(url):
+            if p := self.nam_proxy:
+                self.tree_updater.setProxy(p)
+            else:
+                self.tree_updater.setProxy()
+            self.tree_updater.get(QtNetwork.QNetworkRequest(QtCore.QUrl(url)))
+
+        self.SavePlaceLabel.setText("获取中")
+        self.RefreshButton.setEnabled(False)
+        source = self.DataSourceBox.currentIndex()
+        if source == 0:
+            update_source_best()
+        else:
+            update_source_ai()
+
+    def received_list_part(self, reply: QtNetwork.QNetworkReply):
+        url = reply.url().url()
+        parse = urllib.parse.urlparse(url)
+        if parse.netloc.__contains__("pjsek.ai"):
+            source_type = "pjsekai"
+        else:
+            source_type = "best"
+        file: str = os.path.split(parse.path)[-1]
+        if not file.endswith("json"):
+            file = file + ".json"
+        filepath = os.path.join(self.root, "data", source_type, "tree", file)
+        if not os.path.exists(os.path.split(filepath)[0]):
+            os.makedirs(os.path.split(filepath)[0])
+        er = reply.error()
+        try:
+            if er == QtNetwork.QNetworkReply.NetworkError.NoError:
+                bytes_string = reply.readAll()
+                data_string = str(bytes_string, 'utf-8')
+                data = json.loads(data_string)
+                if "data" in data:
+                    data = data['data']
+                save_json(filepath, data)
+                self.SavePlaceLabel.setText(f"Data List Part Saved\n{filepath}")
+                self.update_tree(source_type)
+            else:
+                self.SavePlaceLabel.setText(f"Error occured When Acquiring {file}: {er} \n{reply.errorString()}")
+        except json.decoder.JSONDecodeError:
+            pass
+        finally:
+            self.DownloadButton.setEnabled(True)
+            self.RefreshButton.setEnabled(True)
+
+    def received_acquired_data(self, reply: QtNetwork.QNetworkReply):
+        url = reply.url().url()
+        parse = urllib.parse.urlparse(url)
+        if parse.netloc.__contains__("pjsek.ai"):
+            source_type = "pjsekai"
+        else:
+            source_type = "best"
+        file: str = os.path.split(parse.path)[-1]
+        if file.endswith(".asset"):
+            file = file.removesuffix(".asset") + ".json"
+
+        filepath = os.path.join(self.root, "data", source_type, "source", file)
+
+        if not os.path.exists(os.path.split(filepath)[0]):
+            os.makedirs(os.path.split(filepath)[0])
+        try:
+            er = reply.error()
+            if er == QtNetwork.QNetworkReply.NetworkError.NoError:
+                bytes_string = reply.readAll()
+                data_string = str(bytes_string, 'utf-8')
+                data = json.loads(data_string)
+                if "data" in data:
+                    data = data['data']
+                save_json(filepath, data)
+                self.SavePlaceLabel.setText(f"Data Saved\nPath: {filepath}")
+            else:
+                self.SavePlaceLabel.setText(f"Error occured When Acquiring {file}: {er} \n{reply.errorString()}")
+        except json.decoder.JSONDecodeError:
+            pass
+        finally:
+            self.DownloadButton.setEnabled(True)
+            self.RefreshButton.setEnabled(True)
+
+    def update_tree(self, source):
+        root = os.path.join(self.root, "data", source, "tree")
+
+        if os.path.exists(os.path.join(root, "character2ds.json")):
+            character2ds = read_json(os.path.join(root, "character2ds.json"))
+        else:
+            return
+        if os.path.exists(os.path.join(root, "events.json")):
+            events = read_json(os.path.join(root, "events.json"))
+        else:
+            return
+        if os.path.exists(os.path.join(root, "cards.json")):
+            cards = read_json(os.path.join(root, "cards.json"))
+        else:
+            return
+
+        if os.path.exists(os.path.join(root, "tree.json")):
+            tree = read_json(os.path.join(root, "tree.json"))
+        else:
+            tree = {}
+
+        if os.path.exists(os.path.join(root, "cardEpisodes.json")):
+            data = read_json(os.path.join(root, "cardEpisodes.json"))
+            tree['卡牌剧情'] = {}
             for ep in data:
                 if "scenarioId" not in ep:
                     continue
@@ -118,227 +216,146 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
                 rarity = f"★{card['cardRarityType'][7:]}" if card['cardRarityType'][7:].isdigit() else "BD"
                 prefix = card['prefix']
                 section = "前篇" if ep['cardEpisodePartType'] == "first_part" else "后篇"
-                url = f"https://assets.pjsek.ai/file/pjsekai-assets/startapp/character/member/" \
-                      f"{ep['assetbundleName']}/{ep['scenarioId']}.json"
-
-                if chara in result['卡牌剧情']:
-                    d = result['卡牌剧情'][chara]
+                if source == "pjsekai":
+                    url = f"https://assets.pjsek.ai/file/pjsekai-assets/startapp/character/member/" \
+                          f"{ep['assetbundleName']}/{ep['scenarioId']}.json"
+                else:
+                    url = f"https://storage.sekai.best/sekai-assets/character/member/" \
+                          f"{ep['assetbundleName']}_rip/{ep['scenarioId']}.asset"
+                if chara in tree['卡牌剧情']:
+                    d = tree['卡牌剧情'][chara]
                 else:
                     d = {}
                 d[f"{rarity} {prefix} {section}"] = url
-                result['卡牌剧情'][chara] = d
+                tree['卡牌剧情'][chara] = d
 
-            data = update_ai_data(
-                "actionSets",
-                "https://api.pjsek.ai/database/master/actionSets?$limit=3000&$sort[areaId]=-1"
-            )
-            result['区域对话'] = {}
-            for ep in data:
-                if "scenarioId" not in ep.keys():
-                    continue
-                area = areaDict[ep['areaId']]
-                group = int(ep["id"] / 100)
-                scenarioId = ep['scenarioId']
-                chara_string = []
-                for cid in ep['characterIds']:
-                    for gc in l2ds:
-                        if cid == gc['id']:
-                            chara_string.append(characterDict[gc['characterId'] - 1]["name_j"])
-                            break
-                chara = ",".join(chara_string)
-                if area in result['区域对话']:
-                    d = result['区域对话'][area]
-                else:
-                    d = {}
-                as_id = f"{ep['id']} - {chara}"
-                url = f"https://assets.pjsek.ai/file/pjsekai-assets/" \
-                      f"startapp/scenario/actionset/group{group}/{scenarioId}.json"
-                d[as_id] = url
-                result['区域对话'][area] = d
+        if os.path.exists(os.path.join(root, "eventStories.json")):
+            data = read_json(os.path.join(root, "eventStories.json"))
+            tree['活动剧情'] = {}
+            for item in data:
+                try:
+                    ev_name = f"{item['eventId']}:{events[item['eventId']]['name']}"
+                except IndexError:
+                    ev_name = f"Event{item['eventId']}"
+                ev_ep = {}
+                for ep in item["eventStoryEpisodes"]:
+                    if source == "best":
+                        url = f"https://storage.sekai.best/sekai-assets/event_story/" \
+                              f"{item['assetbundleName']}/scenario_rip/{ep['scenarioId']}.asset"
+                    else:
+                        url = f"https://assets.pjsek.ai/file/pjsekai-assets/ondemand/event_story/" + \
+                              f"{item['assetbundleName']}/scenario/{ep['scenarioId']}.json"
+                    ev_ep[f"{ep['episodeNo']}: {ep['title']}"] = url
+                tree['活动剧情'][ev_name] = ev_ep
 
-            path = os.path.join(os.path.join(self.root, "data/pjsekai/tree"), "tree.json")
-            json.dump(result, open(path, 'w', encoding='utf8'), ensure_ascii=False, indent=4)
-
-        def update_source_best():
-
-            path = os.path.join(os.path.join(self.root, "data/best/tree"), "tree.json")
-            events = update_best_data(
-                "events", "https://sekai-world.github.io/sekai-master-db-diff/events.json"
-            )
-            cards = update_best_data(
-                "cards", "https://sekai-world.github.io/sekai-master-db-diff/cards.json"
-            )
-            l2ds = update_best_data("l2d", "https://sekai-world.github.io/sekai-master-db-diff/character2ds.json")
-            result = {}
-
-            data = update_best_data("unitStories",
-                                    "https://sekai-world.github.io/sekai-master-db-diff/unitStories.json")
-            result['主线剧情'] = {}
+        if os.path.exists(os.path.join(root, "unitStories.json")):
+            data = read_json(os.path.join(root, "unitStories.json"))
+            tree['主线剧情'] = {}
             for unit in data:
                 for chapters in unit['chapters']:
                     eps = {}
                     for episodes in chapters["episodes"]:
                         key = f"{episodes['episodeNoLabel']}: {episodes['title']}"
-                        url = "https://storage.sekai.best/sekai-assets/scenario/unitstory/" \
-                              f"{chapters['assetbundleName']}_rip/{episodes['scenarioId']}.asset"
+                        if source == "pjsekai":
+                            url = "https://assets.pjsek.ai/file/pjsekai-assets/startapp/scenario/unitstory/" + \
+                                  f"{chapters['assetbundleName']}/{episodes['scenarioId']}.json"
+                        else:
+                            url = "https://storage.sekai.best/sekai-assets/scenario/unitstory/" \
+                                  f"{chapters['assetbundleName']}_rip/{episodes['scenarioId']}.asset"
                         eps[key] = url
-                    result['主线剧情'][chapters['title']] = eps
+                    tree['主线剧情'][chapters['title']] = eps
 
-            data = update_best_data("eventStories",
-                                    "https://sekai-world.github.io/sekai-master-db-diff/eventStories.json")
-            result['活动剧情'] = {}
-            for event in data:
-                t = [ev for ev in events if ev["id"] == event['eventId']]
-                event_data = t[0] if len(t) else None
-                key = f"{event['eventId']}" + f": {event_data['name']}" if event_data else ""
-                value = {
-                    f"{ep['episodeNo']}: {ep['title']}":
-                        "https://storage.sekai.best/sekai-assets/event_story/" +
-                        f"{event['assetbundleName']}/scenario_rip/{ep['scenarioId']}.asset"
-                    for ep in event["eventStoryEpisodes"]
-                }
-                result["活动剧情"][key] = value
-            data = update_best_data("cardEpisodes",
-                                    "https://sekai-world.github.io/sekai-master-db-diff/cardEpisodes.json")
-            result['卡牌剧情'] = {}
-            for ep in data:
-                card_id = ep['cardId']
-                card = [card for card in cards if card['id'] == card_id][0]
-                chara = chara_name[str(card['characterId'])]
-                rarity = "★" + card['cardRarityType'][7:] if card['cardRarityType'][7:].isdigit() else "BD"
-                prefix = card['prefix']
-                section = "前篇" if ep['cardEpisodePartType'] == "first_part" else "后篇"
-                url = 'https://storage.sekai.best/sekai-assets/character/member/' \
-                      f'{ep["assetbundleName"]}_rip/{ep["scenarioId"]}.asset'
-
-                if chara in result['卡牌剧情']:
-                    d = result['卡牌剧情'][chara]
-                else:
-                    d = {}
-                d[f"{rarity} {prefix} {section}"] = url
-                result['卡牌剧情'][chara] = d
-
-            data = update_best_data(
-                "actionSets",
-                "https://sekai-world.github.io/sekai-master-db-diff/actionSets.json"
-            )
-            result['区域对话'] = {}
-
+        if os.path.exists(os.path.join(root, "actionSets.json")):
+            data = read_json(os.path.join(root, "actionSets.json"))
+            tree['区域对话'] = {}
             for ep in data:
                 if "scenarioId" not in ep.keys():
                     continue
                 area = areaDict[ep['areaId']]
                 group = int(ep["id"] / 100)
-                scenarioId = ep['scenarioId']
+                scenario_id = ep['scenarioId']
                 chara_string = []
                 for cid in ep['characterIds']:
-                    for gc in l2ds:
+                    for gc in character2ds:
                         if cid == gc['id']:
                             chara_string.append(characterDict[gc['characterId'] - 1]["name_j"])
                             break
                 chara = ",".join(chara_string)
-                if area in result['区域对话']:
-                    d = result['区域对话'][area]
+                if area in tree['区域对话']:
+                    d = tree['区域对话'][area]
                 else:
                     d = {}
                 as_id = f"{ep['id']} - {chara}"
-                url = f"https://storage.sekai.best/sekai-assets/scenario/" \
-                      f"actionset/group{group}_rip/{scenarioId}.asset"
-
+                if source == "pjsekai":
+                    url = f"https://assets.pjsek.ai/file/pjsekai-assets/startapp/scenario/actionset/" \
+                          f"group{group}/{scenario_id}.json"
+                else:
+                    url = f"https://storage.sekai.best/sekai-assets/scenario/actionset/" \
+                          f"group{group}_rip/{scenario_id}.asset"
                 d[as_id] = url
-                result['区域对话'][area] = d
+                tree['区域对话'][area] = d
 
-            json.dump(result, open(path, 'w', encoding='utf8'), ensure_ascii=False, indent=4)
+        if os.path.exists(os.path.join(root, "specialStories.json")):
+            data = read_json(os.path.join(root, "specialStories.json"))
+            tree['特殊剧情'] = {}
+            for period in data:
+                title = period["title"]
+                title_d = {}
+                for ep in period['episodes']:
+                    ep_title = ep['title']
+                    if source == "best":
+                        url = f"https://storage.sekai.best/sekai-assets/scenario/special/" \
+                              f"{ep['assetbundleName']}_rip/{ep['scenarioId']}.asset"
+                    else:
+                        url = f"https://assets.pjsek.ai/file/pjsekai-assets/startapp/scenario/special/" \
+                              f"{ep['assetbundleName']}/{ep['scenarioId']}.json"
+                    title_d[ep_title] = url
+                tree['特殊剧情'][title] = title_d
 
-        self.SavePlaceLabel.setText("获取中")
-        self.RefreshButton.setEnabled(False)
-        try:
-            update_source_ai()
-            update_source_best()
-        except Exception as e:
-            self.SavePlaceLabel.setText(f"获取失败:{e}")
-        else:
-            self.SavePlaceLabel.setText("获取成功")
-        finally:
-            time.sleep(5)
-            self.SavePlaceLabel.setText("")
-            self.RefreshButton.setEnabled(True)
-            self.change_source()
-
-    def download_check(self, status):
-        if status:
-            self.downloadState = 1
-        else:
-            self.msgbox.setText("下载失败，请检查代理设置")
-            self.msgbox.exec()
-            self.downloadState = 2
-
-    def download_json(self, json_url):
-        download = DownloadThread(json_url, self.proxy)
-        download.trigger.connect(self.download_check)
-        download.data.connect(self.download_receive)
-
-        self.downloadState = 0
-
-        download.start()
-        while not self.downloadState:
-            time.sleep(0.1)
-            QtWidgets.QApplication.processEvents()
-        if self.downloadState == 2:
-            return False
-        return True
-
-    def download_receive(self, data):
-        self.receive_data = data['data']
-
-    def download_failed(self):
-        self.downloadState = 2
+        if len(tree.keys()) == 5:
+            self.SavePlaceLabel.clear()
+        self.change_source()
+        save_json(os.path.join(root, "tree.json"), tree)
 
     def download_data(self):
         self.DownloadButton.setEnabled(False)
         self.SavePlaceLabel.setText("下载中")
 
-        source = self.DataSourceBox.currentIndex()
-
         self.change_episode()
-        from urllib.parse import urlsplit
         url = self.download_url
+        if not url:
+            self.msgbox.setText("未选择剧情 请先刷新列表")
+            self.msgbox.exec_()
+            self.msgbox.close()
+            return
 
-        name: str = os.path.split(urlsplit(url).path)[-1]
-        if name.endswith(".asset"):
-            name.replace(".asset", ".json")
-
-        s = "pjsekai" if source == 1 else "best"
-
-        root = os.path.join(self.root, f"data/{s}/source/")
-        os.makedirs(root, exist_ok=True)
-
-        path = os.path.join(root, name)
         self.SavePlaceLabel.setText("下载中")
         self.DownloadButton.setEnabled(False)
-        if self.download_json(url):
-            data = self.receive_data
-            save_json(path, data)
-            self.SavePlaceLabel.setText("成功！")
-            self.SavePlaceLabel.setText(f"成功！文件保存到{path}")
-        else:
-            self.SavePlaceLabel.setText("失败！")
-        self.DownloadButton.setEnabled(True)
+
+        def do_request(req_url):
+            if p := self.nam_proxy:
+                self.downloader.setProxy(p)
+            else:
+                self.downloader.setProxy()
+            self.downloader.get(QtNetwork.QNetworkRequest(QtCore.QUrl(req_url)))
+
+        do_request(url)
 
     def load_tree_data(self):
         source = self.DataSourceBox.currentIndex()
+
         if source == 1:  # pjsekai
             p = os.path.join(self.root, "data/pjsekai/tree/tree.json")
-            data = read_json(p)
-            if data and "data" in data:
-                data = data["data"]
         else:
             p = os.path.join(self.root, "data/best/tree/tree.json")
-            data = read_json(p)
+        data = read_json(p)
         return data
 
     def change_source(self) -> None:
         data = self.load_tree_data()
+        self.DataTypeBox.clear()
+        self.DataPeriodBox.clear()
+        self.DataEpisodeBox.clear()
         if data:
             self.DataTypeBox.clear()
             for key in data:
@@ -371,7 +388,6 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
             self.DataPeriodBox.clear()
 
     def change_episode(self):
-        self.SavePlaceLabel.setText("")
         data = self.load_tree_data()
         if data:
             type_key = self.DataTypeBox.currentText()

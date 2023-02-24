@@ -2,9 +2,9 @@ import os
 
 from PySide6 import QtWidgets, QtGui, QtCore
 
+from gui.design.WidgetSubtitleProcess import Ui_ProcessWidget
+from gui.design.WidgetSubtitleTaskAccept import Ui_AccWidget
 from gui.widgets.dialog_makeTaskDialog import NewTaskDialog
-from gui.widgets.qt_sub_process import Ui_ProcessWidget
-from gui.widgets.qt_task_accept import Ui_AccWidget
 from gui.widgets.widget_progressBar import ProgressBar
 
 
@@ -18,7 +18,7 @@ class TaskAcceptWidget(QtWidgets.QWidget, Ui_AccWidget):
 
     def dragEnterEvent(self, event: QtGui.QDragEnterEvent) -> None:
         path = event.mimeData().text()
-        if path.endswith((".mp4", ".mkv", ".wmv", ".avi", ".json", ".asset",".txt")):
+        if path.endswith((".mp4", ".mkv", ".wmv", ".avi", ".json", ".asset", ".txt")):
             event.accept()
         else:
             event.ignore()
@@ -51,12 +51,20 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
         self.horizontalLayout.addWidget(self.TaskAcceptWidget)
         self.bars = []
 
+    @property
+    def font(self):
+        return self.parent.font
+
+    @property
+    def start_immediate(self):
+        return self.parent.immediate_start
+
     def NewTaskDialog(self, path):
         dialog = NewTaskDialog(self.parent)
         if path and os.path.exists(path):
             if path.endswith((".mp4", ".mkv", ".wmv", ".avi",)):
                 dialog.VideoSelector.FileLabel.setText(path)
-            elif path.endswith((".json",".asset")):
+            elif path.endswith((".json", ".asset")):
                 dialog.JsonSelector.FileLabel.setText(path)
             elif path.endswith((".txt",)):
                 dialog.TranslateSelector.FileLabel.setText(path)
@@ -67,11 +75,12 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
     def ProcessSignal(self, data):
         bar = ProgressBar(self, data)
         item = ListWidgetItem()
-        item.setSizeHint(bar.size())
         item.id = bar.id
         self.ProcessingListWidget.addItem(item)
         self.ProcessingListWidget.setItemWidget(item, bar)
         self.bars.append(bar)
+        if self.start_immediate:
+            bar.toggle_process()
 
     def ProcessSignalFromChild(self, data):
         child_id = data.get("id")
@@ -81,7 +90,7 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
         for i in range(count):
             item = self.ProcessingListWidget.item(i)
             if item.id == child_id:
-                if child_data == 0:
+                if isinstance(child_data, int):
                     self.ProcessingListWidget.removeItemWidget(self.ProcessingListWidget.takeItem(i))
                 else:
                     self.ProcessingListWidget.item(i).setSizeHint(child_data)
@@ -89,6 +98,8 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
             if bar.id == child_id:
                 if child_data == 0:
                     self.bars.remove(bar)
+                else:
+                    bar.setFixedSize(child_data)
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
         count = self.ProcessingListWidget.count()

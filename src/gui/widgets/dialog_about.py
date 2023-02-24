@@ -5,7 +5,7 @@ from PySide6 import QtWidgets
 from PySide6.QtCore import QUrl
 from PySide6.QtGui import QIcon, QDesktopServices, QPixmap
 
-from gui.widgets.qt_dialogAbout import Ui_Dialog
+from gui.design.WindowDialogAbout import Ui_Dialog
 
 
 class AboutDialog(QtWidgets.QDialog, Ui_Dialog):

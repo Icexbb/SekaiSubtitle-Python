@@ -3,16 +3,18 @@ import platform
 import random
 import sys
 
-import cv2
 from PySide6 import QtWidgets, QtCore, QtGui
-from PySide6.QtGui import QIcon, QPixmap, QImage
+from PySide6.QtGui import QIcon, QFont
 from qframelesswindow import FramelessMainWindow
 
+from gui.design.WindowMain import Ui_MainWindow
 from gui.widgets.dialog_about import AboutDialog
-from gui.widgets.qt_main import Ui_MainWindow
 from gui.widgets.widget_download import DownloadWidget
-from gui.widgets.widget_subtitleProcess import ProcessWidget
+from gui.widgets.widget_setting import SettingWidget
+from gui.widgets.widget_subtitle import ProcessWidget
 from gui.widgets.widget_titlebar import TitleBar
+
+EXIT_CODE_REBOOT = -11231351
 
 
 class MainUi(FramelessMainWindow, Ui_MainWindow):
@@ -28,27 +30,16 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
 
         self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-
-        self.iconPath = "asset"
-        if getattr(sys, 'frozen', False):
-            self.iconPath = os.path.join(sys._MEIPASS, self.iconPath)
-        if platform.system() == "Darwin":
-            titleIcon = os.path.join(self.iconPath, "icon.icns")
-        else:
-            titleIcon = os.path.join(self.iconPath, "icon.ico")
-        if os.path.exists(titleIcon):
-            self.setWindowIcon(QIcon(titleIcon))
-        try:
-            i=os.path.realpath(self.iconPath+"/chibi/"+random.choice(os.listdir(self.iconPath+"/chibi")))
-            self.FigureLabel.setPixmap(QtGui.QPixmap(i).scaledToHeight(self.FigureLabel.height(),QtCore.Qt.TransformationMode.SmoothTransformation))
-        except:
-            self.FigureLabel.setText("")
+        self.load_icon()
+        self.load_random_chibi()
         self.FormProcessWidget = ProcessWidget(self)
+        self.FormSettingWidget = SettingWidget(self)
         self.FormDownloadWidget = DownloadWidget(self)
         self.MainLayout = QtWidgets.QStackedLayout()
         self.CenterFrame.setLayout(self.MainLayout)
         self.MainLayout.addWidget(self.FormProcessWidget)
         self.MainLayout.addWidget(self.FormDownloadWidget)
+        self.MainLayout.addWidget(self.FormSettingWidget)
 
         self.TitleBar = TitleBar(self)
         self.TitleBar.TitleLabel.setText("SekaiSubtitle Alpha")
@@ -56,27 +47,43 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         self.FuncButtonSubtitle.clicked.connect(self.switchToSubtitle)
         self.FuncButtonText.clicked.connect(self.NotCompleteWarning)
         self.FuncButtonDownload.clicked.connect(self.switchToDownload)
-        self.FuncButtonSetting.clicked.connect(self.NotCompleteWarning)
+        self.FuncButtonSetting.clicked.connect(self.switchToSetting)
         self.FuncButtonAbout.clicked.connect(self.AboutWindow)
         self.switchToSubtitle()
+
+    def load_random_chibi(self):
+        icon_path = "asset"
+        try:
+            i = os.path.realpath(icon_path + "/chibi/" + random.choice(os.listdir(icon_path + "/chibi")))
+            self.FigureLabel.setPixmap(
+                QtGui.QPixmap(i).scaledToHeight(self.FigureLabel.height(),
+                                                QtCore.Qt.TransformationMode.SmoothTransformation))
+        except:
+            self.FigureLabel.setText("")
+
+    def load_icon(self):
+        icon_path = "asset"
+        if getattr(sys, 'frozen', False):
+            icon_path = os.path.join(sys._MEIPASS, icon_path)
+        if platform.system() == "Darwin":
+            title_icon = os.path.join(icon_path, "icon.icns")
+        else:
+            title_icon = os.path.join(icon_path, "icon.ico")
+        if os.path.exists(title_icon):
+            self.setWindowIcon(QIcon(title_icon))
 
     def AboutWindow(self):
         dia = AboutDialog()
         dia.exec_()
-
-    def takeCurrentWidget(self):
-        for i in reversed(range(self.ProcessGridLayout.count())):
-            item = self.ProcessGridLayout.takeAt(i)
-            if isinstance(item, ProcessWidget):
-                self.FormProcessWidget = item
-            elif isinstance(item, DownloadWidget):
-                self.FormDownloadWidget = item
 
     def switchToSubtitle(self):
         self.MainLayout.setCurrentIndex(0)
 
     def switchToDownload(self):
         self.MainLayout.setCurrentIndex(1)
+
+    def switchToSetting(self):
+        self.MainLayout.setCurrentIndex(2)
 
     # 鼠标移动事件
     def mouseMoveEvent(self, a0: QtGui.QMouseEvent):
@@ -102,27 +109,52 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
             self._startPos = None
             self._endPos = None
 
-    # 鼠标双击事件
-    def mouseDoubleClickEvent(self, a0: QtGui.QMouseEvent):
-        if self.childAt(a0.position().x(), a0.position().y()).objectName() == "MainFrame":
-            if a0.button() == QtCore.Qt.LeftButton:
-                self.maxOrNormal()
-
     def NotCompleteWarning(self):
         QtWidgets.QMessageBox.warning(
-            self, "错误", "模块暂未完成，敬请期待", QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.Yes
+            self, "错误", "模块暂未完成，敬请期待",
+            QtWidgets.QMessageBox.StandardButton.Yes, QtWidgets.QMessageBox.StandardButton.Yes
         )
 
     @property
     def proxy(self):
-        return None
+        return self.FormSettingWidget.get_config()["proxy"]
+
+    @property
+    def immediate_start(self):
+        return self.FormSettingWidget.get_config()["start_immediate"]
+
+    @property
+    def font(self):
+        return QFont(self.FormSettingWidget.get_config()["font"]).family()
+
+    def restart(self):
+        # qDebug("Performing application reboot...")
+        self.close()
+        QtWidgets.QApplication.exit(EXIT_CODE_REBOOT)
 
 
 def start_gui():
-    app = QtWidgets.QApplication(sys.argv)
-    main_ui = MainUi()
-    main_ui.show()
-    app.exec()
+    start_time = 0
+    if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+    if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
+    while True:
+        try:
+            app = QtWidgets.QApplication(sys.argv)
+        except RuntimeError:
+            app = QtWidgets.QApplication.instance()
+        if not start_time:
+            splash = QtWidgets.QSplashScreen(QtGui.QPixmap("asset/icon.png"))
+            splash.show()
+        window = MainUi()
+        window.show()
+        if not start_time:
+            splash.finish(window)
+        exit_code = app.exec_()
+        start_time += 1
+        if exit_code != EXIT_CODE_REBOOT:
+            break
 
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@ import os
 
 from PySide6 import QtWidgets, QtCore
 
-from gui.widgets.qt_bar import Ui_Form as Bar
+from gui.design.qt_bar import Ui_Form as Bar
 
 
 class VideoProcessThread(QtCore.QThread):

@@ -12,7 +12,7 @@ import numpy
 from PySide6 import QtCore
 
 import script.tools
-from lib.data import DISPLAY_NAME_STYLE, subtitle_styles
+from lib.data import DISPLAY_NAME_STYLE, subtitle_styles_format
 from lib.reference import get_dialog_mask, get_frame_data, get_area_mask, get_area_mask_size
 from lib.subtitle import Subtitle
 from script import match
@@ -28,11 +28,12 @@ class SekaiJsonVideoProcess:
             output_file: str = None,
             signal: QtCore.Signal(dict) = None,
             overwrite: bool = False,
-            queue_in: Queue = Queue()
+            queue_in: Queue = Queue(),
+            font_custom: str = None
     ):
         self.time_start = time.time()
         self.json_data = None
-
+        self.font = font_custom
         self.signal = signal
 
         self.video_file = video_file
@@ -115,10 +116,10 @@ class SekaiJsonVideoProcess:
                     result = []
                     for i in range(len(body)):
                         item = self.json_data['TalkData'][i]
-                        item["Body"] = body[i]
+                        replaced = body[i]
+                        item["Body"] = replaced.replace("\\N", "\n")
                         result.append(item)
                     self.json_data['TalkData'] = result
-
                 if len(place) == len([item for item in self.json_data['SpecialEffectData'] if item['EffectType'] == 8]):
                     raw = self.json_data['SpecialEffectData']
                     result = []
@@ -159,9 +160,7 @@ class SekaiJsonVideoProcess:
 
         self.emit({"total": dialog_count_total})
 
-        time_start = time.time()
         while not self.stop:
-            # ret, frame = vc.read()
             frame = queue.get()
 
             if isinstance(frame, numpy.ndarray) and dialog_data:
@@ -216,43 +215,49 @@ class SekaiJsonVideoProcess:
             dialog_styles = self.dialog_make_styles(
                 point_center=constant_pc,
                 point_size=int(pointer.shape[0]),
-                screen_data=get_frame_data((width, height), constant_pc))
+                # screen_data=get_frame_data((width, height), constant_pc)
+            )
             for i in (dialog_events, dialog_styles, height, width):
                 results.append(i)
 
             self.log(
                 "[Processing] Dialog Matching Process Finished" + (" But not Fully Matched" if dialog_data else ""))
 
-    @staticmethod
-    def dialog_make_styles(point_center, point_size: int, screen_data: dict):
+    def dialog_make_styles(self, point_center, point_size: int):
         res = []
+        subtitle_styles = copy.deepcopy(subtitle_styles_format)
         for key in subtitle_styles:
             item = subtitle_styles[key]
-            if item["Fontname"] == "思源黑体 CN Bold":
-                item["Fontname"] = "思源黑体 CN"
-                item['Bold'] = True
             if item["MarginL"] == 325:
                 item["MarginL"] = int(point_center[0] - 0.5 * point_size)
                 item["MarginV"] = int(point_center[1] + 1.25 * point_size)
-                item["Fontsize"] = screen_data['pattern_coefficient'] * point_size
+                item["Fontsize"] = int(point_size * (83 / 56))
+            if self.font:
+                item["Font"] = self.font
             res.append(item)
         return res
 
     @staticmethod
     def dialog_body_typer(body: str, char_interval: int = 50):
+        return_char = ["\n", "\\n", "\\N"]
+        for c in return_char:
+            body.replace(c, "\n")
         body_list = list(body)
         res = []
         return_count = 0
         for index, char in enumerate(body_list):
-            return_count += 1 if char in ["\n", "\\n", "\\N"] else 0
+            return_count += 1 if char == "\n" else 0
             res.append(
                 rf"{{\alphaFF\t({char_interval * (index * 2 + 1) + return_count * 300},"
                 rf"{char_interval * (index * 2 + 2) + return_count * 300},1,\alpha0)}}"
-                + char)
+                + (char if char != "\n" else r"\N"))
         return "".join(res)
 
     @staticmethod
     def dialog_body_typer_calculater(body: str, frame_count: int, frame_time: timedelta, char_interval: int = 50):
+        return_char = ["\n", "\\n", "\\N"]
+        for c in return_char:
+            body.replace(c, "\n")
         now_time = frame_time * frame_count
         now_time_ms = int(now_time.total_seconds() * 1000)
         trans_alpha_string = r"{\alpha&HFF&}"
@@ -261,15 +266,15 @@ class SekaiJsonVideoProcess:
         res = []
         char_time = 0
         for index, char in enumerate(body_list):
-            char_time += 300 + char_interval if char in ["\n", "\\n", "\\N"] else char_interval
+            char_time += 300 + char_interval if char == "\n" else char_interval
             n_char = char
             if char_time < now_time_ms < char_time + char_interval:
                 la = 255 - int((now_time_ms - char_time) / char_interval * 255)
                 la_string = rf"{{\alpha{int(la)}}}"
-                n_char = la_string + char
+                n_char = la_string + (char if char != "\n" else r"\N")
             elif char_time > now_time_ms:
                 if not is_trans_now:
-                    n_char = trans_alpha_string + char
+                    n_char = trans_alpha_string + (char if char != "\n" else r"\N")
                     is_trans_now = True
             res.append(n_char)
         return "".join(res)
@@ -288,9 +293,6 @@ class SekaiJsonVideoProcess:
         style = DISPLAY_NAME_STYLE[dialog_data['WindowDisplayName']] \
             if dialog_data['WindowDisplayName'] in DISPLAY_NAME_STYLE else "関連人物"
 
-        dialog_body = SekaiJsonVideoProcess.dialog_body_typer(dialog_data["Body"], 50)
-        raw_dialog_body = dialog_data["Body"]
-
         jitter = False
         for item in dialog_frames:
             if script.tools.check_distance(item["point_center"], start_frame["point_center"]) > pow(pow(5, 2) * 2, 0.5):
@@ -302,7 +304,7 @@ class SekaiJsonVideoProcess:
             if last_dialog_frame and last_dialog_event:
                 if start_frame['frame'] - last_dialog_frame['frame'] <= 1:
                     start_time = last_dialog_event['End']
-
+            dialog_body = SekaiJsonVideoProcess.dialog_body_typer(dialog_data["Body"], 50)
             event_data = {
                 "Layer": 1,
                 "Start": start_time,
@@ -311,7 +313,7 @@ class SekaiJsonVideoProcess:
                 "Name": dialog_data['WindowDisplayName'],
                 "MarginL": 0, "MarginR": 0, "MarginV": 0,
                 "Effect": '',
-                "Text": dialog_body.replace("\n", r"\N")
+                "Text": dialog_body
             }
             mask_data = copy.deepcopy(event_data)
 
@@ -330,8 +332,9 @@ class SekaiJsonVideoProcess:
                        f"{int(frame['point_center'][0] - 0.5 * point_size)}," \
                        f"{int(frame['point_center'][1] + 1.25 * point_size)}" \
                        r")}"
-                frame_body = move + SekaiJsonVideoProcess.dialog_body_typer_calculater(
-                    raw_dialog_body, index, frame_time, 50).replace("\n", r"\N")
+                dialog_body = SekaiJsonVideoProcess.dialog_body_typer_calculater(
+                    dialog_data["Body"], index, frame_time, 50)
+                frame_body = move + dialog_body
 
                 event_data = {
                     "Layer": 1,
@@ -377,7 +380,6 @@ class SekaiJsonVideoProcess:
 
     def area_match(self, queue: Queue, result: list):
         vc = self.VideoCapture
-        total_frame_count = int(vc.get(7))
         video_fps = vc.get(5)
         height, width = (vc.get(4), vc.get(3))
 
@@ -465,35 +467,40 @@ class SekaiJsonVideoProcess:
         events.append(event_data)
         return events
 
-    def queue_video_frame(self, queue1: Queue, queue2: Queue):
+    def queue_video_frame(self, queue_array: list[Queue]):
         ret = True
         self.emit({"total": 2 * self.VideoCapture.get(7)})
         while ret:
             ret, frame = self.VideoCapture.read()
-            queue1.put(frame)
-            queue2.put(frame)
+            for queue in queue_array:
+                queue.put(frame)
             if not self.queue.empty():
                 self.set_stop()
                 break
-        queue1.put(None)
-        queue2.put(None)
+        for queue in queue_array:
+            queue.put(False)
 
     def process(self):
 
         from threading import Thread
         t1r = []
         t2r = []
-        q1 = Queue()
-        q2 = Queue()
-        thread_read_video = Thread(target=self.queue_video_frame, args=(q1, q2,))
-        t1 = Thread(target=self.dialog_match, args=(q1, t1r,))
-        t2 = Thread(target=self.area_match, args=(q2, t2r,))
+        dialog_frame_queue = Queue()
+        area_frame_queue = Queue()
+        queue_array = [dialog_frame_queue, area_frame_queue]
+
+        thread_read_video = Thread(target=self.queue_video_frame, args=(queue_array,))
+        dialog_match_thread = Thread(target=self.dialog_match, args=(dialog_frame_queue, t1r,))
+        area_match_thread = Thread(target=self.area_match, args=(area_frame_queue, t2r,))
+
         thread_read_video.start()
-        t1.start()
-        t2.start()
-        t1.join()
-        t2.join()
+        dialog_match_thread.start()
+        area_match_thread.start()
+
+        dialog_match_thread.join()
+        area_match_thread.join()
         thread_read_video.join()
+
         if self.stop:
             raise KeyboardInterrupt
         else:

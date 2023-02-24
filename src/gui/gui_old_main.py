@@ -10,7 +10,7 @@ from PySide6.QtGui import QCloseEvent
 
 from gui.thread_download import DownloadThread
 from gui.thread_process import VideoProcessThread, ProgressBar
-from gui.widgets.qt_window import Ui_Sekai_Subtitle
+from gui.design.qt_window import Ui_Sekai_Subtitle
 from lib.data import chara_name
 from script.tools import read_json, save_json
 
