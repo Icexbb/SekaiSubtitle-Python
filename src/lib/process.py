@@ -11,11 +11,11 @@ import cv2
 import numpy
 from PySide6 import QtCore
 
-import script.tools
+import lib.tools
 from lib.data import DISPLAY_NAME_STYLE, subtitle_styles_format
 from lib.reference import get_dialog_mask, get_frame_data, get_area_mask, get_area_mask_size
 from lib.subtitle import Subtitle
-from script import match
+from lib import match
 
 
 class SekaiJsonVideoProcess:
@@ -295,12 +295,12 @@ class SekaiJsonVideoProcess:
 
         jitter = False
         for item in dialog_frames:
-            if script.tools.check_distance(item["point_center"], start_frame["point_center"]) > pow(pow(5, 2) * 2, 0.5):
+            if lib.tools.check_distance(item["point_center"], start_frame["point_center"]) > pow(pow(5, 2) * 2, 0.5):
                 jitter = True
                 break
 
         if not jitter:
-            start_time = script.tools.timedelta_to_string(frame_time * start_frame['frame'])
+            start_time = lib.tools.timedelta_to_string(frame_time * start_frame['frame'])
             if last_dialog_frame and last_dialog_event:
                 if start_frame['frame'] - last_dialog_frame['frame'] <= 1:
                     start_time = last_dialog_event['End']
@@ -308,7 +308,7 @@ class SekaiJsonVideoProcess:
             event_data = {
                 "Layer": 1,
                 "Start": start_time,
-                "End": script.tools.timedelta_to_string(frame_time * end_frame['frame']),
+                "End": lib.tools.timedelta_to_string(frame_time * end_frame['frame']),
                 "Style": style,
                 "Name": dialog_data['WindowDisplayName'],
                 "MarginL": 0, "MarginR": 0, "MarginV": 0,
@@ -338,8 +338,8 @@ class SekaiJsonVideoProcess:
 
                 event_data = {
                     "Layer": 1,
-                    "Start": script.tools.timedelta_to_string(frame_time * frame['frame']),
-                    "End": script.tools.timedelta_to_string(frame_time * (frame['frame'] + 1)),
+                    "Start": lib.tools.timedelta_to_string(frame_time * frame['frame']),
+                    "End": lib.tools.timedelta_to_string(frame_time * (frame['frame'] + 1)),
                     "Style": style,
                     "Name": dialog_data['WindowDisplayName'],
                     "MarginL": 0, "MarginR": 0, "MarginV": 0,
@@ -361,8 +361,8 @@ class SekaiJsonVideoProcess:
 
                 mask_data = {
                     "Layer": 1,
-                    "Start": script.tools.timedelta_to_string(frame_time * frame['frame']),
-                    "End": script.tools.timedelta_to_string(frame_time * (frame['frame'] + 1)),
+                    "Start": lib.tools.timedelta_to_string(frame_time * frame['frame']),
+                    "End": lib.tools.timedelta_to_string(frame_time * (frame['frame'] + 1)),
                     "Style": 'screen',
                     "Name": dialog_data['WindowDisplayName'],
                     "MarginL": 0, "MarginR": 0, "MarginV": 0, "Effect": '',
@@ -449,16 +449,16 @@ class SekaiJsonVideoProcess:
         frame_time = timedelta(seconds=1 / fps)
         event_mask = {
             "Layer": 0,
-            "Start": script.tools.timedelta_to_string(frame_array[0] * frame_time),
-            "End": script.tools.timedelta_to_string(frame_array[-1] * frame_time),
+            "Start": lib.tools.timedelta_to_string(frame_array[0] * frame_time),
+            "End": lib.tools.timedelta_to_string(frame_array[-1] * frame_time),
             "Style": "address", "Name": '',
             "MarginL": 0, "MarginR": 0, "MarginV": 0, "Effect": '',
             "Text": r"{\fad(100,100)}" + area_mask
         }
         event_data = {
             "Layer": 1,
-            "Start": script.tools.timedelta_to_string(frame_array[0] * frame_time),
-            "End": script.tools.timedelta_to_string(frame_array[-1] * frame_time),
+            "Start": lib.tools.timedelta_to_string(frame_array[0] * frame_time),
+            "End": lib.tools.timedelta_to_string(frame_array[-1] * frame_time),
             "Style": "address", "Name": '',
             "MarginL": 0, "MarginR": 0, "MarginV": 0, "Effect": '',
             "Text": area_info["StringVal"]

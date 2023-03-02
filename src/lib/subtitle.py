@@ -7,7 +7,7 @@ import ass
 import json
 from ass.data import Color
 
-from script.tools import timedelta_to_string
+from lib.tools import timedelta_to_string
 
 
 class Subtitle:
