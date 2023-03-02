@@ -4,7 +4,7 @@ import random
 import sys
 
 from PySide6 import QtWidgets, QtCore, QtGui
-from PySide6.QtGui import QIcon, QFont
+from PySide6.QtGui import QIcon, QFont, QMovie
 from qframelesswindow import FramelessMainWindow
 
 from gui.design.WindowMain import Ui_MainWindow
@@ -30,8 +30,7 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
 
         self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-        self.load_icon()
-        self.load_random_chibi()
+
         self.FormProcessWidget = ProcessWidget(self)
         self.FormSettingWidget = SettingWidget(self)
         self.FormDownloadWidget = DownloadWidget(self)
@@ -40,6 +39,9 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         self.MainLayout.addWidget(self.FormProcessWidget)
         self.MainLayout.addWidget(self.FormDownloadWidget)
         self.MainLayout.addWidget(self.FormSettingWidget)
+
+        self.load_icon()
+        self.load_random_chibi()
 
         self.TitleBar = TitleBar(self)
         self.TitleBar.TitleLabel.setText("SekaiSubtitle Alpha")
@@ -53,12 +55,44 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
 
     def load_random_chibi(self):
         icon_path = "asset"
+        if getattr(sys, 'frozen', False):
+            icon_path = os.path.join(sys._MEIPASS, icon_path)
         try:
-            i = os.path.realpath(icon_path + "/chibi/" + random.choice(os.listdir(icon_path + "/chibi")))
-            self.FigureLabel.setPixmap(
-                QtGui.QPixmap(i).scaledToHeight(self.FigureLabel.height(),
-                                                QtCore.Qt.TransformationMode.SmoothTransformation))
-        except:
+            select = self.FormSettingWidget.get_config("chibi")
+            animated = self.FormSettingWidget.get_config("animated")
+
+            if select == "随机":
+                if animated:
+                    root = os.path.join(icon_path + "/chibi_gif/")
+                    chara = random.choice(os.listdir(root))
+                    cloth = random.choice(os.listdir(os.path.join(root, chara)))
+                    motion = random.choice(os.listdir(os.path.join(root, chara, cloth)))
+                    i = os.path.join(root, chara, cloth, motion)
+                else:
+                    i = os.path.join(icon_path + "/chibi/" + random.choice(os.listdir(icon_path + "/chibi")))
+            else:
+                if animated:
+                    root = os.path.join(icon_path + "/chibi_gif/")
+                    chara = select
+                    cloth = random.choice(os.listdir(os.path.join(root, chara)))
+                    motion = random.choice(os.listdir(os.path.join(root, chara, cloth)))
+                    i = os.path.join(root, chara, cloth, motion)
+                else:
+                    i = os.path.join(icon_path + f"/chibi/{select}.png")
+                    if not os.path.exists(i):
+                        i = os.path.join(icon_path + "/chibi/" + random.choice(os.listdir(icon_path + "/chibi")))
+            if animated:
+                movie = QMovie(i)
+                movie.setCacheMode(QtGui.QMovie.CacheMode.CacheAll)
+                movie.setScaledSize(self.FigureLabel.size())
+                movie.start()
+                self.FigureLabel.setMovie(movie)
+            else:
+                self.FigureLabel.setPixmap(
+                    QtGui.QPixmap(i).scaledToHeight(self.FigureLabel.height(),
+                                                    QtCore.Qt.TransformationMode.SmoothTransformation))
+        except BaseException as e:
+            print(e)
             self.FigureLabel.setText("")
 
     def load_icon(self):

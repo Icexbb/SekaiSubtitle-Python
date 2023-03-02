@@ -3,7 +3,7 @@ import os.path
 from PySide6 import QtWidgets, QtCore
 
 from gui.design.WidgetProcessBar import Ui_ProgressBarWidget
-from gui.thread_process_new import VideoProcessThread
+from gui.thread_process import VideoProcessThread
 
 
 class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):

@@ -49,6 +49,9 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
         self.TaskAcceptWidget = TaskAcceptWidget()
         self.TaskAcceptWidget.signal.connect(self.NewTaskDialog)
         self.horizontalLayout.addWidget(self.TaskAcceptWidget)
+        self.StopAllButton.clicked.connect(self.stop_all)
+        self.StartAllButton.clicked.connect(self.start_all)
+        self.ClearAllButton.clicked.connect(self.clear_all)
         self.bars = []
 
     @property
@@ -74,8 +77,10 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
 
     def ProcessSignal(self, data):
         bar = ProgressBar(self, data)
+
         item = ListWidgetItem()
         item.id = bar.id
+        item.setSizeHint(bar.size() + QtCore.QSize(-60, 0))
         self.ProcessingListWidget.addItem(item)
         self.ProcessingListWidget.setItemWidget(item, bar)
         self.bars.append(bar)
@@ -107,6 +112,24 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
         add_width = QtCore.QSize(add_width.width(), 0)
         for i in range(count):
             item: ListWidgetItem = self.ProcessingListWidget.item(i)
-            item.setSizeHint(item.sizeHint() + add_width)
+            for bar in self.bars:
+                if bar.id == item.id:
+                    item.setSizeHint(bar.size() + QtCore.QSize(-60, 0) + add_width)
+
+    def start_all(self):
         for bar in self.bars:
-            bar.setFixedSize(bar.size() + add_width)
+            if not bar.processing:
+                bar.toggle_process()
+
+    def stop_all(self):
+        for bar in self.bars:
+            if bar.processing:
+                bar.toggle_process()
+
+    def clear_all(self):
+        self.stop_all()
+        count = self.ProcessingListWidget.count()
+        while count:
+            self.ProcessingListWidget.removeItemWidget(self.ProcessingListWidget.takeItem(0))
+            count = self.ProcessingListWidget.count()
+        self.bars.clear()

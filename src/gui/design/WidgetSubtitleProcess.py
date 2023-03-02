@@ -16,8 +16,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QAbstractItemView, QApplication, QFrame, QGridLayout,
-    QHBoxLayout, QListWidget, QListWidgetItem, QSizePolicy,
-    QVBoxLayout, QWidget)
+    QHBoxLayout, QListView, QListWidget, QListWidgetItem,
+    QPushButton, QSizePolicy, QVBoxLayout, QWidget)
 
 class Ui_ProcessWidget(object):
     def setupUi(self, ProcessWidget):
@@ -57,10 +57,36 @@ class Ui_ProcessWidget(object):
         self.ProcessingListWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.ProcessingListWidget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.ProcessingListWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.ProcessingListWidget.setProperty("showDropIndicator", False)
         self.ProcessingListWidget.setSelectionMode(QAbstractItemView.NoSelection)
+        self.ProcessingListWidget.setLayoutMode(QListView.Batched)
 
         self.verticalLayout.addWidget(self.ProcessingListWidget)
+
+        self.frame = QFrame(self.MainFrame)
+        self.frame.setObjectName(u"frame")
+        sizePolicy.setHeightForWidth(self.frame.sizePolicy().hasHeightForWidth())
+        self.frame.setSizePolicy(sizePolicy)
+        self.frame.setFrameShape(QFrame.StyledPanel)
+        self.frame.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_3 = QHBoxLayout(self.frame)
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.StartAllButton = QPushButton(self.frame)
+        self.StartAllButton.setObjectName(u"StartAllButton")
+
+        self.horizontalLayout_3.addWidget(self.StartAllButton)
+
+        self.StopAllButton = QPushButton(self.frame)
+        self.StopAllButton.setObjectName(u"StopAllButton")
+
+        self.horizontalLayout_3.addWidget(self.StopAllButton)
+
+        self.ClearAllButton = QPushButton(self.frame)
+        self.ClearAllButton.setObjectName(u"ClearAllButton")
+
+        self.horizontalLayout_3.addWidget(self.ClearAllButton)
+
+
+        self.verticalLayout.addWidget(self.frame)
 
 
         self.gridLayout.addWidget(self.MainFrame, 0, 0, 1, 1)
@@ -73,5 +99,8 @@ class Ui_ProcessWidget(object):
 
     def retranslateUi(self, ProcessWidget):
         ProcessWidget.setWindowTitle(QCoreApplication.translate("ProcessWidget", u"Form", None))
+        self.StartAllButton.setText(QCoreApplication.translate("ProcessWidget", u"\u5f00\u59cb\u6240\u6709\u4efb\u52a1", None))
+        self.StopAllButton.setText(QCoreApplication.translate("ProcessWidget", u"\u505c\u6b62\u6240\u6709\u4efb\u52a1", None))
+        self.ClearAllButton.setText(QCoreApplication.translate("ProcessWidget", u"\u6e05\u7a7a\u4efb\u52a1\u5217\u8868", None))
     # retranslateUi
 
