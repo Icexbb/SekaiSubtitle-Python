@@ -179,7 +179,10 @@ def start_gui():
         except RuntimeError:
             app = QtWidgets.QApplication.instance()
         if not start_time:
-            splash = QtWidgets.QSplashScreen(QtGui.QPixmap("asset/icon.png"))
+            icon_path = "asset"
+            if getattr(sys, 'frozen', False):
+                icon_path = os.path.join(sys._MEIPASS, icon_path)
+            splash = QtWidgets.QSplashScreen(QtGui.QPixmap(os.path.join(icon_path, "icon.png")))
             splash.show()
         window = MainUi()
         window.show()
