@@ -19,8 +19,14 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
         self.StartButton.clicked.connect(self.toggle_process)
         self.DeleteButton.clicked.connect(self.delete_process)
 
-        self.taskInfo = data
+        self.taskInfo: dict = data
         self.video = self.taskInfo.get("video")
+        self.font = self.taskInfo.get("font")
+
+        if self.taskInfo.get("dryrun"):
+            self.dryrun = True
+        else:
+            self.dryrun = False
         self.json = self.taskInfo.get("json")
         self.translate = self.taskInfo.get("translate")
         self.Thread: VideoProcessThread = None
@@ -29,7 +35,6 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
         self.TaskName.setText(self.TaskNameString)
         self.TaskName.repaint()
         self.timer = QtCore.QTimer(self)
-        # self.timer.timeout.connect(self.update_content)
         self.signal.connect(self.parent.ProcessSignalFromChild)
         self.LogShowButton.clicked.connect(self.showLog)
         self.logShowing = False
@@ -47,7 +52,8 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
 
     def toggle_process(self):
         if not self.processing:
-            self.Thread = VideoProcessThread(self, self.video, self.json, self.translate)
+
+            self.Thread = VideoProcessThread(self, self.video, self.json, self.translate, self.font, self.dryrun)
             self.Thread.signal_data.connect(self.signal_process)
             self.StartButton.setStyleSheet("background-color:rgb(255,255,100);")
             self.StatusLogList.clear()
@@ -124,7 +130,7 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
                 percent = self.ProgressBar.value() / (self.ProgressBar.maximum() or 1) * 100
                 fps = self.ProgressBar.value() / (time_spend or 1)
                 eta = (self.ProgressBar.maximum() - self.ProgressBar.value()) / (fps or 1)
-                self.PercentLabel.setText(f"FPS: {fps:.1f} ETA: {eta:.1f}s {percent:.1f}%")
+                self.PercentLabel.setText(f"FPS: {fps/2:.1f} ETA: {eta:.1f}s {percent:.1f}%")
                 if not self.processing:
                     self.PercentLabel.setText("")
                 self.PercentLabel.repaint()

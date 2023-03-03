@@ -57,6 +57,16 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="SelectOnlyVideoCheck">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>仅使用视频</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="SelectButton">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">

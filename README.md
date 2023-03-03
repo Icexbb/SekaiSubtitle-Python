@@ -6,8 +6,8 @@
 GITHUB地址 https://github.com/Icexbb/SekaiSubtitle-Python
 ## 开发进度
 
-- [ ] 视频无Json运行
-- [ ] 视频多Json运行
+- [x] 视频无Json运行
+- [x] 视频多Json运行
 - [ ] 整合Sekai Text - 一站式世界计划剧情翻译平台
 - [ ] *更多需求请提出**issue***
 

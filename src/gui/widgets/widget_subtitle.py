@@ -67,11 +67,13 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
         if path and os.path.exists(path):
             if path.endswith((".mp4", ".mkv", ".wmv", ".avi",)):
                 dialog.VideoSelector.FileLabel.setText(path)
+                dialog.VideoSelector.fileSelected = path
             elif path.endswith((".json", ".asset")):
                 dialog.JsonSelector.FileLabel.setText(path)
+                dialog.JsonSelector.fileSelected = path
             elif path.endswith((".txt",)):
                 dialog.TranslateSelector.FileLabel.setText(path)
-
+                dialog.TranslateSelector.fileSelected = path
         dialog.signal.connect(self.ProcessSignal)
         dialog.exec()
 

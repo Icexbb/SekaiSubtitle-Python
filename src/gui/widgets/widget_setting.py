@@ -15,7 +15,7 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         self.parent = parent
         self.load_chibi()
         self.pushButton.clicked.connect(self.change_config)
-        self.root = os.path.join(os.getcwd(), "data")
+        self.root = os.path.join(os.path.expanduser('~'), "SekaiSubtitle","setting")
         os.makedirs(self.root, exist_ok=True)
         self.config_file = os.path.join(self.root, "config.json")
 

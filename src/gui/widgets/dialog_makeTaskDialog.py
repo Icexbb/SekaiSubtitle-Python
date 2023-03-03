@@ -3,9 +3,9 @@ import os
 from PySide6 import QtCore, QtWidgets, QtGui
 from qframelesswindow import FramelessDialog
 
-from gui.widgets.widget_titlebar import TitleBar
 from gui.design.WidgetNewTaskSelector import Ui_SelectWidget as Selector
 from gui.design.WindowDialogNewSubTask import Ui_NewSubProcessDialog as Dialog
+from gui.widgets.widget_titlebar import TitleBar
 
 
 class FileSelector(QtWidgets.QWidget, Selector):
@@ -18,22 +18,32 @@ class FileSelector(QtWidgets.QWidget, Selector):
         self.setAcceptDrops(True)
         self.FileLabel.setText("未选择")
         self.SelectButton.clicked.connect(self.chooseFile)
+        self.SelectOnlyVideoCheck.setChecked(False)
+        self.fileSelected = None
 
     def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
         if event.button() == QtCore.Qt.MouseButton.RightButton:
             self.FileLabel.setText("未选择")
 
     def chooseFile(self):
-        file_name_choose, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, "选取文件", dir=os.getcwd(), filter=f"视频文件 ({' '.join(self.acceptFileTypes)});;全部文件 (*)"
-        )
-        if file_name_choose and os.path.exists(file_name_choose):
-            self.FileLabel.setText(file_name_choose)
+        if self.SelectOnlyVideoCheck or "*.json" in self.acceptFileTypes:
+            files, _ = QtWidgets.QFileDialog.getOpenFileNames(
+                self, "选取文件", dir=os.getcwd(),
+                filter=f"可接受的文件 ({' '.join(self.acceptFileTypes)});;全部文件 (*)")
+            if files:
+                self.fileSelected = files
+                self.FileLabel.setText(",".join([os.path.split(file)[-1] for file in files]))
+        else:
+            file_name_choose, _ = QtWidgets.QFileDialog.getOpenFileName(
+                self, "选取文件", dir=os.getcwd(),
+                filter=f"可接受的文件 ({' '.join(self.acceptFileTypes)});;全部文件 (*)")
+            if file_name_choose and os.path.exists(file_name_choose):
+                self.fileSelected = file_name_choose
+                self.FileLabel.setText(os.path.split(file_name_choose)[-1])
 
-    @property
-    def fileSelected(self):
-        filepath = self.FileLabel.text()
-        return filepath if os.path.exists(filepath) else None
+    def clearSelect(self):
+        self.fileSelected = None
+        self.FileLabel.setText("未选择")
 
     def dragEnterEvent(self, event: QtGui.QDragEnterEvent) -> None:
         if event.mimeData().text().endswith(tuple(self.acceptFileTypes)):
@@ -45,6 +55,7 @@ class FileSelector(QtWidgets.QWidget, Selector):
         path = event.mimeData().text().replace('file:///', '')  # 删除多余开头
         if os.path.exists(path):
             self.FileLabel.setText(path)
+            self.fileSelected = path
 
 
 class NewTaskDialog(FramelessDialog, Dialog):
@@ -69,44 +80,77 @@ class NewTaskDialog(FramelessDialog, Dialog):
         self.setTitleBar(self.TitleBar)
 
         self.VideoSelector = FileSelector(self, "视频", ['*.mp4', '*.avi', '*.wmv', "*.mkv"])
-        self.JsonSelector = FileSelector(self, "数据", ['*.json',".asset"])
+        self.JsonSelector = FileSelector(self, "数据", ['*.json', ".asset"])
+        self.JsonSelector.SelectOnlyVideoCheck.setMaximumSize(QtCore.QSize(0, 0))
         self.TranslateSelector = FileSelector(self, "翻译", ['*.txt'])
+        self.TranslateSelector.SelectOnlyVideoCheck.setMaximumSize(QtCore.QSize(0, 0))
+
         self.VideoSelector.FileLabel.textChanged.connect(self.fileAutoSelect)
 
         self.SelectBoxLayout.addWidget(self.VideoSelector)
         self.SelectBoxLayout.addWidget(self.JsonSelector)
         self.SelectBoxLayout.addWidget(self.TranslateSelector)
         self.EmitButton.clicked.connect(self.emitTask)
+        self.VideoSelector.SelectOnlyVideoCheck.stateChanged.connect(self.clear_auto_select)
 
     def fileAutoSelect(self):
         video_file = self.VideoSelector.fileSelected
-        if video_file and os.path.exists(video_file):
-            file_prefix = os.path.splitext(video_file)[0]
-            predict_json = file_prefix + ".json"
-            predict_translate = file_prefix + ".txt"
-            if os.path.exists(predict_json):
-                self.JsonSelector.FileLabel.setText(predict_json)
-            if os.path.exists(predict_translate):
-                self.TranslateSelector.FileLabel.setText(predict_translate)
+        if not self.VideoSelector.SelectOnlyVideoCheck.isChecked():
+            if video_file and os.path.exists(video_file):
+                file_prefix = os.path.splitext(video_file)[0]
+                predict_json = file_prefix + ".json"
+                predict_translate = file_prefix + ".txt"
+                if os.path.exists(predict_json):
+                    self.JsonSelector.FileLabel.setText(predict_json)
+                    self.JsonSelector.fileSelected = predict_json
+                if os.path.exists(predict_translate):
+                    self.TranslateSelector.FileLabel.setText(predict_translate)
+                    self.TranslateSelector.fileSelected = predict_translate
+        else:
+            self.clear_auto_select()
+
+    def clear_auto_select(self):
+        self.JsonSelector.FileLabel.clear()
+        self.JsonSelector.clearSelect()
+        self.TranslateSelector.FileLabel.clear()
+        self.TranslateSelector.clearSelect()
 
     def emitTask(self):
-        video_file = self.VideoSelector.fileSelected
+        video_files = self.VideoSelector.fileSelected
         json_file = self.JsonSelector.fileSelected
         translate_file = self.TranslateSelector.fileSelected
-        data = {"video": video_file, "json": json_file, "translate": translate_file}
-        if video_file and json_file:
-            self.signal.emit(data)
-            self.close()
+        dryrun = self.VideoSelector.SelectOnlyVideoCheck.isChecked()
+        if dryrun:
+            if isinstance(video_files, list):
+                pass
+            else:
+                video_files = [video_files]
+            for video_file in video_files:
+                data = {"video": video_file, "dryrun": True, "font": self.parent.font}
+                self.signal.emit(data)
+
+            if not video_files:
+                QtWidgets.QMessageBox.warning(
+                    self, "错误", "必须选择视频文件", QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.Yes
+                )
+            else:
+                self.close()
+
         else:
-            t = []
-            if not video_file:
-                t.append("视频文件")
-            if not json_file:
-                t.append("数据文件")
-            msg = "必须选择" + "、".join(t)
-            QtWidgets.QMessageBox.warning(
-                self, "错误", msg, QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.Yes
-            )
+            data = {"video": video_files, "json": json_file, "translate": translate_file, "font": self.parent.font}
+            if video_files and json_file:
+                self.signal.emit(data)
+                self.close()
+            else:
+                t = []
+                if not video_files:
+                    t.append("视频文件")
+                if not json_file:
+                    t.append("数据文件")
+                msg = "必须选择" + "、".join(t)
+                QtWidgets.QMessageBox.warning(
+                    self, "错误", msg, QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.Yes
+                )
 
     _startPos = None
     _endPos = None

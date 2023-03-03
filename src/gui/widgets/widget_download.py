@@ -34,6 +34,7 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
         self.setupUi(self)
         self.parent = parent
         self.root = os.getcwd()
+
         self.download_url = None
         self.DownloadButton.clicked.connect(self.download_data)
         self.RefreshButton.clicked.connect(self.load_data_list)

@@ -15,9 +15,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QGridLayout, QGroupBox, QHBoxLayout,
-    QLabel, QLineEdit, QPushButton, QSizePolicy,
-    QSpacerItem, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
+    QHBoxLayout, QLabel, QLineEdit, QPushButton,
+    QSizePolicy, QSpacerItem, QWidget)
 
 class Ui_SelectWidget(object):
     def setupUi(self, SelectWidget):
@@ -48,6 +48,12 @@ class Ui_SelectWidget(object):
 
         self.horizontalLayout.addWidget(self.FileLabel)
 
+        self.SelectOnlyVideoCheck = QCheckBox(self.SelectGroupBox)
+        self.SelectOnlyVideoCheck.setObjectName(u"SelectOnlyVideoCheck")
+        self.SelectOnlyVideoCheck.setEnabled(True)
+
+        self.horizontalLayout.addWidget(self.SelectOnlyVideoCheck)
+
         self.SelectButton = QPushButton(self.SelectGroupBox)
         self.SelectButton.setObjectName(u"SelectButton")
         sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -70,6 +76,7 @@ class Ui_SelectWidget(object):
     def retranslateUi(self, SelectWidget):
         SelectWidget.setWindowTitle(QCoreApplication.translate("SelectWidget", u"Form", None))
         self.HintLabel.setText(QCoreApplication.translate("SelectWidget", u"\u6587\u4ef6", None))
+        self.SelectOnlyVideoCheck.setText(QCoreApplication.translate("SelectWidget", u"\u4ec5\u4f7f\u7528\u89c6\u9891", None))
         self.SelectButton.setText(QCoreApplication.translate("SelectWidget", u"\u9009\u62e9", None))
     # retranslateUi
 
