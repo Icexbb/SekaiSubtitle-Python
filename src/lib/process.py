@@ -160,7 +160,6 @@ class SekaiJsonVideoProcess:
 
         if not self.dryrun:
             dialog_data: list[dict] = copy.deepcopy(self.json_data['TalkData'])
-            dialog_count_total = len(dialog_data)
             self.emit({"total": len(dialog_data)})
 
         dialog_data_processing = None

@@ -23,7 +23,7 @@ class Ui_SelectWidget(object):
     def setupUi(self, SelectWidget):
         if not SelectWidget.objectName():
             SelectWidget.setObjectName(u"SelectWidget")
-        SelectWidget.resize(690, 159)
+        SelectWidget.resize(269, 62)
         self.gridLayout = QGridLayout(SelectWidget)
         self.gridLayout.setObjectName(u"gridLayout")
         self.SelectGroupBox = QGroupBox(SelectWidget)

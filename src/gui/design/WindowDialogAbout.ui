@@ -16,7 +16,7 @@
   <property name="styleSheet">
    <string notr="true">QLabel#IconLabel{font: 700 12pt &quot;Microsoft YaHei UI&quot;;}
 QLabel#GroupLabel{font: 700 12pt &quot;Microsoft YaHei UI&quot;;}
-</string>
+QDialog{background-color:rgb(255, 255, 255)}</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
@@ -105,6 +105,21 @@ QLabel#GroupLabel{font: 700 12pt &quot;Microsoft YaHei UI&quot;;}
       </item>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="spacing">
+         <number>20</number>
+        </property>
+        <property name="leftMargin">
+         <number>5</number>
+        </property>
+        <property name="topMargin">
+         <number>5</number>
+        </property>
+        <property name="rightMargin">
+         <number>5</number>
+        </property>
+        <property name="bottomMargin">
+         <number>5</number>
+        </property>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <property name="leftMargin">
@@ -121,6 +136,12 @@ QLabel#GroupLabel{font: 700 12pt &quot;Microsoft YaHei UI&quot;;}
           </property>
           <item>
            <widget class="QLabel" name="label_2">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>50</height>
+             </size>
+            </property>
             <property name="font">
              <font>
               <pointsize>11</pointsize>
@@ -128,30 +149,83 @@ QLabel#GroupLabel{font: 700 12pt &quot;Microsoft YaHei UI&quot;;}
              </font>
             </property>
             <property name="text">
-             <string>关于Sekai Subtitle</string>
+             <string>关于 Sekai Subtitle</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>  Version 0.3.0-beta</string>
+           <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>  Author: XBB@PJS字幕组</string>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,6">
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Version</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="LabelVersion">
+              <property name="text">
+               <string>0.3.0-beta</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>  Github: https://github.com/Icexbb/SekaiSubtitle-Python</string>
+           <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,6">
+            <item>
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>Author</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="LabelAuthor">
+              <property name="text">
+               <string>XBB@PJS字幕组</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,6">
+            <item>
+             <widget class="QLabel" name="label_9">
+              <property name="text">
+               <string>Github</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="LabelPage">
+              <property name="text">
+               <string>https://github.com/Icexbb/SekaiSubtitle-Python</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
             </property>
-           </widget>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -167,6 +241,13 @@ QLabel#GroupLabel{font: 700 12pt &quot;Microsoft YaHei UI&quot;;}
                </size>
               </property>
              </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="UpdateButton">
+              <property name="text">
+               <string>检查更新</string>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QPushButton" name="PageButton">

@@ -29,6 +29,7 @@ class Ui_Form(object):
 "QLabel{	font: 10pt \"Microsoft YaHei UI\";}")
         self.gridLayout = QGridLayout(Form)
         self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.MainFrame = QFrame(Form)
         self.MainFrame.setObjectName(u"MainFrame")
         self.MainFrame.setStyleSheet(u"")
@@ -39,6 +40,7 @@ class Ui_Form(object):
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalLayout_2.setContentsMargins(5, 5, 5, 5)
         self.label_2 = QLabel(self.MainFrame)
         self.label_2.setObjectName(u"label_2")
 
@@ -56,6 +58,7 @@ class Ui_Form(object):
 
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(5, 5, 5, 5)
         self.label = QLabel(self.MainFrame)
         self.label.setObjectName(u"label")
 
@@ -78,6 +81,7 @@ class Ui_Form(object):
 
         self.horizontalLayout_4 = QHBoxLayout()
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.horizontalLayout_4.setContentsMargins(5, 5, 5, 5)
         self.label_3 = QLabel(self.MainFrame)
         self.label_3.setObjectName(u"label_3")
 
@@ -98,7 +102,9 @@ class Ui_Form(object):
         self.verticalLayout.addLayout(self.horizontalLayout_4)
 
         self.horizontalLayout_5 = QHBoxLayout()
+        self.horizontalLayout_5.setSpacing(5)
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.horizontalLayout_5.setContentsMargins(5, 5, 5, 5)
         self.label_4 = QLabel(self.MainFrame)
         self.label_4.setObjectName(u"label_4")
 
@@ -126,8 +132,13 @@ class Ui_Form(object):
 
         self.verticalLayout.addLayout(self.horizontalLayout_5)
 
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout.addItem(self.verticalSpacer)
+
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.horizontalLayout_3.setContentsMargins(5, 5, 5, 5)
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_3.addItem(self.horizontalSpacer)

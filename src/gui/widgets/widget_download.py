@@ -121,12 +121,12 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
 
     def received_list_part(self, reply: QtNetwork.QNetworkReply):
         url = reply.url().url()
-        parse = urllib.parse.urlparse(url)
-        if parse.netloc.__contains__("pjsek.ai"):
+        parsed_url = urllib.parse.urlparse(url)
+        if parsed_url.netloc.__contains__("pjsek.ai"):
             source_type = "pjsekai"
         else:
             source_type = "best"
-        file: str = os.path.split(parse.path)[-1]
+        file: str = os.path.split(parsed_url.path)[-1]
         if not file.endswith("json"):
             file = file + ".json"
         filepath = os.path.join(self.root, "data", source_type, "tree", file)
@@ -153,12 +153,12 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
 
     def received_acquired_data(self, reply: QtNetwork.QNetworkReply):
         url = reply.url().url()
-        parse = urllib.parse.urlparse(url)
-        if parse.netloc.__contains__("pjsek.ai"):
+        parsed_url = urllib.parse.urlparse(url)
+        if parsed_url.netloc.__contains__("pjsek.ai"):
             source_type = "pjsekai"
         else:
             source_type = "best"
-        file: str = os.path.split(parse.path)[-1]
+        file: str = os.path.split(parsed_url.path)[-1]
         if file.endswith(".asset"):
             file = file.removesuffix(".asset") + ".json"
 
@@ -212,7 +212,13 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
                 if "scenarioId" not in ep:
                     continue
                 card_id = ep['cardId']
-                card = [card for card in cards if card['id'] == card_id][0]
+                card = None
+                for enu_card in cards:
+                    if enu_card['id'] == card_id:
+                        card = enu_card
+                        break
+                if not card:
+                    continue
                 chara = chara_name[str(card['characterId'])]
                 rarity = f"★{card['cardRarityType'][7:]}" if card['cardRarityType'][7:].isdigit() else "BD"
                 prefix = card['prefix']

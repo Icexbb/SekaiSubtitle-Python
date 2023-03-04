@@ -23,7 +23,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(650, 421)
+        MainWindow.resize(763, 450)
         MainWindow.setStyleSheet(u"QWidget#MainFrame{background-color: rgb(255, 255, 255);border-color: rgb(204, 204, 204);border-size: 2px;border-radius:20px;}\n"
 "QFrame#CenterFrame{border-radius:20px;background-color: rgb(238, 238, 238);}\n"
 "QFrame#MenuFrame{	border-radius:20px;	background-color: rgba(238, 238, 238,128);}\n"
@@ -45,6 +45,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.MenuFrame = QFrame(self.MainFrame)
         self.MenuFrame.setObjectName(u"MenuFrame")
+        self.MenuFrame.setMinimumSize(QSize(150, 0))
+        self.MenuFrame.setMaximumSize(QSize(150, 16777215))
         self.MenuFrame.setStyleSheet(u"")
         self.verticalLayout_4 = QVBoxLayout(self.MenuFrame)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
@@ -88,29 +90,15 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_4.addItem(self.verticalSpacer)
 
-        self.widget_2 = QWidget(self.MenuFrame)
-        self.widget_2.setObjectName(u"widget_2")
-        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.widget_2.sizePolicy().hasHeightForWidth())
-        self.widget_2.setSizePolicy(sizePolicy)
-        self.widget_2.setMinimumSize(QSize(0, 150))
-        self.widget_2.setMaximumSize(QSize(16777215, 150))
-        self.horizontalLayout_4 = QHBoxLayout(self.widget_2)
-        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.FigureLabel = QLabel(self.widget_2)
+        self.FigureLabel = QLabel(self.MenuFrame)
         self.FigureLabel.setObjectName(u"FigureLabel")
-        self.FigureLabel.setMinimumSize(QSize(140, 140))
-        self.FigureLabel.setMaximumSize(QSize(140, 140))
+        self.FigureLabel.setMinimumSize(QSize(130, 130))
+        self.FigureLabel.setMaximumSize(QSize(130, 130))
         self.FigureLabel.setLayoutDirection(Qt.LeftToRight)
         self.FigureLabel.setAutoFillBackground(False)
         self.FigureLabel.setAlignment(Qt.AlignCenter)
 
-        self.horizontalLayout_4.addWidget(self.FigureLabel)
-
-
-        self.verticalLayout_4.addWidget(self.widget_2)
+        self.verticalLayout_4.addWidget(self.FigureLabel)
 
         self.widget_5 = QWidget(self.MenuFrame)
         self.widget_5.setObjectName(u"widget_5")
@@ -138,8 +126,6 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.CenterFrame)
 
-        self.horizontalLayout.setStretch(0, 2)
-        self.horizontalLayout.setStretch(1, 7)
 
         self.gridLayout_2.addLayout(self.horizontalLayout, 0, 0, 1, 1)
 

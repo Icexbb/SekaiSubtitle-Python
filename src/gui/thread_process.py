@@ -34,5 +34,5 @@ class VideoProcessThread(QtCore.QThread):
         )
         self.vp.run()
 
-    def stop_process(self, data):
+    def stop_process(self):
         self.queue.put(True)

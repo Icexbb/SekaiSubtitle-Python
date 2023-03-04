@@ -29,6 +29,7 @@ class Ui_ProcessWidget(object):
 "QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:20px;}")
         self.gridLayout = QGridLayout(ProcessWidget)
         self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.MainFrame = QFrame(ProcessWidget)
         self.MainFrame.setObjectName(u"MainFrame")
         self.MainFrame.setFrameShape(QFrame.StyledPanel)

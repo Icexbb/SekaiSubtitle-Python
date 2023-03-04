@@ -30,6 +30,7 @@ class Ui_DownloadWidget(object):
 "")
         self.gridLayout = QGridLayout(DownloadWidget)
         self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.MainFrame = QFrame(DownloadWidget)
         self.MainFrame.setObjectName(u"MainFrame")
         self.MainFrame.setFrameShape(QFrame.StyledPanel)
