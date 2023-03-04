@@ -103,7 +103,7 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
         count = self.ProcessingListWidget.count()
         for i in range(count):
             item = self.ProcessingListWidget.item(i)
-            if item.id == child_id:
+            if item and item.id == child_id:
                 if isinstance(child_data, int):
                     self.ProcessingListWidget.removeItemWidget(self.ProcessingListWidget.takeItem(i))
                 else:

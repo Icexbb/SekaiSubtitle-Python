@@ -23,6 +23,7 @@ from gui.widgets.widget_translate import TranslateWidget
 EXIT_CODE_REBOOT = -11231351
 
 PROGRAM_NAME = "Sekai Subtitle"
+VERSION = "v0.4.5"
 
 
 class MainUi(FramelessMainWindow, Ui_MainWindow):
@@ -33,7 +34,7 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.icon = None
-        self.version = "v0.4.4"
+        self.version = VERSION
         self.setupUi(self)
         self.setWindowTitle(PROGRAM_NAME)
         self.setObjectName(PROGRAM_NAME)

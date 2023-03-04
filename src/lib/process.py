@@ -109,40 +109,55 @@ class SekaiJsonVideoProcess:
         if not isinstance(self.json_file, list):
             if os.path.exists(self.json_file):
                 self.json_data = json.load(open(self.json_file, 'r', encoding='utf-8'))
-                if self.translate_file and os.path.exists(self.translate_file):
-                    pattern_body = re.compile(r"^(?P<name>\S*)：(?P<body>.+)$")
-                    pattern_place = re.compile(r"^(?P<place>\S[^：]*)$")
-                    with open(self.translate_file, 'r', encoding='utf-8') as fp:
-                        translate_data = fp.readlines()
-                    body = [
-                        re.match(pattern_body, string).group("body") for string in translate_data if
-                        re.match(pattern_body, string.strip())
-                    ]
-                    place = [
-                        re.match(pattern_place, string).group("place") for string in translate_data if
-                        re.match(pattern_place, string.strip())
-                    ]
-                    if len(body) == len(self.json_data['TalkData']):
-                        result = []
-                        for i in range(len(body)):
-                            item = self.json_data['TalkData'][i]
-                            replaced = body[i]
-                            item["Body"] = replaced.replace("\\N", "\n")
-                            result.append(item)
-                        self.json_data['TalkData'] = result
-                    if len(place) == len(
-                            [item for item in self.json_data['SpecialEffectData'] if item['EffectType'] == 8]):
-                        raw = self.json_data['SpecialEffectData']
-                        result = []
-                        for item in raw:
-                            if item['EffectType'] == 8:
-                                item["StringVal"] = place.pop(0)
-                            result.append(item)
-                        self.json_data['SpecialEffectData'] = result
-                    self.log("[Initial] 已进行中文替换")
+                if self.translate_file:
+                    self.log("[Initial] 尝试进行翻译替换")
+                    if isinstance(self.translate_file,list) and self.translate_file:
+                        self.translate_file = self.translate_file[0]
+                    if os.path.exists(self.translate_file):
+                        pattern_body = re.compile(r"^(?P<name>\S*)：(?P<body>.+)$")
+                        pattern_place = re.compile(r"^(?P<place>\S[^：]*)$")
+                        with open(self.translate_file, 'r', encoding='utf-8') as fp:
+                            translate_data = fp.readlines()
+                        body = [
+                            re.match(pattern_body, string).group("body") for string in translate_data if
+                            re.match(pattern_body, string.strip())
+                        ]
+                        place = [
+                            re.match(pattern_place, string).group("place") for string in translate_data if
+                            re.match(pattern_place, string.strip())
+                        ]
+                        changed = 0
+                        if len(body) == len(self.json_data['TalkData']):
+                            result = []
+                            for i in range(len(body)):
+                                item = self.json_data['TalkData'][i]
+                                replaced = body[i]
+                                item["Body"] = replaced.replace("\\N", "\n")
+                                result.append(item)
+                            self.json_data['TalkData'] = result
+                            changed += 1
+                        else:
+                            self.log("[Initial] 翻译文件与对话数据不符")
+
+                        if len(place) == len(
+                                [item for item in self.json_data['SpecialEffectData'] if item['EffectType'] == 8]):
+                            raw = self.json_data['SpecialEffectData']
+                            result = []
+                            for item in raw:
+                                if item['EffectType'] == 8:
+                                    item["StringVal"] = place.pop(0)
+                                result.append(item)
+                            self.json_data['SpecialEffectData'] = result
+                            changed += 1
+                        else:
+                            self.log("[Initial] 翻译文件与地点数据不符")
+                        if changed == 2:
+                            self.log("[Initial] 已进行中文替换")
+                    else:
+                        self.log("[Initial] 翻译文件不存在")
             else:
                 self.log("[Error] JSON文件不存在")
-                assert False, "[Error] JSON文件不存在"
+                raise FileNotFoundError("JSON文件不存在")
         else:
             if len(self.json_file) > 1:
                 self.log("[Initial] 使用了多个Json文件")
@@ -530,6 +545,9 @@ class SekaiJsonVideoProcess:
             if not self.queue.empty():
                 self.set_stop()
                 break
+
+        for vc in vc_array:
+            vc.release()
         for queue in queue_array:
             queue.put(False)
 
@@ -603,3 +621,4 @@ class SekaiJsonVideoProcess:
             if self.signal:
                 self.emit(2)
                 self.emit(True)
+        self.VideoCapture.release()
