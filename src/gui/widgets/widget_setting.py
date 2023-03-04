@@ -15,7 +15,7 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         self.parent = parent
         self.load_chibi()
         self.pushButton.clicked.connect(self.change_config)
-        self.root = os.path.join(os.path.expanduser('~'), "SekaiSubtitle","setting")
+        self.root = os.path.join(os.path.expanduser('~'), "SekaiSubtitle", "setting")
         os.makedirs(self.root, exist_ok=True)
         self.config_file = os.path.join(self.root, "config.json")
 
@@ -23,6 +23,7 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         self.SettingAnimatedCheck.setChecked(False)
         self.SettingAnimatedCheck.setEnabled(False)
         self.save_config()
+
     def load_chibi(self):
         icon_path = "asset/chibi"
         if getattr(sys, 'frozen', False):
@@ -38,8 +39,9 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         start_immediate = self.SettingStartImmediateCheck.isChecked()
         chibi = self.SettingChibiSelect.currentText()
         animated = self.SettingAnimatedCheck.isChecked()
+        update = self.SettingStartupUpdateCheck.isChecked()
         config = {"proxy": proxy, "font": font.toString(), "start_immediate": start_immediate, "chibi": chibi,
-                  "animated": animated}
+                  "animated": animated, "update": update}
         save_json(self.config_file, config)
 
     def change_config(self):
@@ -60,8 +62,12 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
             self.SettingChibiSelect.setCurrentIndex(0)
         if "animated" in config:
             self.SettingAnimatedCheck.setChecked(config['animated'])
+        if "update" in config:
+            self.SettingStartupUpdateCheck.setChecked(config['update'])
+        else:
+            self.SettingStartupUpdateCheck.setChecked(True)
 
-    def get_config(self, config_field=None) -> dict|str:
+    def get_config(self, config_field=None) -> dict | str:
         config = read_json(self.config_file)
         if config_field:
             return config.get(config_field)
