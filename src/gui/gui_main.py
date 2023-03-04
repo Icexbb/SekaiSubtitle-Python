@@ -63,11 +63,11 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         self.FuncButtonAbout.clicked.connect(self.AboutWindow)
         self.switchToSubtitle()
 
-        self.isStartup = True
-        self.update_url = "https://api.github.com/repos/Icexbb/SekaiSubtitle-Python/releases/latest"
-        self.update_nam = QtNetwork.QNetworkAccessManager()
-        self.connect(self.update_nam, SIGNAL("finished(QNetworkReply*)"), self.receive_update)
-        self.check_update()
+        if self.FormSettingWidget.get_config("update"):
+            self.update_url = "https://api.github.com/repos/Icexbb/SekaiSubtitle-Python/releases/latest"
+            self.update_nam = QtNetwork.QNetworkAccessManager()
+            self.connect(self.update_nam, SIGNAL("finished(QNetworkReply*)"), self.receive_update)
+            self.check_update()
 
     def check_update(self):
         self.update_nam.get(QtNetwork.QNetworkRequest(QtCore.QUrl(self.update_url)))
@@ -87,14 +87,8 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
                 )
                 if msg == QtWidgets.QMessageBox.Yes:
                     QDesktopServices.openUrl(QUrl(data['html_url']))
-            else:
-                if not self.isStartup:
-                    QtWidgets.QMessageBox.information(self, "检查更新", "暂无新版本")
         else:
-            if not self.isStartup:
-                QtWidgets.QMessageBox.critical(self, "检查更新", f"检查版本更新时遇到错误\n{reply.errorString()}")
-        if self.isStartup:
-            self.isStartup = False
+            QtWidgets.QMessageBox.critical(self, "检查更新", f"检查版本更新时遇到错误\n{reply.errorString()}")
 
     def load_random_chibi(self):
         icon_path = "asset"

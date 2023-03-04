@@ -132,6 +132,26 @@ class Ui_Form(object):
 
         self.verticalLayout.addLayout(self.horizontalLayout_5)
 
+        self.horizontalLayout_7 = QHBoxLayout()
+        self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
+        self.horizontalLayout_7.setContentsMargins(5, 5, 5, 5)
+        self.label_5 = QLabel(self.MainFrame)
+        self.label_5.setObjectName(u"label_5")
+
+        self.horizontalLayout_7.addWidget(self.label_5)
+
+        self.SettingStartupUpdateCheck = QCheckBox(self.MainFrame)
+        self.SettingStartupUpdateCheck.setObjectName(u"SettingStartupUpdateCheck")
+        sizePolicy.setHeightForWidth(self.SettingStartupUpdateCheck.sizePolicy().hasHeightForWidth())
+        self.SettingStartupUpdateCheck.setSizePolicy(sizePolicy)
+        self.SettingStartupUpdateCheck.setChecked(True)
+        self.SettingStartupUpdateCheck.setAutoRepeat(False)
+
+        self.horizontalLayout_7.addWidget(self.SettingStartupUpdateCheck)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_7)
+
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout.addItem(self.verticalSpacer)
@@ -168,6 +188,8 @@ class Ui_Form(object):
         self.SettingStartImmediateCheck.setText("")
         self.label_4.setText(QCoreApplication.translate("Form", u"\u4e3b\u754c\u9762\u5c0f\u4eba", None))
         self.SettingAnimatedCheck.setText(QCoreApplication.translate("Form", u"\u4f7f\u7528\u52a8\u753b", None))
+        self.label_5.setText(QCoreApplication.translate("Form", u"\u81ea\u52a8\u68c0\u67e5\u66f4\u65b0", None))
+        self.SettingStartupUpdateCheck.setText("")
         self.pushButton.setText(QCoreApplication.translate("Form", u"\u5e94\u7528", None))
     # retranslateUi
 
