@@ -141,7 +141,8 @@ class SekaiJsonVideoProcess:
                 self.log("[Error] JSON文件不存在")
                 assert False, "[Error] JSON文件不存在"
         else:
-            self.log("[Initial] 使用了多个Json文件")
+            if len(self.json_file) > 1:
+                self.log("[Initial] 使用了多个Json文件")
             res = {}
             for file in self.json_file:
                 data = json.load(open(file, 'r', encoding='utf-8'))
@@ -160,7 +161,11 @@ class SekaiJsonVideoProcess:
 
         if not self.dryrun:
             dialog_data: list[dict] = copy.deepcopy(self.json_data['TalkData'])
+            dialog_total_count = len(dialog_data)
             self.emit({"total": len(dialog_data)})
+        else:
+            dialog_data: list[dict] = []
+            dialog_total_count = len(dialog_data)
 
         dialog_data_processing = None
         dialog_processing_frames = []
@@ -193,7 +198,7 @@ class SekaiJsonVideoProcess:
                             height, width, video_fps, last_end_frame, last_end_event)
                         dialog_data_processing = None
                         self.log(f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events, "
-                                 f"Remain {len(dialog_data) - dialog_processed}/{len(dialog_data)}")
+                                 f"Remain {dialog_total_count - dialog_processed}/{dialog_total_count}")
                     else:
                         events = self.dialog_make_sequence(
                             dialog_processing_frames, None, int(pointer.shape[0]),
@@ -415,7 +420,11 @@ class SekaiJsonVideoProcess:
         area_mask = get_area_mask(get_area_mask_size((width, height)))
         if not self.dryrun:
             area_data: list[dict] = [item for item in self.json_data['SpecialEffectData'] if item['EffectType'] == 8]
-            self.emit({"total": len(area_data)})
+            area_data_count = len(area_data)
+            self.emit({"total": area_data_count})
+        else:
+            area_data: list[dict] = []
+            area_data_count = len(area_data)
 
         area_events = []
         area_mask_area = match.get_square_mask_area(height, width)
@@ -447,7 +456,7 @@ class SekaiJsonVideoProcess:
                         events = self.area_make_sequence(area_processing_frames, area_processing, area_mask, video_fps)
                         area_processing = None
                         self.log(f"[Processing] AreaInfo {area_processed}: Output {len(events)} Events, "
-                                 f"Remain {len(area_data) - area_processed}/{len(area_data)}")
+                                 f"Remain {area_data_count - area_processed}/{area_data_count}")
 
                     area_events += events
                     area_processing_frames = []

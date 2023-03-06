@@ -31,7 +31,7 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.icon = None
-        self.version = "v0.4.1"
+        self.version = "v0.4.2"
         self.setupUi(self)
         self.setWindowTitle("Sekai Subtitle")
         self.setObjectName("Sekai Subtitle")

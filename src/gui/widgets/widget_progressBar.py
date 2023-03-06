@@ -52,7 +52,6 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
 
     def toggle_process(self):
         if not self.processing:
-
             self.Thread = VideoProcessThread(self, self.video, self.json, self.translate, self.font, self.dryrun)
             self.Thread.signal_data.connect(self.signal_process)
             self.StartButton.setStyleSheet("background-color:rgb(255,255,100);")

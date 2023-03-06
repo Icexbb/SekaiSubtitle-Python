@@ -15,9 +15,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QDialog, QFrame, QGridLayout,
-    QHBoxLayout, QPushButton, QSizePolicy, QVBoxLayout,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QDialog, QFrame,
+    QGridLayout, QHBoxLayout, QPushButton, QSizePolicy,
+    QSpacerItem, QVBoxLayout, QWidget)
 
 class Ui_NewSubProcessDialog(object):
     def setupUi(self, NewSubProcessDialog):
@@ -46,22 +46,39 @@ class Ui_NewSubProcessDialog(object):
         self.verticalLayout.setContentsMargins(-1, 35, -1, -1)
         self.SelectBox = QFrame(self.MainFrame)
         self.SelectBox.setObjectName(u"SelectBox")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.SelectBox.sizePolicy().hasHeightForWidth())
+        self.SelectBox.setSizePolicy(sizePolicy1)
         self.SelectBoxLayout = QVBoxLayout(self.SelectBox)
         self.SelectBoxLayout.setObjectName(u"SelectBoxLayout")
 
         self.verticalLayout.addWidget(self.SelectBox)
 
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout.addItem(self.verticalSpacer)
+
         self.EmitFrame = QFrame(self.MainFrame)
         self.EmitFrame.setObjectName(u"EmitFrame")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.EmitFrame.sizePolicy().hasHeightForWidth())
         self.EmitFrame.setSizePolicy(sizePolicy1)
         self.EmitFrame.setFrameShape(QFrame.StyledPanel)
         self.EmitFrame.setFrameShadow(QFrame.Raised)
         self.horizontalLayout_4 = QHBoxLayout(self.EmitFrame)
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.widget = QWidget(self.EmitFrame)
+        self.widget.setObjectName(u"widget")
+        self.horizontalLayout_2 = QHBoxLayout(self.widget)
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalSpacer_2 = QSpacerItem(167, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_2.addItem(self.horizontalSpacer_2)
+
+
+        self.horizontalLayout_4.addWidget(self.widget)
+
         self.EmitButton = QPushButton(self.EmitFrame)
         self.EmitButton.setObjectName(u"EmitButton")
         sizePolicy2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -72,10 +89,26 @@ class Ui_NewSubProcessDialog(object):
 
         self.horizontalLayout_4.addWidget(self.EmitButton)
 
+        self.widget_2 = QWidget(self.EmitFrame)
+        self.widget_2.setObjectName(u"widget_2")
+        self.horizontalLayout = QHBoxLayout(self.widget_2)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer)
+
+        self.DryRunCheck = QCheckBox(self.widget_2)
+        self.DryRunCheck.setObjectName(u"DryRunCheck")
+
+        self.horizontalLayout.addWidget(self.DryRunCheck)
+
+
+        self.horizontalLayout_4.addWidget(self.widget_2)
+
 
         self.verticalLayout.addWidget(self.EmitFrame)
 
-        self.verticalLayout.setStretch(1, 1)
+        self.verticalLayout.setStretch(2, 1)
 
         self.gridLayout.addWidget(self.MainFrame, 0, 0, 1, 1)
 
@@ -88,5 +121,6 @@ class Ui_NewSubProcessDialog(object):
     def retranslateUi(self, NewSubProcessDialog):
         NewSubProcessDialog.setWindowTitle(QCoreApplication.translate("NewSubProcessDialog", u"Dialog", None))
         self.EmitButton.setText(QCoreApplication.translate("NewSubProcessDialog", u"\u5f00\u59cb\uff01", None))
+        self.DryRunCheck.setText(QCoreApplication.translate("NewSubProcessDialog", u"\u4ec5\u4f7f\u7528\u89c6\u9891", None))
     # retranslateUi
 

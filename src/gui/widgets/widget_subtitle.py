@@ -25,11 +25,18 @@ class TaskAcceptWidget(QtWidgets.QWidget, Ui_AccWidget):
 
     def dropEvent(self, event: QtGui.QDropEvent):
         path = event.mimeData().text().replace('file:///', '')
-        self.signal.emit(path)
+        if path.endswith((".mp4", ".mkv", ".wmv", ".avi", ".json", ".asset", ".txt")):
+            self.signal.emit(path)
+            event.accept()
+        else:
+            event.ignore()
 
     def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
         if event.button() == QtCore.Qt.MouseButton.LeftButton:
             self.signal.emit("")
+            event.accept()
+        else:
+            event.ignore()
 
 
 class ListWidgetItem(QtWidgets.QListWidgetItem):
@@ -76,10 +83,10 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
                 dialog.TranslateSelector.fileSelected = path
         dialog.signal.connect(self.ProcessSignal)
         dialog.exec()
+        dialog.close()
 
     def ProcessSignal(self, data):
         bar = ProgressBar(self, data)
-
         item = ListWidgetItem()
         item.id = bar.id
         item.setSizeHint(bar.size() + QtCore.QSize(-60, 0))
