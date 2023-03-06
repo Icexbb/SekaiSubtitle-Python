@@ -22,6 +22,8 @@ from gui.widgets.widget_translate import TranslateWidget
 
 EXIT_CODE_REBOOT = -11231351
 
+PROGRAM_NAME = "Sekai Subtitle"
+
 
 class MainUi(FramelessMainWindow, Ui_MainWindow):
     _startPos = None
@@ -31,13 +33,13 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.icon = None
-        self.version = "v0.4.3"
+        self.version = "v0.4.4"
         self.setupUi(self)
-        self.setWindowTitle("Sekai Subtitle")
-        self.setObjectName("Sekai Subtitle")
+        self.setWindowTitle(PROGRAM_NAME)
+        self.setObjectName(PROGRAM_NAME)
 
-        self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
-        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+        self.setWindowFlag(QtCore.Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
 
         self.FormSettingWidget = SettingWidget(self)
         self.FormProcessWidget = ProcessWidget(self)
@@ -54,7 +56,7 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         self.load_random_chibi()
 
         self.TitleBar = TitleBar(self)
-        self.TitleBar.TitleLabel.setText("Sekai Subtitle")
+        self.TitleBar.TitleLabel.setText(PROGRAM_NAME)
         self.setTitleBar(self.TitleBar)
         self.FuncButtonSubtitle.clicked.connect(self.switchToSubtitle)
         self.FuncButtonText.clicked.connect(self.switchToTranslate)
@@ -85,7 +87,7 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
                     self, "检查更新", f"有新版本可用：{tag}\n{data['body']}",
                     QtWidgets.QMessageBox.StandardButton.Yes, QtWidgets.QMessageBox.StandardButton.No,
                 )
-                if msg == QtWidgets.QMessageBox.Yes:
+                if msg == QtWidgets.QMessageBox.StandardButton.Yes:
                     QDesktopServices.openUrl(QUrl(data['html_url']))
         else:
             QtWidgets.QMessageBox.critical(self, "检查更新", f"检查版本更新时遇到错误\n{reply.errorString()}")
@@ -234,23 +236,24 @@ def handleException(exc_type, exc_value, exc_traceback):
     filename = f"data/log/Exception-{datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}.txt"
     with open(filename, 'w', encoding="utf-8") as fp:
         fp.write(exception)
-    dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+    dialog.setAttribute(QtCore.Qt.WidgetAttribute.WA_DeleteOnClose)
     msg = QtWidgets.QMessageBox(dialog)
-    msg.setIcon(QtWidgets.QMessageBox.Critical)
+    msg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
     msg.setText(f'程序异常,请将{filename}发送给开发者')
-    msg.setWindowTitle("Sekai Subtitle")
+    msg.setWindowTitle(PROGRAM_NAME)
     msg.setDetailedText(exception)
-    msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+    msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
 
     msg.exec_()
 
 
 def start_gui():
     start_time = 0
-    if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
-        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
-    if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
-        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
+    try:
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
+    except AttributeError:
+        pass
     icon_path = "asset"
     if getattr(sys, 'frozen', False):
         icon_path = os.path.join(sys._MEIPASS, icon_path)

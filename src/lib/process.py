@@ -189,52 +189,52 @@ class SekaiJsonVideoProcess:
 
                 if status in [1, 2]:
                     dialog_processing_frames.append({"frame": now_frame_count, "point_center": pc})
+
                 if status == 2 and not constant_pc:
                     constant_pc = pc
+
                 if status in [0, 1] and last_status == 2:  # End Dialog
                     dialog_processed += 1
                     self.emit({"done": 1, "time": time.time() - self.time_start})
-
-                    if not self.dryrun:
+                    if not self.dryrun and dialog_data_processing:
                         events = self.dialog_make_sequence(
                             dialog_processing_frames, dialog_data_processing, int(pointer.shape[0]),
                             height, width, video_fps, last_end_frame, last_end_event)
-                        dialog_data_processing = None
                         self.log(f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events, "
-                                 f"Remain {dialog_total_count - dialog_processed}/{dialog_total_count}")
+                                 f"Remains {dialog_total_count - dialog_processed}/{dialog_total_count}")
                     else:
                         events = self.dialog_make_sequence(
                             dialog_processing_frames, None, int(pointer.shape[0]),
                             height, width, video_fps, last_end_frame, last_end_event)
-                        self.log(
-                            f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events" +
-                            (f"[Processing] Jitter Happened in a No-Json Task, Please Recheck" if len(
-                                events) > 2 else "")
-                        )
+                        if self.dryrun:
+                            self.log(f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events")
+                            self.log("[Warning] No Data For This Dialog, Please Recheck")
+                        else:
+                            self.log(f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events")
+                            if len(events) > 2:
+                                self.log(f"[Processing] Jitter Happened in a No-Json Task, Please Recheck")
 
                     last_end_frame = dialog_processing_frames[-1]
                     last_end_event = events[-1]
                     dialog_events += events
                     dialog_processing_frames = []
-                    if not self.dryrun and not dialog_data:
+                    dialog_data_processing = None
+
+                    if dialog_processed == dialog_total_count and not self.dryrun:
                         break
 
-                if not self.dryrun:
-                    if last_status in [0, 2] and status == 1:
-                        # Start Dialog
-                        if not (dialog_data_processing and dialog_data):
-                            try:
-                                dialog_data_processing = dialog_data.pop(0)
-                            except IndexError:
-                                dialog_data_processing = None
+                if not self.dryrun and not dialog_data_processing:
+                    try:
+                        dialog_data_processing = dialog_data.pop(0)
+                    except IndexError:
+                        dialog_data_processing = None
 
                 last_status = status
                 last_center = pc
                 now_frame_count += 1
+                self.emit({"done": 1, "time": time.time() - self.time_start})
             else:
-                if not isinstance(frame, numpy.ndarray):
-                    break
-            self.emit({"done": 1, "time": time.time() - self.time_start})
+                break
 
         if not self.stop:
             dialog_styles = self.dialog_make_styles(
@@ -457,22 +457,21 @@ class SekaiJsonVideoProcess:
                         self.log(f"[Processing] AreaInfo {area_processed}: Output {len(events)} Events")
                     else:
                         events = self.area_make_sequence(area_processing_frames, area_processing, area_mask, video_fps)
-                        area_processing = None
                         self.log(f"[Processing] AreaInfo {area_processed}: Output {len(events)} Events, "
                                  f"Remain {area_data_count - area_processed}/{area_data_count}")
 
                     area_events += events
                     area_processing_frames = []
-                    if not self.dryrun:
-                        if not area_data:
-                            break
+                    area_processing = None
 
-                if not self.dryrun and (frame_result and not last_result):
-                    if not (area_processing and area_data):
-                        try:
-                            area_processing = area_data.pop(0)
-                        except IndexError:
-                            area_processing = None
+                    if not self.dryrun and area_processed == area_data_count:
+                        break
+
+                if not self.dryrun and not area_processing:
+                    try:
+                        area_processing = area_data.pop(0)
+                    except IndexError:
+                        area_processing = None
                 now_frame_count += 1
                 last_result = frame_result
             else:
