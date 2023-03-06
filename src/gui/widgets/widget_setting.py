@@ -1,8 +1,9 @@
 import os
 import sys
 
+import psutil
 from PySide6 import QtWidgets
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QIntValidator
 
 from gui.design.WidgetSetting import Ui_Form
 from lib.tools import save_json, read_json
@@ -22,6 +23,7 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         self.load_config()
         self.SettingAnimatedCheck.setChecked(False)
         self.SettingAnimatedCheck.setEnabled(False)
+        self.SettingRamMaxUse.setValidator(QIntValidator(500, int(psutil.virtual_memory().total / 1024 / 1024 * 0.9)))
         self.save_config()
 
     def load_chibi(self):
@@ -40,13 +42,19 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         chibi = self.SettingChibiSelect.currentText()
         animated = self.SettingAnimatedCheck.isChecked()
         update = self.SettingStartupUpdateCheck.isChecked()
-        config = {"proxy": proxy, "font": font.toString(), "start_immediate": start_immediate, "chibi": chibi,
-                  "animated": animated, "update": update}
+        ram = int(self.SettingRamMaxUse.text())
+        config = {
+            "proxy": proxy, "font": font.toString(), "start_immediate": start_immediate, "chibi": chibi,
+            "animated": animated, "update": update, "ram": ram}
         save_json(self.config_file, config)
 
     def change_config(self):
-        self.save_config()
-        self.parent.restart()
+        if int(self.SettingRamMaxUse.text()) <= 500:
+            QtWidgets.QMessageBox.warning(self, "Sekai Subtitle",
+                                          "内存设置小于500MB会导致任务难以运行，请重新设置\n推荐设置1500MB以上")
+        else:
+            self.save_config()
+            self.parent.restart()
 
     def load_config(self):
         config = read_json(self.config_file)
@@ -66,6 +74,10 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
             self.SettingStartupUpdateCheck.setChecked(config['update'])
         else:
             self.SettingStartupUpdateCheck.setChecked(True)
+        if "ram" in config:
+            self.SettingRamMaxUse.setText(str(config["ram"]))
+        else:
+            self.SettingRamMaxUse.setText("1500")
 
     def get_config(self, config_field=None) -> dict | str:
         config = read_json(self.config_file)

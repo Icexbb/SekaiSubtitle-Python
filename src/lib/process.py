@@ -9,6 +9,7 @@ from queue import Queue
 
 import cv2
 import numpy
+import psutil as psutil
 from PySide6 import QtCore
 
 import lib
@@ -30,8 +31,10 @@ class SekaiJsonVideoProcess:
             overwrite: bool = False,
             queue_in: Queue = Queue(),
             font_custom: str = None,
-            use_no_json_file: bool = False
+            use_no_json_file: bool = False,
+            ram_max: int = 1500
     ):
+        self.ram_max = ram_max
         self.time_start = time.time()
         self.json_data = None
         self.font = font_custom
@@ -509,12 +512,22 @@ class SekaiJsonVideoProcess:
         return events
 
     def queue_video_frame(self, queue_array: list[Queue]):
-        ret = True
         self.emit({"total": 2 * self.VideoCapture.get(7)})
-        while ret:
-            ret, frame = self.VideoCapture.read()
-            for queue in queue_array:
-                queue.put(frame)
+        vc_array = [cv2.VideoCapture(self.video_file) for _ in queue_array]
+        vc_status = [0 for _ in vc_array]
+        while True:
+            ram_use_process = psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024
+            ram_use_total = psutil.virtual_memory().percent
+            for index, vc in enumerate(vc_array):
+                if ram_use_process < self.ram_max and ram_use_total < 90 and not vc_status[index]:
+                    queue = queue_array[index]
+                    ret, frame = vc.read()
+                    if ret:
+                        queue.put(frame)
+                    else:
+                        vc_status[index] = 1
+            if all(vc_status):
+                break
             if not self.queue.empty():
                 self.set_stop()
                 break
@@ -522,7 +535,6 @@ class SekaiJsonVideoProcess:
             queue.put(False)
 
     def process(self):
-
         from threading import Thread
         t1r = []
         t2r = []

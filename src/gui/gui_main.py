@@ -31,7 +31,7 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.icon = None
-        self.version = "v0.4.2"
+        self.version = "v0.4.3"
         self.setupUi(self)
         self.setWindowTitle("Sekai Subtitle")
         self.setObjectName("Sekai Subtitle")
@@ -214,6 +214,10 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
     @property
     def font(self):
         return QFont(self.FormSettingWidget.get_config()["font"]).family()
+
+    @property
+    def max_ram(self):
+        return int(self.FormSettingWidget.get_config()["ram"])
 
     def restart(self):
         # qDebug("Performing application reboot...")

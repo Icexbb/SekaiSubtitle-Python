@@ -114,7 +114,7 @@ class NewTaskDialog(FramelessDialog, Dialog):
             if isinstance(video_file, str) or (isinstance(video_file, list) and len(video_file) == 1):
                 video_file = video_file[0] if isinstance(video_file, list) else video_file
                 if video_file and os.path.exists(video_file):
-                    file_prefix = os.path.splitext(video_file)[0]
+                    file_prefix:str = os.path.splitext(video_file)[0]
                     predict_json = file_prefix + ".json"
                     predict_translate = file_prefix + ".txt"
                     if os.path.exists(predict_json):

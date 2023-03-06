@@ -85,7 +85,7 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
         dialog.exec()
         dialog.close()
 
-    def ProcessSignal(self, data):
+    def ProcessSignal(self, data:dict):
         bar = ProgressBar(self, data)
         item = ListWidgetItem()
         item.id = bar.id

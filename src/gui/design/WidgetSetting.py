@@ -79,28 +79,6 @@ class Ui_Form(object):
 
         self.verticalLayout.addLayout(self.horizontalLayout)
 
-        self.horizontalLayout_4 = QHBoxLayout()
-        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.horizontalLayout_4.setContentsMargins(5, 5, 5, 5)
-        self.label_3 = QLabel(self.MainFrame)
-        self.label_3.setObjectName(u"label_3")
-
-        self.horizontalLayout_4.addWidget(self.label_3)
-
-        self.SettingStartImmediateCheck = QCheckBox(self.MainFrame)
-        self.SettingStartImmediateCheck.setObjectName(u"SettingStartImmediateCheck")
-        sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.SettingStartImmediateCheck.sizePolicy().hasHeightForWidth())
-        self.SettingStartImmediateCheck.setSizePolicy(sizePolicy)
-        self.SettingStartImmediateCheck.setAutoRepeat(False)
-
-        self.horizontalLayout_4.addWidget(self.SettingStartImmediateCheck)
-
-
-        self.verticalLayout.addLayout(self.horizontalLayout_4)
-
         self.horizontalLayout_5 = QHBoxLayout()
         self.horizontalLayout_5.setSpacing(5)
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
@@ -119,6 +97,9 @@ class Ui_Form(object):
 
         self.SettingAnimatedCheck = QCheckBox(self.MainFrame)
         self.SettingAnimatedCheck.setObjectName(u"SettingAnimatedCheck")
+        sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.SettingAnimatedCheck.sizePolicy().hasHeightForWidth())
         self.SettingAnimatedCheck.setSizePolicy(sizePolicy)
 
@@ -131,6 +112,25 @@ class Ui_Form(object):
         self.horizontalLayout_5.setStretch(1, 3)
 
         self.verticalLayout.addLayout(self.horizontalLayout_5)
+
+        self.horizontalLayout_4 = QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.horizontalLayout_4.setContentsMargins(5, 5, 5, 5)
+        self.label_3 = QLabel(self.MainFrame)
+        self.label_3.setObjectName(u"label_3")
+
+        self.horizontalLayout_4.addWidget(self.label_3)
+
+        self.SettingStartImmediateCheck = QCheckBox(self.MainFrame)
+        self.SettingStartImmediateCheck.setObjectName(u"SettingStartImmediateCheck")
+        sizePolicy.setHeightForWidth(self.SettingStartImmediateCheck.sizePolicy().hasHeightForWidth())
+        self.SettingStartImmediateCheck.setSizePolicy(sizePolicy)
+        self.SettingStartImmediateCheck.setAutoRepeat(False)
+
+        self.horizontalLayout_4.addWidget(self.SettingStartImmediateCheck)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_4)
 
         self.horizontalLayout_7 = QHBoxLayout()
         self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
@@ -151,6 +151,25 @@ class Ui_Form(object):
 
 
         self.verticalLayout.addLayout(self.horizontalLayout_7)
+
+        self.horizontalLayout_8 = QHBoxLayout()
+        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
+        self.horizontalLayout_8.setContentsMargins(5, 5, 5, 5)
+        self.label_6 = QLabel(self.MainFrame)
+        self.label_6.setObjectName(u"label_6")
+        self.label_6.setTextFormat(Qt.PlainText)
+
+        self.horizontalLayout_8.addWidget(self.label_6)
+
+        self.SettingRamMaxUse = QLineEdit(self.MainFrame)
+        self.SettingRamMaxUse.setObjectName(u"SettingRamMaxUse")
+
+        self.horizontalLayout_8.addWidget(self.SettingRamMaxUse)
+
+        self.horizontalLayout_8.setStretch(0, 1)
+        self.horizontalLayout_8.setStretch(1, 3)
+
+        self.verticalLayout.addLayout(self.horizontalLayout_8)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
@@ -184,12 +203,13 @@ class Ui_Form(object):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
         self.label_2.setText(QCoreApplication.translate("Form", u"\u4e0b\u8f7d\u4ee3\u7406", None))
         self.label.setText(QCoreApplication.translate("Form", u"\u81ea\u5b9a\u4e49\u5b57\u4f53", None))
-        self.label_3.setText(QCoreApplication.translate("Form", u"\u4efb\u52a1\u7acb\u5373\u5f00\u59cb", None))
-        self.SettingStartImmediateCheck.setText("")
         self.label_4.setText(QCoreApplication.translate("Form", u"\u4e3b\u754c\u9762\u5c0f\u4eba", None))
         self.SettingAnimatedCheck.setText(QCoreApplication.translate("Form", u"\u4f7f\u7528\u52a8\u753b", None))
+        self.label_3.setText(QCoreApplication.translate("Form", u"\u4efb\u52a1\u7acb\u5373\u5f00\u59cb", None))
+        self.SettingStartImmediateCheck.setText("")
         self.label_5.setText(QCoreApplication.translate("Form", u"\u81ea\u52a8\u68c0\u67e5\u66f4\u65b0", None))
         self.SettingStartupUpdateCheck.setText("")
+        self.label_6.setText(QCoreApplication.translate("Form", u"\u6700\u5927\u5185\u5b58\u7528\u91cf(MB)", None))
         self.pushButton.setText(QCoreApplication.translate("Form", u"\u5e94\u7528", None))
     # retranslateUi
 
