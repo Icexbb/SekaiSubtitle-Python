@@ -8,7 +8,7 @@ from gui.design.WidgetTranslate import Ui_Form as Ui_Translate
 from gui.design.WidgetTranslateIcon import Ui_Form as Ui_CharaIcon
 from gui.design.WidgetTranslateItem import Ui_WidgetTranslateItem as Ui_TranslateItem
 from gui.design.WidgetTranslateLines import Ui_Form as Ui_TranslateLines
-from lib.tools import read_json
+from script.tools import read_json
 
 
 class WidgetCharaIcon(Ui_CharaIcon, QtWidgets.QWidget):

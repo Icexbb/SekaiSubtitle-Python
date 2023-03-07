@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import copy
+import gc
 import json
 import os
 import re
@@ -12,11 +13,11 @@ import numpy
 import psutil as psutil
 from PySide6 import QtCore
 
-import lib
-from lib import match
-from lib.data import DISPLAY_NAME_STYLE, subtitle_styles_format
-from lib.reference import get_dialog_mask, get_frame_data, get_area_mask, get_area_mask_size
-from lib.subtitle import Subtitle
+import script
+from script import match
+from script.data import DISPLAY_NAME_STYLE, subtitle_styles_format
+from script.reference import get_dialog_mask, get_frame_data, get_area_mask, get_area_mask_size
+from script.subtitle import Subtitle
 
 
 class SekaiJsonVideoProcess:
@@ -55,9 +56,13 @@ class SekaiJsonVideoProcess:
                 else:
                     self.log(f"[Initial] JSON文件 {predict_path} 不存在")
                     raise FileNotFoundError("Json File Not Found")
-            elif isinstance(self.json_file, str) and not os.path.exists(self.json_file):
-                self.log(f"[Initial] JSON文件 {self.json_file} 不存在")
-                raise FileNotFoundError("Json File Not Found")
+            elif isinstance(self.json_file, str):
+                if not os.path.exists(self.json_file):
+                    self.log(f"[Initial] JSON文件 {self.json_file} 不存在")
+                    raise FileNotFoundError("Json File Not Found")
+            elif isinstance(self.json_file, list):
+                if len(self.json_file) == 1:
+                    self.json_file: str = self.json_file[0]
 
         self.translate_file: str = translate_file
         if self.json_file and not isinstance(self.json_file, list):
@@ -111,7 +116,7 @@ class SekaiJsonVideoProcess:
                 self.json_data = json.load(open(self.json_file, 'r', encoding='utf-8'))
                 if self.translate_file:
                     self.log("[Initial] 尝试进行翻译替换")
-                    if isinstance(self.translate_file,list) and self.translate_file:
+                    if isinstance(self.translate_file, list) and self.translate_file:
                         self.translate_file = self.translate_file[0]
                     if os.path.exists(self.translate_file):
                         pattern_body = re.compile(r"^(?P<name>\S*)：(?P<body>.+)$")
@@ -164,7 +169,7 @@ class SekaiJsonVideoProcess:
             res = {}
             for file in self.json_file:
                 data = json.load(open(file, 'r', encoding='utf-8'))
-                res = lib.tools.merge_dict(res, data)
+                res = script.tools.merge_dict(res, data)
             self.json_data = res
         self.log("[Initial] JSON数据读取完成")
 
@@ -194,60 +199,61 @@ class SekaiJsonVideoProcess:
         last_end_event = None
         constant_pc = None
         dialog_processed = 0
-
+        running = True
         while not self.stop:
             frame = queue.get()
             if isinstance(frame, numpy.ndarray):
-                g_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                pc = match.check_frame_pointer_position(g_frame, pointer, last_center)
-                status = match.check_frame_dialog_status(g_frame, pointer, pc)
+                if running:
+                    g_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                    pc = match.check_frame_pointer_position(g_frame, pointer, last_center)
+                    status = match.check_frame_dialog_status(g_frame, pointer, pc)
+                    if status in [1, 2]:
+                        dialog_processing_frames.append({"frame": now_frame_count, "point_center": pc})
 
-                if status in [1, 2]:
-                    dialog_processing_frames.append({"frame": now_frame_count, "point_center": pc})
+                    if status == 2 and not constant_pc:
+                        constant_pc = pc
 
-                if status == 2 and not constant_pc:
-                    constant_pc = pc
-
-                if status in [0, 1] and last_status == 2:  # End Dialog
-                    dialog_processed += 1
-                    self.emit({"done": 1, "time": time.time() - self.time_start})
-                    if not self.dryrun and dialog_data_processing:
-                        events = self.dialog_make_sequence(
-                            dialog_processing_frames, dialog_data_processing, int(pointer.shape[0]),
-                            height, width, video_fps, last_end_frame, last_end_event)
-                        self.log(f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events, "
-                                 f"Remains {dialog_total_count - dialog_processed}/{dialog_total_count}")
-                    else:
-                        events = self.dialog_make_sequence(
-                            dialog_processing_frames, None, int(pointer.shape[0]),
-                            height, width, video_fps, last_end_frame, last_end_event)
-                        if self.dryrun:
-                            self.log(f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events")
-                            self.log("[Warning] No Data For This Dialog, Please Recheck")
+                    if status in [0, 1] and last_status == 2:  # End Dialog
+                        dialog_processed += 1
+                        self.emit({"done": 1, "time": time.time() - self.time_start})
+                        if not self.dryrun and dialog_data_processing:
+                            events = self.dialog_make_sequence(
+                                dialog_processing_frames, dialog_data_processing, int(pointer.shape[0]),
+                                height, width, video_fps, last_end_frame, last_end_event)
+                            self.log(f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events, "
+                                     f"Remains {dialog_total_count - dialog_processed}/{dialog_total_count}")
                         else:
-                            self.log(f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events")
-                            if len(events) > 2:
-                                self.log(f"[Processing] Jitter Happened in a No-Json Task, Please Recheck")
+                            events = self.dialog_make_sequence(
+                                dialog_processing_frames, None, int(pointer.shape[0]),
+                                height, width, video_fps, last_end_frame, last_end_event)
+                            if self.dryrun:
+                                self.log(f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events")
+                                self.log("[Warning] No Data For This Dialog, Please Recheck")
+                            else:
+                                self.log(f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events")
+                                if len(events) > 2:
+                                    self.log(f"[Processing] Jitter Happened in a No-Json Task, Please Recheck")
 
-                    last_end_frame = dialog_processing_frames[-1]
-                    last_end_event = events[-1]
-                    dialog_events += events
-                    dialog_processing_frames = []
-                    dialog_data_processing = None
-
-                    if dialog_processed == dialog_total_count and not self.dryrun:
-                        break
-
-                if not self.dryrun and not dialog_data_processing:
-                    try:
-                        dialog_data_processing = dialog_data.pop(0)
-                    except IndexError:
+                        last_end_frame = dialog_processing_frames[-1]
+                        last_end_event = events[-1]
+                        dialog_events += events
+                        dialog_processing_frames = []
                         dialog_data_processing = None
 
-                last_status = status
-                last_center = pc
-                now_frame_count += 1
+                        if dialog_processed == dialog_total_count and not self.dryrun:
+                            break
+
+                    if not self.dryrun and not dialog_data_processing:
+                        try:
+                            dialog_data_processing = dialog_data.pop(0)
+                        except IndexError:
+                            dialog_data_processing = None
+
+                    last_status = status
+                    last_center = pc
+                    now_frame_count += 1
                 self.emit({"done": 1, "time": time.time() - self.time_start})
+                del frame
             else:
                 break
 
@@ -289,6 +295,7 @@ class SekaiJsonVideoProcess:
         return_count = 0
         for index, char in enumerate(body_list):
             return_count += 1 if char == "\n" else 0
+
             res.append(
                 rf"{{\alphaFF\t({char_interval * (index * 2 + 1) + return_count * 300},"
                 rf"{char_interval * (index * 2 + 2) + return_count * 300},1,\alpha0)}}"
@@ -308,17 +315,18 @@ class SekaiJsonVideoProcess:
         res = []
         char_time = 0
         for index, char in enumerate(body_list):
-            char_time += 300 + char_interval if char == "\n" else char_interval
-            n_char = char
+            char_time += (300 + char_interval) if char == "\n" else char_interval
+            n_char = char if char != "\n" else r"\N"
+            add_trans = ""
             if char_time < now_time_ms < char_time + char_interval:
-                la = 255 - int((now_time_ms - char_time) / char_interval * 255)
-                la_string = rf"{{\alpha{int(la)}}}"
-                n_char = la_string + (char if char != "\n" else r"\N")
+                la = int((now_time_ms - char_time) / char_interval * 255)
+                la_string = rf"{{\alpha{la}}}"
+                add_trans = la_string
             elif char_time > now_time_ms:
                 if not is_trans_now:
-                    n_char = trans_alpha_string + (char if char != "\n" else r"\N")
+                    add_trans = trans_alpha_string
                     is_trans_now = True
-            res.append(n_char)
+            res.append(add_trans + n_char)
         return "".join(res)
 
     @staticmethod
@@ -332,7 +340,6 @@ class SekaiJsonVideoProcess:
         end_frame = dialog_frames[-1]
         results = []
         if dialog_data:
-
             style = DISPLAY_NAME_STYLE[dialog_data['WindowDisplayName']] \
                 if dialog_data['WindowDisplayName'] in DISPLAY_NAME_STYLE else "関連人物"
         else:
@@ -340,12 +347,12 @@ class SekaiJsonVideoProcess:
 
         jitter = False
         for item in dialog_frames:
-            if lib.tools.check_distance(item["point_center"], start_frame["point_center"]) > pow(pow(5, 2) * 2, 0.5):
+            if script.tools.check_distance(item["point_center"], start_frame["point_center"]) > pow(pow(5, 2) * 2, 0.5):
                 jitter = True
                 break
 
         if not jitter:
-            start_time = lib.tools.timedelta_to_string(frame_time * start_frame['frame'])
+            start_time = script.tools.timedelta_to_string(frame_time * start_frame['frame'])
             if last_dialog_frame and last_dialog_event:
                 if start_frame['frame'] - last_dialog_frame['frame'] <= 1:
                     start_time = last_dialog_event['End']
@@ -356,7 +363,7 @@ class SekaiJsonVideoProcess:
             event_data = {
                 "Layer": 1,
                 "Start": start_time,
-                "End": lib.tools.timedelta_to_string(frame_time * end_frame['frame']),
+                "End": script.tools.timedelta_to_string(frame_time * end_frame['frame']),
                 "Style": style,
                 "Name": dialog_data['WindowDisplayName'] if dialog_data else "",
                 "MarginL": 0, "MarginR": 0, "MarginV": 0,
@@ -380,7 +387,7 @@ class SekaiJsonVideoProcess:
                        f"{int(frame['point_center'][0] - 0.5 * point_size)}," \
                        f"{int(frame['point_center'][1] + 1.25 * point_size)}" \
                        r")}"
-                if dialog_body:
+                if dialog_data:
                     dialog_body = SekaiJsonVideoProcess.dialog_body_typer_calculater(
                         dialog_data["Body"], index, frame_time, 50)
                 else:
@@ -390,8 +397,8 @@ class SekaiJsonVideoProcess:
 
                 event_data = {
                     "Layer": 1,
-                    "Start": lib.tools.timedelta_to_string(frame_time * frame['frame']),
-                    "End": lib.tools.timedelta_to_string(frame_time * (frame['frame'] + 1)),
+                    "Start": script.tools.timedelta_to_string(frame_time * frame['frame']),
+                    "End": script.tools.timedelta_to_string(frame_time * (frame['frame'] + 1)),
                     "Style": style,
                     "Name": dialog_data['WindowDisplayName'] if dialog_data else "",
                     "MarginL": 0, "MarginR": 0, "MarginV": 0,
@@ -413,8 +420,8 @@ class SekaiJsonVideoProcess:
 
                 mask_data = {
                     "Layer": 1,
-                    "Start": lib.tools.timedelta_to_string(frame_time * frame['frame']),
-                    "End": lib.tools.timedelta_to_string(frame_time * (frame['frame'] + 1)),
+                    "Start": script.tools.timedelta_to_string(frame_time * frame['frame']),
+                    "End": script.tools.timedelta_to_string(frame_time * (frame['frame'] + 1)),
                     "Style": 'screen',
                     "Name": dialog_data['WindowDisplayName'] if dialog_data else "",
                     "MarginL": 0, "MarginR": 0, "MarginV": 0, "Effect": '',
@@ -434,7 +441,6 @@ class SekaiJsonVideoProcess:
         vc = self.VideoCapture
         video_fps = vc.get(5)
         height, width = (vc.get(4), vc.get(3))
-
         area_mask = get_area_mask(get_area_mask_size((width, height)))
         if not self.dryrun:
             area_data: list[dict] = [item for item in self.json_data['SpecialEffectData'] if item['EffectType'] == 8]
@@ -453,46 +459,49 @@ class SekaiJsonVideoProcess:
         area_processed = 0
         content_started = False
         last_result = False
+        running = True
 
         while not self.stop:
             frame = queue.get()
             if isinstance(frame, numpy.ndarray):
+                if running:
+                    frame_result: bool = match.check_frame_area_mask(frame, area_mask_area, content_started)
+                    if frame_result:
+                        content_started = True
+                        area_processing_frames.append(now_frame_count)
 
-                frame_result: bool = match.check_frame_area_mask(frame, area_mask_area, content_started)
-                if frame_result:
-                    content_started = True
-                    area_processing_frames.append(now_frame_count)
+                    if last_result and not frame_result:
+                        area_processed += 1
+                        self.emit({"done": 1, "time": time.time() - self.time_start})
 
-                if last_result and not frame_result:
-                    area_processed += 1
-                    self.emit({"done": 1, "time": time.time() - self.time_start})
+                        if self.dryrun:
+                            events = self.area_make_sequence(area_processing_frames, None, area_mask, video_fps)
+                            self.log(f"[Processing] AreaInfo {area_processed}: Output {len(events)} Events")
+                        else:
+                            events = self.area_make_sequence(area_processing_frames, area_processing, area_mask,
+                                                             video_fps)
+                            self.log(f"[Processing] AreaInfo {area_processed}: Output {len(events)} Events, "
+                                     f"Remain {area_data_count - area_processed}/{area_data_count}")
 
-                    if self.dryrun:
-                        events = self.area_make_sequence(area_processing_frames, None, area_mask, video_fps)
-                        self.log(f"[Processing] AreaInfo {area_processed}: Output {len(events)} Events")
-                    else:
-                        events = self.area_make_sequence(area_processing_frames, area_processing, area_mask, video_fps)
-                        self.log(f"[Processing] AreaInfo {area_processed}: Output {len(events)} Events, "
-                                 f"Remain {area_data_count - area_processed}/{area_data_count}")
-
-                    area_events += events
-                    area_processing_frames = []
-                    area_processing = None
-
-                    if not self.dryrun and area_processed == area_data_count:
-                        break
-
-                if not self.dryrun and not area_processing:
-                    try:
-                        area_processing = area_data.pop(0)
-                    except IndexError:
+                        area_events += events
+                        area_processing_frames = []
                         area_processing = None
-                now_frame_count += 1
-                last_result = frame_result
+
+                        if not self.dryrun and area_processed == area_data_count:
+                            running = False
+
+                    if not self.dryrun and not area_processing:
+                        try:
+                            area_processing = area_data.pop(0)
+                        except IndexError:
+                            area_processing = None
+                    now_frame_count += 1
+                    last_result = frame_result
+                self.emit({"done": 1, "time": time.time() - self.time_start})
+                del frame
             else:
-                if not isinstance(frame, numpy.ndarray):
-                    break
-            self.emit({"done": 1, "time": time.time() - self.time_start})
+                break
+
         if not self.stop:
             result.append(area_events)
             if self.dryrun:
@@ -507,16 +516,16 @@ class SekaiJsonVideoProcess:
         frame_time = timedelta(seconds=1 / fps)
         event_mask = {
             "Layer": 0,
-            "Start": lib.tools.timedelta_to_string(frame_array[0] * frame_time),
-            "End": lib.tools.timedelta_to_string(frame_array[-1] * frame_time),
+            "Start": script.tools.timedelta_to_string(frame_array[0] * frame_time),
+            "End": script.tools.timedelta_to_string(frame_array[-1] * frame_time),
             "Style": "address", "Name": '',
             "MarginL": 0, "MarginR": 0, "MarginV": 0, "Effect": '',
             "Text": r"{\fad(100,100)}" + area_mask
         }
         event_data = {
             "Layer": 1,
-            "Start": lib.tools.timedelta_to_string(frame_array[0] * frame_time),
-            "End": lib.tools.timedelta_to_string(frame_array[-1] * frame_time),
+            "Start": script.tools.timedelta_to_string(frame_array[0] * frame_time),
+            "End": script.tools.timedelta_to_string(frame_array[-1] * frame_time),
             "Style": "address", "Name": '',
             "MarginL": 0, "MarginR": 0, "MarginV": 0, "Effect": '',
             "Text": area_info["StringVal"] if area_info else "LOCATION"
@@ -527,27 +536,28 @@ class SekaiJsonVideoProcess:
 
     def queue_video_frame(self, queue_array: list[Queue]):
         self.emit({"total": 2 * self.VideoCapture.get(7)})
-        vc_array = [cv2.VideoCapture(self.video_file) for _ in queue_array]
-        vc_status = [0 for _ in vc_array]
+        vc = cv2.VideoCapture(self.video_file)
+        vc_status = 1
         while True:
             ram_use_process = psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024
             ram_use_total = psutil.virtual_memory().percent
-            for index, vc in enumerate(vc_array):
-                if ram_use_process < self.ram_max and ram_use_total < 90 and not vc_status[index]:
-                    queue = queue_array[index]
-                    ret, frame = vc.read()
-                    if ret:
+            if ram_use_process < self.ram_max and ram_use_total < 90 and vc_status:
+                ret, frame = (vc.read())
+                if ret:
+                    for queue in queue_array:
                         queue.put(frame)
-                    else:
-                        vc_status[index] = 1
-            if all(vc_status):
+                else:
+                    vc_status = 0
+            else:
+                print([queue.qsize() for queue in queue_array], ram_use_total)
+                gc.collect()
+            if not vc_status:
                 break
             if not self.queue.empty():
                 self.set_stop()
                 break
 
-        for vc in vc_array:
-            vc.release()
+        vc.release()
         for queue in queue_array:
             queue.put(False)
 

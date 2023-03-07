@@ -6,7 +6,7 @@ from PySide6 import QtWidgets
 from PySide6.QtGui import QFont, QIntValidator
 
 from gui.design.WidgetSetting import Ui_Form
-from lib.tools import save_json, read_json
+from script.tools import save_json, read_json
 
 
 class SettingWidget(QtWidgets.QWidget, Ui_Form):

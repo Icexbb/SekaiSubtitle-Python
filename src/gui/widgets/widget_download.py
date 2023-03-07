@@ -7,8 +7,8 @@ from PySide6 import QtNetwork, QtCore, QtWidgets
 from PySide6.QtCore import SIGNAL
 
 from gui.design.WidgetDataDownload import Ui_DownloadWidget
-from lib.data import chara_name, areaDict, characterDict
-from lib.tools import save_json, read_json
+from script.data import chara_name, areaDict, characterDict
+from script.tools import save_json, read_json
 
 
 class NetworkAccessManager(QtNetwork.QNetworkAccessManager):

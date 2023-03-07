@@ -3,7 +3,7 @@ from queue import Queue
 
 from PySide6 import QtCore
 
-from lib.process import SekaiJsonVideoProcess
+from script.process import SekaiJsonVideoProcess
 
 
 class VideoProcessThread(QtCore.QThread):

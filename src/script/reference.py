@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from lib.subtitle import AssDraw
+from script.subtitle import AssDraw
 
 
 def get_area_mask_size(frame_shape: tuple):
