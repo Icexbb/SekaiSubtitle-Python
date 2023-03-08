@@ -70,7 +70,7 @@ class NewStaffDialog(FramelessDialog, Ui_NewStaffDialog):
         result = {
             "recorder": self.EditRecord.text(),
             "translator": self.EditTranslator.text(),
-            "translate_proof": self.EditTranslator.text(),
+            "translate_proof": self.EditTranslateProof.text(),
             "subtitle_maker": self.EditSubMaker.text(),
             "subtitle_proof": self.EditSubProof.text(),
             "prefix": self.EditPrefix.toPlainText(),
@@ -120,19 +120,19 @@ class NewStaffDialog(FramelessDialog, Ui_NewStaffDialog):
     @property
     def subtitle_body(self):
         string = ""
-        if s := self.data.get("prefix"):
+        if s := (self.data.get("prefix")).strip():
             string += f"{s}\n"
-        if s := self.data.get("recorder"):
+        if s := (self.data.get("recorder")).strip():
             string += f"录制: {s}\n"
-        if s := self.data.get("translator"):
+        if s := (self.data.get("translator")).strip():
             string += f"翻译: {s}\n"
-        if s := self.data.get("translate_proof"):
+        if s := (self.data.get("translate_proof")).strip():
             string += f"校对: {s}\n"
-        if s := self.data.get("subtitle_maker"):
+        if s := (self.data.get("subtitle_maker")).strip():
             string += f"时轴: {s}\n"
-        if s := self.data.get("subtitle_proof"):
+        if s := (self.data.get("subtitle_proof")).strip():
             string += f"轴校/压制: {s}\n"
-        if s := self.data.get("subfix"):
+        if s := (self.data.get("subfix")).strip():
             string += f"{s}\n"
         string = string.strip().replace("\n", r"\N")
         return string
