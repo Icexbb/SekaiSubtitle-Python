@@ -183,7 +183,7 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
         result = []
         if self.data_file:
             filename = QtWidgets.QFileDialog.getSaveFileName(
-                self, "保存", os.path.split(self.trans_file)[0] if self.trans_file else "" or os.getcwd(),
+                self, "保存", os.path.split(self.trans_file)[0] if self.trans_file else "" or self.parent.choose_file_root,
                 "SekaiText文件(*.txt);;all files(*.*)")
             filepath, filename = os.path.split(filename[0])
             for line in self.lines:

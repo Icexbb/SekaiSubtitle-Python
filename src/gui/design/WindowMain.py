@@ -23,7 +23,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(763, 450)
+        MainWindow.resize(640, 480)
         MainWindow.setStyleSheet(u"QWidget#MainFrame{background-color: rgb(255, 255, 255);border-color: rgb(204, 204, 204);border-size: 2px;border-radius:20px;}\n"
 "QFrame#CenterFrame{border-radius:20px;background-color: rgb(238, 238, 238);}\n"
 "QFrame#MenuFrame{	border-radius:20px;	background-color: rgba(238, 238, 238,128);}\n"

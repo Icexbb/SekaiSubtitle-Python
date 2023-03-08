@@ -11,7 +11,7 @@ class VideoProcessThread(QtCore.QThread):
     signal_stop = QtCore.Signal(bool)
 
     def __init__(self, parent, video_file, json_file, translate_file=None, custom_font: str = None,
-                 dryrun: bool = False):
+                 dryrun: bool = False, staff: list[dict] = None):
         super().__init__()
         self.started = 0
         self.dryrun = dryrun
@@ -19,6 +19,7 @@ class VideoProcessThread(QtCore.QThread):
         self.json_file = json_file
         self.translate_file = translate_file
         self.custom_font = custom_font
+        self.staff_data = staff
 
         self.bar = parent
         self.max_ram: int = self.bar.parent.parent.max_ram
@@ -32,7 +33,8 @@ class VideoProcessThread(QtCore.QThread):
         self.vp = SekaiJsonVideoProcess(
             self.video_file, self.json_file, self.translate_file,
             output, self.signal_data, True,
-            self.queue, self.custom_font, self.dryrun,self.max_ram
+            self.queue, self.custom_font, self.dryrun, self.max_ram,
+            self.staff_data
         )
         self.vp.run()
 

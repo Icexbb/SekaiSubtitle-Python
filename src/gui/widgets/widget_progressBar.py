@@ -14,7 +14,8 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
         self.id = f"{hash(self)}"
         self.processing = False
         self.setupUi(self)
-        self.parent = parent
+        from gui.widgets.widget_subtitle import ProcessWidget
+        self.parent: ProcessWidget = parent
         self.ProgressBar.setMaximum(0)
         self.StartButton.clicked.connect(self.toggle_process)
         self.DeleteButton.clicked.connect(self.delete_process)
@@ -30,6 +31,7 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
         self.json = self.taskInfo.get("json")
         self.translate = self.taskInfo.get("translate")
         self.Thread: VideoProcessThread = None
+        self.staff = self.taskInfo.get("staff")
 
         self.TaskNameString = os.path.splitext(os.path.split(self.video)[-1])[0]
         self.TaskName.setText(self.TaskNameString)
@@ -52,7 +54,7 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
 
     def toggle_process(self):
         if not self.processing:
-            self.Thread = VideoProcessThread(self, self.video, self.json, self.translate, self.font, self.dryrun)
+            self.Thread = VideoProcessThread(self, self.video, self.json, self.translate, self.font, self.dryrun,self.staff)
             self.Thread.signal_data.connect(self.signal_process)
             self.StartButton.setStyleSheet("background-color:rgb(255,255,100);")
             self.StatusLogList.clear()
@@ -129,7 +131,7 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
                 percent = self.ProgressBar.value() / (self.ProgressBar.maximum() or 1) * 100
                 fps = self.ProgressBar.value() / (time_spend or 1)
                 eta = (self.ProgressBar.maximum() - self.ProgressBar.value()) / (fps or 1)
-                self.PercentLabel.setText(f"FPS: {fps/2:.1f} ETA: {eta:.1f}s {percent:.1f}%")
+                self.PercentLabel.setText(f"FPS: {fps / 2:.1f} ETA: {eta:.1f}s {percent:.1f}%")
                 if not self.processing:
                     self.PercentLabel.setText("")
                 self.PercentLabel.repaint()

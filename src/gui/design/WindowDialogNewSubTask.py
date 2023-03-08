@@ -68,43 +68,64 @@ class Ui_NewSubProcessDialog(object):
         self.EmitFrame.setFrameShadow(QFrame.Raised)
         self.horizontalLayout_4 = QHBoxLayout(self.EmitFrame)
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.horizontalLayout_4.setContentsMargins(-1, 0, 0, 0)
+        self.widget_4 = QWidget(self.EmitFrame)
+        self.widget_4.setObjectName(u"widget_4")
+        self.horizontalLayout_6 = QHBoxLayout(self.widget_4)
+        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.StaffAddButton = QPushButton(self.widget_4)
+        self.StaffAddButton.setObjectName(u"StaffAddButton")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.StaffAddButton.sizePolicy().hasHeightForWidth())
+        self.StaffAddButton.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_6.addWidget(self.StaffAddButton)
+
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_6.addItem(self.horizontalSpacer_2)
+
+
+        self.horizontalLayout_4.addWidget(self.widget_4)
+
         self.widget = QWidget(self.EmitFrame)
         self.widget.setObjectName(u"widget")
-        self.horizontalLayout_2 = QHBoxLayout(self.widget)
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.horizontalSpacer_2 = QSpacerItem(167, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalLayout = QHBoxLayout(self.widget)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.EmitButton = QPushButton(self.widget)
+        self.EmitButton.setObjectName(u"EmitButton")
+        sizePolicy3 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.EmitButton.sizePolicy().hasHeightForWidth())
+        self.EmitButton.setSizePolicy(sizePolicy3)
 
-        self.horizontalLayout_2.addItem(self.horizontalSpacer_2)
+        self.horizontalLayout.addWidget(self.EmitButton)
 
 
         self.horizontalLayout_4.addWidget(self.widget)
 
-        self.EmitButton = QPushButton(self.EmitFrame)
-        self.EmitButton.setObjectName(u"EmitButton")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.EmitButton.sizePolicy().hasHeightForWidth())
-        self.EmitButton.setSizePolicy(sizePolicy2)
-
-        self.horizontalLayout_4.addWidget(self.EmitButton)
-
-        self.widget_2 = QWidget(self.EmitFrame)
-        self.widget_2.setObjectName(u"widget_2")
-        self.horizontalLayout = QHBoxLayout(self.widget_2)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.widget_3 = QWidget(self.EmitFrame)
+        self.widget_3.setObjectName(u"widget_3")
+        self.horizontalLayout_3 = QHBoxLayout(self.widget_3)
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.horizontalLayout.addItem(self.horizontalSpacer)
+        self.horizontalLayout_3.addItem(self.horizontalSpacer)
 
-        self.DryRunCheck = QCheckBox(self.widget_2)
+        self.DryRunCheck = QCheckBox(self.widget_3)
         self.DryRunCheck.setObjectName(u"DryRunCheck")
 
-        self.horizontalLayout.addWidget(self.DryRunCheck)
+        self.horizontalLayout_3.addWidget(self.DryRunCheck)
 
 
-        self.horizontalLayout_4.addWidget(self.widget_2)
+        self.horizontalLayout_4.addWidget(self.widget_3)
 
+        self.horizontalLayout_4.setStretch(0, 1)
+        self.horizontalLayout_4.setStretch(1, 1)
+        self.horizontalLayout_4.setStretch(2, 1)
 
         self.verticalLayout.addWidget(self.EmitFrame)
 
@@ -120,7 +141,8 @@ class Ui_NewSubProcessDialog(object):
 
     def retranslateUi(self, NewSubProcessDialog):
         NewSubProcessDialog.setWindowTitle(QCoreApplication.translate("NewSubProcessDialog", u"Dialog", None))
-        self.EmitButton.setText(QCoreApplication.translate("NewSubProcessDialog", u"\u5f00\u59cb\uff01", None))
+        self.StaffAddButton.setText(QCoreApplication.translate("NewSubProcessDialog", u"\u6dfb\u52a0Staff\u884c", None))
+        self.EmitButton.setText(QCoreApplication.translate("NewSubProcessDialog", u"\u5f00\u59cb", None))
         self.DryRunCheck.setText(QCoreApplication.translate("NewSubProcessDialog", u"\u4ec5\u4f7f\u7528\u89c6\u9891", None))
     # retranslateUi
 

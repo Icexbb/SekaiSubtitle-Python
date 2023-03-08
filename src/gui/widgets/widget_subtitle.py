@@ -1,4 +1,5 @@
 import os
+from queue import Queue
 
 from PySide6 import QtWidgets, QtGui, QtCore
 
@@ -8,13 +9,31 @@ from gui.widgets.dialog_makeTaskDialog import NewTaskDialog
 from gui.widgets.widget_progressBar import ProgressBar
 
 
+class NewDialogThread(QtCore.QThread):
+    def __init__(self, queue, signal):
+        super().__init__()
+        self.queue: Queue = queue
+        self.signal: QtCore.Signal = signal
+
+    def run(self) -> None:
+        while True:
+            path = self.queue.get()
+            if path:
+                self.signal.emit(path)
+
+
 class TaskAcceptWidget(QtWidgets.QWidget, Ui_AccWidget):
     signal = QtCore.Signal(str)
 
-    def __init__(self):
+    def __init__(self, parent):
         super().__init__()
+        self.newPath = None
         self.setupUi(self)
         self.setAcceptDrops(True)
+        self.parent = parent
+        self.queue = Queue()
+        self.NewDialogThread = NewDialogThread(self.queue, self.signal)
+        self.NewDialogThread.start()
 
     def dragEnterEvent(self, event: QtGui.QDragEnterEvent) -> None:
         path = event.mimeData().text()
@@ -24,19 +43,13 @@ class TaskAcceptWidget(QtWidgets.QWidget, Ui_AccWidget):
             event.ignore()
 
     def dropEvent(self, event: QtGui.QDropEvent):
-        path = event.mimeData().text().replace('file:///', '')
+        path = event.mimeData().text().removeprefix('file:///')
         if path.endswith((".mp4", ".mkv", ".wmv", ".avi", ".json", ".asset", ".txt")):
-            self.signal.emit(path)
-            event.accept()
-        else:
-            event.ignore()
+            self.queue.put(path)
 
     def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
         if event.button() == QtCore.Qt.MouseButton.LeftButton:
             self.signal.emit("")
-            event.accept()
-        else:
-            event.ignore()
 
 
 class ListWidgetItem(QtWidgets.QListWidgetItem):
@@ -47,18 +60,20 @@ class ListWidgetItem(QtWidgets.QListWidgetItem):
 
 class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
     def __init__(self, parent):
-
         super().__init__()
-        self.parent = parent
+        from gui.gui_main import MainUi
+        self.parent: MainUi = parent
         self.setupUi(self)
         self.setAcceptDrops(True)
         self.tempAcceptFile = None
-        self.TaskAcceptWidget = TaskAcceptWidget()
+        self.TaskAcceptWidget = TaskAcceptWidget(self)
         self.TaskAcceptWidget.signal.connect(self.NewTaskDialog)
         self.horizontalLayout.addWidget(self.TaskAcceptWidget)
+
         self.StopAllButton.clicked.connect(self.stop_all)
         self.StartAllButton.clicked.connect(self.start_all)
         self.ClearAllButton.clicked.connect(self.clear_all)
+
         self.bars = []
 
     @property
@@ -71,6 +86,8 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
 
     def NewTaskDialog(self, path):
         dialog = NewTaskDialog(self.parent)
+        dialog.signal.connect(self.ProcessSignal)
+
         if path and os.path.exists(path):
             if path.endswith((".mp4", ".mkv", ".wmv", ".avi",)):
                 dialog.VideoSelector.FileLabel.setText(path)
@@ -81,11 +98,10 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
             elif path.endswith((".txt",)):
                 dialog.TranslateSelector.FileLabel.setText(path)
                 dialog.TranslateSelector.fileSelected = path
-        dialog.signal.connect(self.ProcessSignal)
+        dialog.show()
         dialog.exec()
-        dialog.close()
 
-    def ProcessSignal(self, data:dict):
+    def ProcessSignal(self, data: dict):
         bar = ProgressBar(self, data)
         item = ListWidgetItem()
         item.id = bar.id

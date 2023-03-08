@@ -14,8 +14,8 @@ class AboutDialog(QtWidgets.QDialog, Ui_Dialog):
     def __init__(self, parent):
         super().__init__()
         self.isStartup = False
-        self.setupUi(self)
         self.parent = parent
+        self.setupUi(self)
         self.setWindowTitle("关于Sekai Subtitle")
         self.iconPath = "asset"
         if getattr(sys, 'frozen', False):

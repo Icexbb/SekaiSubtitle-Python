@@ -33,7 +33,8 @@ class SekaiJsonVideoProcess:
             queue_in: Queue = Queue(),
             font_custom: str = None,
             use_no_json_file: bool = False,
-            ram_max: int = 1500
+            ram_max: int = 1500,
+            staff: list[dict] = None
     ):
         self.ram_max = ram_max
         self.time_start = time.time()
@@ -41,6 +42,7 @@ class SekaiJsonVideoProcess:
         self.font = font_custom
         self.signal = signal
         self.dryrun = use_no_json_file
+        self.staff = staff or []
 
         self.video_file = video_file
         if not os.path.exists(self.video_file):
@@ -276,10 +278,11 @@ class SekaiJsonVideoProcess:
         subtitle_styles = copy.deepcopy(subtitle_styles_format)
         for key in subtitle_styles:
             item = subtitle_styles[key]
-            if item["MarginL"] == 325:
-                item["MarginL"] = int(point_center[0] - 0.5 * point_size)
-                item["MarginV"] = int(point_center[1] + 1.25 * point_size)
-                item["Fontsize"] = int(point_size * (83 / 56))
+            item["Fontsize"] = int(point_size * (83 / 56))
+            if not key.startswith(("staff", "screen")):
+                if item["MarginL"] == 325:
+                    item["MarginL"] = int(point_center[0] - 0.5 * point_size)
+                    item["MarginV"] = int(point_center[1] + 1.25 * point_size)
             if self.font:
                 item["Font"] = self.font
             res.append(item)
@@ -610,7 +613,7 @@ class SekaiJsonVideoProcess:
                 "ScriptInfo": {"PlayResX": video_width, "PlayResY": video_height},
                 "Garbage": {"video": self.video_file},
                 "Styles": dialog_styles,
-                "Events": Subtitle.Events(area_events + dialogs_events).list,
+                "Events": Subtitle.Events(self.staff + area_events + dialogs_events).list,
             }
             subtitle = Subtitle(res)
             if os.path.exists(self.output_path):

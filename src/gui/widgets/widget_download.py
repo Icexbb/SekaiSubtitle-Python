@@ -32,7 +32,7 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
         self.receive_data = None
         self.downloadState = None
         self.setupUi(self)
-        self.parent = parent
+        self.parent=parent
         self.root = os.getcwd()
 
         self.download_url = None

@@ -6,6 +6,7 @@ from qframelesswindow import FramelessDialog
 
 from gui.design.WidgetNewTaskSelector import Ui_SelectWidget as Selector
 from gui.design.WindowDialogNewSubTask import Ui_NewSubProcessDialog as Dialog
+from gui.widgets.dialog_makeStaffInfo import NewStaffDialog
 from gui.widgets.widget_titlebar import TitleBar
 
 
@@ -85,8 +86,9 @@ class NewTaskDialog(FramelessDialog, Dialog):
         self.setWindowTitle("新任务")
         self.setObjectName("New Task")
 
-        self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
-        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+        self.setWindowFlag(QtCore.Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setModal(False)
 
         from gui.gui_main import MainUi
         self.parent: MainUi = parent
@@ -107,9 +109,25 @@ class NewTaskDialog(FramelessDialog, Dialog):
         self.SelectBoxLayout.addWidget(self.JsonSelector)
         self.SelectBoxLayout.addWidget(self.TranslateSelector)
         self.EmitButton.clicked.connect(self.emitTask)
+        self.staff_line = []
+        self.StaffAddButton.clicked.connect(lambda: self.add_staff())
 
         self.DryRunCheck.stateChanged.connect(self.dryrun_stage_changed)
         self.VideoSelector.select_signal.connect(self.fileAutoSelect)
+
+    def add_staff(self, file=None):
+        dialog = NewStaffDialog(self)
+        if file and os.path.exists(file):
+            if file.endswith(".json"):
+                dialog.load(file)
+        dialog.signal.connect(
+            lambda data: {
+                self.staff_line.append(data),
+                self.StaffAddButton.setText(f"已有Staff行*{len(self.staff_line)}")
+            }
+        )
+        dialog.exec()
+        dialog.close()
 
     @property
     def dryrun(self):
@@ -138,7 +156,10 @@ class NewTaskDialog(FramelessDialog, Dialog):
     def dryrun_stage_changed(self):
         self.TranslateSelector.setEnabled(not self.dryrun)
         self.JsonSelector.setEnabled(not self.dryrun)
+        self.StaffAddButton.setEnabled(not self.dryrun)
         if self.dryrun:
+            self.staff_line.clear()
+            self.StaffAddButton.setText("添加Staff行")
             self.clear_auto_select()
         else:
             self.fileAutoSelect()
@@ -154,7 +175,7 @@ class NewTaskDialog(FramelessDialog, Dialog):
             else:
                 video_files = [video_files]
             for video_file in video_files:
-                data = {"video": video_file, "dryrun": True, "font": self.parent.font}
+                data = {"video": video_file, "dryrun": True, "font": self.parent.font, "staff": self.staff_line}
                 self.signal.emit(data)
             if not video_files:
                 QtWidgets.QMessageBox.warning(
@@ -164,7 +185,9 @@ class NewTaskDialog(FramelessDialog, Dialog):
             else:
                 self.close()
         else:
-            data = {"video": video_files, "json": json_file, "translate": translate_file, "font": self.parent.font}
+            data = {
+                "video": video_files, "json": json_file, "translate": translate_file,
+                "font": self.parent.font, "staff": self.staff_line}
             if video_files and json_file:
                 self.signal.emit(data)
                 self.close()
@@ -192,7 +215,6 @@ class NewTaskDialog(FramelessDialog, Dialog):
             self.move(self.pos() + self._endPos.toPoint())
 
     def mousePressEvent(self, a0: QtGui.QMouseEvent):
-        # 根据鼠标按下时的位置判断是否在QFrame范围内
         if self.childAt(a0.position().x(), a0.position().y()).objectName() in ["MainFrame", "TitleBar"]:
             # 判断鼠标按下的是左键
             if a0.button() == QtCore.Qt.MouseButton.LeftButton:
