@@ -23,7 +23,7 @@ from gui.widgets.widget_translate import TranslateWidget
 EXIT_CODE_REBOOT = -11231351
 
 PROGRAM_NAME = "Sekai Subtitle"
-VERSION = "v0.4.7"
+VERSION = "v0.4.8"
 
 
 class MainUi(FramelessMainWindow, Ui_MainWindow):
