@@ -88,11 +88,8 @@ class NewTaskDialog(FramelessDialog, Dialog):
 
         self.setWindowFlag(QtCore.Qt.WindowType.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
-        self.setModal(False)
-
         from gui.gui_main import MainUi
         self.parent: MainUi = parent
-
         self.TitleBar = TitleBar(self)
 
         self.TitleBar.WindowMaxButton.setHidden(True)
