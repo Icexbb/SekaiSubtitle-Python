@@ -15,7 +15,7 @@ from PySide6 import QtCore
 
 import script
 from script import match
-from script.data import DISPLAY_NAME_STYLE, subtitle_styles_format
+from script.data import DISPLAY_NAME_STYLE, subtitle_styles_format, staff_style_format
 from script.reference import get_dialog_mask, get_frame_data, get_area_mask, get_area_mask_size
 from script.subtitle import Subtitle
 
@@ -187,7 +187,6 @@ class SekaiJsonVideoProcess:
         if not self.dryrun:
             dialog_data: list[dict] = copy.deepcopy(self.json_data['TalkData'])
             dialog_total_count = len(dialog_data)
-            self.emit({"total": len(dialog_data)})
         else:
             dialog_data: list[dict] = []
             dialog_total_count = len(dialog_data)
@@ -217,7 +216,6 @@ class SekaiJsonVideoProcess:
 
                     if status in [0, 1] and last_status == 2:  # End Dialog
                         dialog_processed += 1
-                        self.emit({"done": 1, "time": time.time() - self.time_start})
                         if not self.dryrun and dialog_data_processing:
                             events = self.dialog_make_sequence(
                                 dialog_processing_frames, dialog_data_processing, int(pointer.shape[0]),
@@ -254,10 +252,10 @@ class SekaiJsonVideoProcess:
                     last_status = status
                     last_center = pc
                     now_frame_count += 1
-                self.emit({"done": 1, "time": time.time() - self.time_start})
                 del frame
             else:
                 break
+            self.emit({"done": 1, "time": time.time() - self.time_start})
 
         if not self.stop:
             dialog_styles = self.dialog_make_styles(
@@ -448,7 +446,6 @@ class SekaiJsonVideoProcess:
         if not self.dryrun:
             area_data: list[dict] = [item for item in self.json_data['SpecialEffectData'] if item['EffectType'] == 8]
             area_data_count = len(area_data)
-            self.emit({"total": area_data_count})
         else:
             area_data: list[dict] = []
             area_data_count = len(area_data)
@@ -475,7 +472,6 @@ class SekaiJsonVideoProcess:
 
                     if last_result and not frame_result:
                         area_processed += 1
-                        self.emit({"done": 1, "time": time.time() - self.time_start})
 
                         if self.dryrun:
                             events = self.area_make_sequence(area_processing_frames, None, area_mask, video_fps)
@@ -500,11 +496,10 @@ class SekaiJsonVideoProcess:
                             area_processing = None
                     now_frame_count += 1
                     last_result = frame_result
-                self.emit({"done": 1, "time": time.time() - self.time_start})
                 del frame
             else:
                 break
-
+            self.emit({"done": 1, "time": time.time() - self.time_start})
         if not self.stop:
             result.append(area_events)
             if self.dryrun:
@@ -566,15 +561,15 @@ class SekaiJsonVideoProcess:
 
     def process(self):
         from threading import Thread
-        t1r = []
-        t2r = []
+        dialog_match_result = []
+        area_match_result = []
         dialog_frame_queue = Queue()
         area_frame_queue = Queue()
         queue_array = [dialog_frame_queue, area_frame_queue]
 
         thread_read_video = Thread(target=self.queue_video_frame, args=(queue_array,))
-        dialog_match_thread = Thread(target=self.dialog_match, args=(dialog_frame_queue, t1r,))
-        area_match_thread = Thread(target=self.area_match, args=(area_frame_queue, t2r,))
+        dialog_match_thread = Thread(target=self.dialog_match, args=(dialog_frame_queue, dialog_match_result,))
+        area_match_thread = Thread(target=self.area_match, args=(area_frame_queue, area_match_result,))
 
         thread_read_video.start()
         dialog_match_thread.start()
@@ -587,8 +582,8 @@ class SekaiJsonVideoProcess:
         if self.stop:
             raise KeyboardInterrupt
         else:
-            [dialogs_events, dialog_styles] = t1r
-            [area_events] = t2r
+            [dialogs_events, dialog_styles] = dialog_match_result
+            [area_events] = area_match_result
             return dialogs_events, dialog_styles, area_events
 
     def run(self):
@@ -609,10 +604,16 @@ class SekaiJsonVideoProcess:
             self.log(f"[Error] {e}")
             self.emit(4)
         else:
+            staff_style = []
+            for staff in self.staff:
+                style = copy.deepcopy(staff_style_format)
+                style['Name'] = staff["Style"]
+                style['Alignment'] = int(staff["Style"][-1])
+                staff_style.append(style)
             res = {
                 "ScriptInfo": {"PlayResX": video_width, "PlayResY": video_height},
                 "Garbage": {"video": self.video_file},
-                "Styles": dialog_styles,
+                "Styles": dialog_styles + staff_style,
                 "Events": Subtitle.Events(self.staff + area_events + dialogs_events).list,
             }
             subtitle = Subtitle(res)
@@ -632,6 +633,7 @@ class SekaiJsonVideoProcess:
             self.log(f"[Success] Output into {os.path.realpath(self.output_path)}")
             self.log(f"[Success] Make ASS File Succeeded, Used {time_end - self.time_start:.2f}s")
             if self.signal:
-                self.emit(2)
                 self.emit(True)
+                self.emit({"done": 1, "time": time.time() - self.time_start})
+                self.emit(2)
         self.VideoCapture.release()

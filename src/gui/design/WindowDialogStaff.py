@@ -15,9 +15,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
-    QGridLayout, QHBoxLayout, QLabel, QLineEdit,
-    QPlainTextEdit, QPushButton, QSizePolicy, QSpacerItem,
+from PySide6.QtWidgets import (QApplication, QDialog, QFrame, QGridLayout,
+    QHBoxLayout, QLabel, QLineEdit, QPlainTextEdit,
+    QPushButton, QRadioButton, QSizePolicy, QSpacerItem,
     QVBoxLayout, QWidget)
 
 class Ui_NewStaffDialog(object):
@@ -210,12 +210,32 @@ class Ui_NewStaffDialog(object):
 
         self.horizontalLayout_7.addWidget(self.label_8)
 
-        self.PositionCombo = QComboBox(self.widget_6)
-        self.PositionCombo.addItem("")
-        self.PositionCombo.addItem("")
-        self.PositionCombo.setObjectName(u"PositionCombo")
+        self.gridLayout_2 = QGridLayout()
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.RadioPos9 = QRadioButton(self.widget_6)
+        self.RadioPos9.setObjectName(u"RadioPos9")
 
-        self.horizontalLayout_7.addWidget(self.PositionCombo)
+        self.gridLayout_2.addWidget(self.RadioPos9, 0, 1, 1, 1)
+
+        self.RadioPos7 = QRadioButton(self.widget_6)
+        self.RadioPos7.setObjectName(u"RadioPos7")
+        self.RadioPos7.setCheckable(True)
+        self.RadioPos7.setChecked(True)
+
+        self.gridLayout_2.addWidget(self.RadioPos7, 0, 0, 1, 1)
+
+        self.RadioPos1 = QRadioButton(self.widget_6)
+        self.RadioPos1.setObjectName(u"RadioPos1")
+
+        self.gridLayout_2.addWidget(self.RadioPos1, 1, 0, 1, 1)
+
+        self.RadioPos3 = QRadioButton(self.widget_6)
+        self.RadioPos3.setObjectName(u"RadioPos3")
+
+        self.gridLayout_2.addWidget(self.RadioPos3, 1, 1, 1, 1)
+
+
+        self.horizontalLayout_7.addLayout(self.gridLayout_2)
 
 
         self.verticalLayout_2.addWidget(self.widget_6)
@@ -299,9 +319,10 @@ class Ui_NewStaffDialog(object):
         self.EditPrefix.setPlainText(QCoreApplication.translate("NewStaffDialog", u"\u5b57\u5e55\u5236\u4f5c by PJS\u5b57\u5e55\u7ec4", None))
         self.label_6.setText(QCoreApplication.translate("NewStaffDialog", u"\u540e\u7f00\u5185\u5bb9", None))
         self.label_8.setText(QCoreApplication.translate("NewStaffDialog", u"\u4f4d\u7f6e", None))
-        self.PositionCombo.setItemText(0, QCoreApplication.translate("NewStaffDialog", u"\u5de6\u4fa7", None))
-        self.PositionCombo.setItemText(1, QCoreApplication.translate("NewStaffDialog", u"\u53f3\u4fa7", None))
-
+        self.RadioPos9.setText(QCoreApplication.translate("NewStaffDialog", u"\u53f3\u4e0a", None))
+        self.RadioPos7.setText(QCoreApplication.translate("NewStaffDialog", u"\u5de6\u4e0a", None))
+        self.RadioPos1.setText(QCoreApplication.translate("NewStaffDialog", u"\u5de6\u4e0b", None))
+        self.RadioPos3.setText(QCoreApplication.translate("NewStaffDialog", u"\u53f3\u4e0b", None))
         self.label_9.setText(QCoreApplication.translate("NewStaffDialog", u"\u65f6\u95f4\u6301\u7eed(s)", None))
         self.EditDuration.setText(QCoreApplication.translate("NewStaffDialog", u"5", None))
         self.ButtonImport.setText(QCoreApplication.translate("NewStaffDialog", u"\u5bfc\u5165", None))

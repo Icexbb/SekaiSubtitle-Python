@@ -10,9 +10,8 @@ chara_name = {
     "21": "MIKU", "22": "RIN", "23": "LEN",
     "24": "LUKA", "25": "MEIKO", "26": "KAITO",
 }
-subtitle_styles_format = {
-    "staff - 左": {
-        "Name": "staff - 左",
+staff_style_format = {
+        "Name": "staff",
         "Fontname": "思源黑体 CN Bold",
         "Fontsize": 83,
         "PrimaryColour": "&H00715659",
@@ -28,39 +27,15 @@ subtitle_styles_format = {
         "Spacing": 0,
         "Angle": 0,
         "BorderStyle": 1,
-        "Outline": 3.0,
-        "Shadow": 0,
+        "Outline": 5.0,
+        "Shadow": 5.0,
         "Alignment": 7,
         "MarginL": 30,
         "MarginR": 10,
         "MarginV": 30,
         "Encoding": 1
-    },
-    "staff - 右": {
-        "Name": "staff - 右",
-        "Fontname": "思源黑体 CN Bold",
-        "Fontsize": 83,
-        "PrimaryColour": "&H00715659",
-        "SecondaryColour": "&H000000FF",
-        "OutlineColour": "&H00FFFFFF",
-        "BackColour": "&H00000000",
-        "Bold": 0,
-        "Italic": 0,
-        "Underline": 0,
-        "StrikeOut": 0,
-        "ScaleX": 100.0,
-        "ScaleY": 100.0,
-        "Spacing": 0,
-        "Angle": 0,
-        "BorderStyle": 1,
-        "Outline": 3.0,
-        "Shadow": 0,
-        "Alignment": 9,
-        "MarginL": 30,
-        "MarginR": 10,
-        "MarginV": 30,
-        "Encoding": 1
-    },
+    }
+subtitle_styles_format = {
     "初音ミク": {
         "Name": "初音ミク",
         "Fontname": "思源黑体 CN Bold",

@@ -18,7 +18,7 @@ class NewStaffDialog(FramelessDialog, Ui_NewStaffDialog):
     def __init__(self, parent):
         super().__init__()
         self.setupUi(self)
-        self.parent=parent
+        self.parent = parent
         self.setWindowFlag(QtCore.Qt.WindowType.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
 
@@ -34,8 +34,39 @@ class NewStaffDialog(FramelessDialog, Ui_NewStaffDialog):
         self.ButtonExport.clicked.connect(lambda: self.save())
         self.ButtonImport.clicked.connect(lambda: self.load())
 
+    def set_position_radio(self, value):
+        if value == 9:
+            self.RadioPos1.setChecked(False)
+            self.RadioPos3.setChecked(False)
+            self.RadioPos7.setChecked(False)
+            self.RadioPos9.setChecked(True)
+        elif value == 1:
+            self.RadioPos1.setChecked(True)
+            self.RadioPos3.setChecked(False)
+            self.RadioPos7.setChecked(False)
+            self.RadioPos9.setChecked(False)
+        elif value == 3:
+            self.RadioPos1.setChecked(False)
+            self.RadioPos3.setChecked(True)
+            self.RadioPos7.setChecked(False)
+            self.RadioPos9.setChecked(False)
+        else:
+            self.RadioPos1.setChecked(False)
+            self.RadioPos3.setChecked(False)
+            self.RadioPos7.setChecked(True)
+            self.RadioPos9.setChecked(False)
+
     @property
     def data(self):
+        position = 7
+        if self.RadioPos1.isChecked():
+            position = 1
+        elif self.RadioPos3.isChecked():
+            position = 3
+        elif self.RadioPos7.isChecked():
+            position = 7
+        elif self.RadioPos9.isChecked():
+            position = 9
         result = {
             "recorder": self.EditRecord.text(),
             "translator": self.EditTranslator.text(),
@@ -44,7 +75,7 @@ class NewStaffDialog(FramelessDialog, Ui_NewStaffDialog):
             "subtitle_proof": self.EditSubProof.text(),
             "prefix": self.EditPrefix.toPlainText(),
             "subfix": self.EditSubfix.toPlainText(),
-            "position": self.PositionCombo.currentText(),
+            "position": str(position),
             "duration": float(self.EditDuration.text())
         }
         return result
@@ -82,11 +113,12 @@ class NewStaffDialog(FramelessDialog, Ui_NewStaffDialog):
             self.EditSubProof.setText(data.get("subtitle_proof") or ""),
             self.EditPrefix.setPlainText(data.get("prefix") or ""),
             self.EditSubfix.setPlainText(data.get("subfix") or ""),
-            self.PositionCombo.setCurrentIndex(0 if data.get("position") == "左侧" else 1),
+            self.set_position_radio(
+                int(data.get("position")) if data.get("position") in ['1', '3', '7', '9'] else 1)
             self.EditDuration.setText(str(data.get("duration") or "0"))
 
     @property
-    def subtitle_data(self):
+    def subtitle_body(self):
         string = ""
         if s := self.data.get("prefix"):
             string += f"{s}\n"
@@ -103,11 +135,14 @@ class NewStaffDialog(FramelessDialog, Ui_NewStaffDialog):
         if s := self.data.get("subfix"):
             string += f"{s}\n"
         string = string.strip().replace("\n", r"\N")
+        return string
+
+    @property
+    def subtitle_data(self):
         data = {
             'Layer': 1, 'Start': '0:00:00.00', 'End': timedelta_to_string(timedelta(seconds=self.data["duration"])),
-            'Style': "staff - 左" if self.data["position"] == "左侧" else "staff - 右",
-            'Name': 'staff', 'MarginL': 0, 'MarginR': 0, 'MarginV': 0, 'Effect': '',
-            'Text': string
+            'Style': f"staff-{self.data['position']}", 'Name': 'staff', 'MarginL': 0, 'MarginR': 0, 'MarginV': 0,
+            'Effect': '', 'Text': self.subtitle_body
         }
         return data
 

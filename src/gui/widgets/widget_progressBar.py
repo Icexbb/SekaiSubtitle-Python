@@ -54,7 +54,8 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
 
     def toggle_process(self):
         if not self.processing:
-            self.Thread = VideoProcessThread(self, self.video, self.json, self.translate, self.font, self.dryrun,self.staff)
+            self.Thread = VideoProcessThread(self, self.video, self.json, self.translate, self.font, self.dryrun,
+                                             self.staff)
             self.Thread.signal_data.connect(self.signal_process)
             self.StartButton.setStyleSheet("background-color:rgb(255,255,100);")
             self.StatusLogList.clear()
@@ -114,8 +115,8 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
                 self.ProgressBar.setStyleSheet("QProgressBar::chunk{background-color:#FF0000;}")
         elif msg['type'] == bool:
             if msg['data']:
-                self.ProgressBar.setMaximum(1)
-                self.ProgressBar.setValue(1)
+                self.ProgressBar.setValue(self.ProgressBar.maximum() - 1)
+
             else:
                 self.ProgressBar.setMaximum(0)
                 self.ProgressBar.setValue(0)
@@ -134,7 +135,7 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
                 self.PercentLabel.setText(f"FPS: {fps / 2:.1f} ETA: {eta:.1f}s {percent:.1f}%")
                 if not self.processing:
                     self.PercentLabel.setText("")
-                self.PercentLabel.repaint()
 
+        self.PercentLabel.repaint()
         self.ProgressBar.repaint()
         self.TaskStatus.repaint()
