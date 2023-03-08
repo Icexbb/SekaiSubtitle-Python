@@ -20,10 +20,21 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         os.makedirs(self.root, exist_ok=True)
         self.config_file = os.path.join(self.root, "config.json")
 
+        self._last_dir = None
+
         self.load_config()
         self.SettingAnimatedCheck.setChecked(False)
         self.SettingAnimatedCheck.setEnabled(False)
         self.SettingRamMaxUse.setValidator(QIntValidator(500, int(psutil.virtual_memory().total / 1024 / 1024 * 0.9)))
+        self.save_config()
+
+    @property
+    def last_dir(self):
+        return self._last_dir
+
+    @last_dir.setter
+    def last_dir(self, value):
+        self._last_dir = value
         self.save_config()
 
     def load_chibi(self):
@@ -43,9 +54,12 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         animated = self.SettingAnimatedCheck.isChecked()
         update = self.SettingStartupUpdateCheck.isChecked()
         ram = int(self.SettingRamMaxUse.text())
+        adjust_window = self.SettingStartAdjustWindowCheck.isChecked()
+
         config = {
             "proxy": proxy, "font": font.toString(), "start_immediate": start_immediate, "chibi": chibi,
-            "animated": animated, "update": update, "ram": ram}
+            "animated": animated, "update": update, "ram": ram, "last_dir": self.last_dir,
+            "adjust_window": adjust_window}
         save_json(self.config_file, config)
 
     def change_config(self):
@@ -78,6 +92,14 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
             self.SettingRamMaxUse.setText(str(config["ram"]))
         else:
             self.SettingRamMaxUse.setText("1500")
+        if "last_dir" in config:
+            self.last_dir = config['last_dir']
+        else:
+            self.last_dir = os.getcwd()
+        if "adjust_window" in config:
+            self.SettingStartAdjustWindowCheck.setChecked(config["adjust_window"])
+        else:
+            self.SettingStartAdjustWindowCheck.setChecked(True)
 
     def get_config(self, config_field=None) -> dict | str:
         config = read_json(self.config_file)

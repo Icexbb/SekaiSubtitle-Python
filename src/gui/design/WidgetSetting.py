@@ -17,15 +17,17 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFontComboBox,
     QFrame, QGridLayout, QHBoxLayout, QLabel,
-    QLineEdit, QPushButton, QSizePolicy, QSpacerItem,
-    QVBoxLayout, QWidget)
+    QLineEdit, QPushButton, QScrollArea, QSizePolicy,
+    QSpacerItem, QVBoxLayout, QWidget)
 
 class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(578, 498)
+        Form.resize(418, 348)
         Form.setStyleSheet(u"QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:20px;}\n"
+"QScrollArea{background-color: transparent;}\n"
+"QWidget#scrollAreaWidgetContents{background-color: transparent;}\n"
 "QLabel{	font: 10pt \"Microsoft YaHei UI\";}")
         self.gridLayout = QGridLayout(Form)
         self.gridLayout.setObjectName(u"gridLayout")
@@ -38,15 +40,28 @@ class Ui_Form(object):
         self.verticalLayout = QVBoxLayout(self.MainFrame)
         self.verticalLayout.setSpacing(15)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.scrollArea = QScrollArea(self.MainFrame)
+        self.scrollArea.setObjectName(u"scrollArea")
+        self.scrollArea.setMinimumSize(QSize(400, 0))
+        self.scrollArea.setFrameShape(QFrame.NoFrame)
+        self.scrollArea.setFrameShadow(QFrame.Plain)
+        self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
+        self.scrollAreaWidgetContents = QWidget()
+        self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 400, 281))
+        self.verticalLayout_3 = QVBoxLayout(self.scrollAreaWidgetContents)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(5, 5, 5, 5)
-        self.label_2 = QLabel(self.MainFrame)
+        self.label_2 = QLabel(self.scrollAreaWidgetContents)
         self.label_2.setObjectName(u"label_2")
 
         self.horizontalLayout_2.addWidget(self.label_2)
 
-        self.SettingProxyEdit = QLineEdit(self.MainFrame)
+        self.SettingProxyEdit = QLineEdit(self.scrollAreaWidgetContents)
         self.SettingProxyEdit.setObjectName(u"SettingProxyEdit")
 
         self.horizontalLayout_2.addWidget(self.SettingProxyEdit)
@@ -54,17 +69,17 @@ class Ui_Form(object):
         self.horizontalLayout_2.setStretch(0, 1)
         self.horizontalLayout_2.setStretch(1, 3)
 
-        self.verticalLayout.addLayout(self.horizontalLayout_2)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_2)
 
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(5, 5, 5, 5)
-        self.label = QLabel(self.MainFrame)
+        self.label = QLabel(self.scrollAreaWidgetContents)
         self.label.setObjectName(u"label")
 
         self.horizontalLayout.addWidget(self.label)
 
-        self.SettingFontComboBox = QFontComboBox(self.MainFrame)
+        self.SettingFontComboBox = QFontComboBox(self.scrollAreaWidgetContents)
         self.SettingFontComboBox.setObjectName(u"SettingFontComboBox")
         font = QFont()
         font.setFamilies([u"\u601d\u6e90\u9ed1\u4f53 CN Bold"])
@@ -77,25 +92,25 @@ class Ui_Form(object):
         self.horizontalLayout.setStretch(0, 1)
         self.horizontalLayout.setStretch(1, 3)
 
-        self.verticalLayout.addLayout(self.horizontalLayout)
+        self.verticalLayout_3.addLayout(self.horizontalLayout)
 
         self.horizontalLayout_5 = QHBoxLayout()
         self.horizontalLayout_5.setSpacing(5)
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
         self.horizontalLayout_5.setContentsMargins(5, 5, 5, 5)
-        self.label_4 = QLabel(self.MainFrame)
+        self.label_4 = QLabel(self.scrollAreaWidgetContents)
         self.label_4.setObjectName(u"label_4")
 
         self.horizontalLayout_5.addWidget(self.label_4)
 
         self.horizontalLayout_6 = QHBoxLayout()
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
-        self.SettingChibiSelect = QComboBox(self.MainFrame)
+        self.SettingChibiSelect = QComboBox(self.scrollAreaWidgetContents)
         self.SettingChibiSelect.setObjectName(u"SettingChibiSelect")
 
         self.horizontalLayout_6.addWidget(self.SettingChibiSelect)
 
-        self.SettingAnimatedCheck = QCheckBox(self.MainFrame)
+        self.SettingAnimatedCheck = QCheckBox(self.scrollAreaWidgetContents)
         self.SettingAnimatedCheck.setObjectName(u"SettingAnimatedCheck")
         sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -111,36 +126,17 @@ class Ui_Form(object):
         self.horizontalLayout_5.setStretch(0, 1)
         self.horizontalLayout_5.setStretch(1, 3)
 
-        self.verticalLayout.addLayout(self.horizontalLayout_5)
-
-        self.horizontalLayout_4 = QHBoxLayout()
-        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.horizontalLayout_4.setContentsMargins(5, 5, 5, 5)
-        self.label_3 = QLabel(self.MainFrame)
-        self.label_3.setObjectName(u"label_3")
-
-        self.horizontalLayout_4.addWidget(self.label_3)
-
-        self.SettingStartImmediateCheck = QCheckBox(self.MainFrame)
-        self.SettingStartImmediateCheck.setObjectName(u"SettingStartImmediateCheck")
-        sizePolicy.setHeightForWidth(self.SettingStartImmediateCheck.sizePolicy().hasHeightForWidth())
-        self.SettingStartImmediateCheck.setSizePolicy(sizePolicy)
-        self.SettingStartImmediateCheck.setAutoRepeat(False)
-
-        self.horizontalLayout_4.addWidget(self.SettingStartImmediateCheck)
-
-
-        self.verticalLayout.addLayout(self.horizontalLayout_4)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_5)
 
         self.horizontalLayout_7 = QHBoxLayout()
         self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
         self.horizontalLayout_7.setContentsMargins(5, 5, 5, 5)
-        self.label_5 = QLabel(self.MainFrame)
+        self.label_5 = QLabel(self.scrollAreaWidgetContents)
         self.label_5.setObjectName(u"label_5")
 
         self.horizontalLayout_7.addWidget(self.label_5)
 
-        self.SettingStartupUpdateCheck = QCheckBox(self.MainFrame)
+        self.SettingStartupUpdateCheck = QCheckBox(self.scrollAreaWidgetContents)
         self.SettingStartupUpdateCheck.setObjectName(u"SettingStartupUpdateCheck")
         sizePolicy.setHeightForWidth(self.SettingStartupUpdateCheck.sizePolicy().hasHeightForWidth())
         self.SettingStartupUpdateCheck.setSizePolicy(sizePolicy)
@@ -150,18 +146,56 @@ class Ui_Form(object):
         self.horizontalLayout_7.addWidget(self.SettingStartupUpdateCheck)
 
 
-        self.verticalLayout.addLayout(self.horizontalLayout_7)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_7)
+
+        self.horizontalLayout_4 = QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.horizontalLayout_4.setContentsMargins(5, 5, 5, 5)
+        self.label_3 = QLabel(self.scrollAreaWidgetContents)
+        self.label_3.setObjectName(u"label_3")
+
+        self.horizontalLayout_4.addWidget(self.label_3)
+
+        self.SettingStartImmediateCheck = QCheckBox(self.scrollAreaWidgetContents)
+        self.SettingStartImmediateCheck.setObjectName(u"SettingStartImmediateCheck")
+        sizePolicy.setHeightForWidth(self.SettingStartImmediateCheck.sizePolicy().hasHeightForWidth())
+        self.SettingStartImmediateCheck.setSizePolicy(sizePolicy)
+        self.SettingStartImmediateCheck.setAutoRepeat(False)
+
+        self.horizontalLayout_4.addWidget(self.SettingStartImmediateCheck)
+
+
+        self.verticalLayout_3.addLayout(self.horizontalLayout_4)
+
+        self.horizontalLayout_11 = QHBoxLayout()
+        self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
+        self.horizontalLayout_11.setContentsMargins(5, 5, 5, 5)
+        self.label_8 = QLabel(self.scrollAreaWidgetContents)
+        self.label_8.setObjectName(u"label_8")
+
+        self.horizontalLayout_11.addWidget(self.label_8)
+
+        self.SettingStartAdjustWindowCheck = QCheckBox(self.scrollAreaWidgetContents)
+        self.SettingStartAdjustWindowCheck.setObjectName(u"SettingStartAdjustWindowCheck")
+        sizePolicy.setHeightForWidth(self.SettingStartAdjustWindowCheck.sizePolicy().hasHeightForWidth())
+        self.SettingStartAdjustWindowCheck.setSizePolicy(sizePolicy)
+        self.SettingStartAdjustWindowCheck.setAutoRepeat(False)
+
+        self.horizontalLayout_11.addWidget(self.SettingStartAdjustWindowCheck)
+
+
+        self.verticalLayout_3.addLayout(self.horizontalLayout_11)
 
         self.horizontalLayout_8 = QHBoxLayout()
         self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
         self.horizontalLayout_8.setContentsMargins(5, 5, 5, 5)
-        self.label_6 = QLabel(self.MainFrame)
+        self.label_6 = QLabel(self.scrollAreaWidgetContents)
         self.label_6.setObjectName(u"label_6")
         self.label_6.setTextFormat(Qt.PlainText)
 
         self.horizontalLayout_8.addWidget(self.label_6)
 
-        self.SettingRamMaxUse = QLineEdit(self.MainFrame)
+        self.SettingRamMaxUse = QLineEdit(self.scrollAreaWidgetContents)
         self.SettingRamMaxUse.setObjectName(u"SettingRamMaxUse")
 
         self.horizontalLayout_8.addWidget(self.SettingRamMaxUse)
@@ -169,11 +203,15 @@ class Ui_Form(object):
         self.horizontalLayout_8.setStretch(0, 1)
         self.horizontalLayout_8.setStretch(1, 3)
 
-        self.verticalLayout.addLayout(self.horizontalLayout_8)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_8)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-        self.verticalLayout.addItem(self.verticalSpacer)
+        self.verticalLayout_3.addItem(self.verticalSpacer)
+
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+
+        self.verticalLayout.addWidget(self.scrollArea)
 
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
@@ -205,10 +243,12 @@ class Ui_Form(object):
         self.label.setText(QCoreApplication.translate("Form", u"\u81ea\u5b9a\u4e49\u5b57\u4f53", None))
         self.label_4.setText(QCoreApplication.translate("Form", u"\u4e3b\u754c\u9762\u5c0f\u4eba", None))
         self.SettingAnimatedCheck.setText(QCoreApplication.translate("Form", u"\u4f7f\u7528\u52a8\u753b", None))
-        self.label_3.setText(QCoreApplication.translate("Form", u"\u4efb\u52a1\u7acb\u5373\u5f00\u59cb", None))
-        self.SettingStartImmediateCheck.setText("")
         self.label_5.setText(QCoreApplication.translate("Form", u"\u81ea\u52a8\u68c0\u67e5\u66f4\u65b0", None))
         self.SettingStartupUpdateCheck.setText("")
+        self.label_3.setText(QCoreApplication.translate("Form", u"\u4efb\u52a1\u7acb\u5373\u5f00\u59cb", None))
+        self.SettingStartImmediateCheck.setText("")
+        self.label_8.setText(QCoreApplication.translate("Form", u"\u81ea\u52a8\u8c03\u6574\u7a97\u53e3", None))
+        self.SettingStartAdjustWindowCheck.setText("")
         self.label_6.setText(QCoreApplication.translate("Form", u"\u6700\u5927\u5185\u5b58\u7528\u91cf(MB)", None))
         self.pushButton.setText(QCoreApplication.translate("Form", u"\u5e94\u7528", None))
     # retranslateUi

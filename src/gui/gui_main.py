@@ -59,12 +59,12 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         self.TitleBar = TitleBar(self)
         self.TitleBar.TitleLabel.setText(PROGRAM_NAME)
         self.setTitleBar(self.TitleBar)
-        self.FuncButtonSubtitle.clicked.connect(self.switchToSubtitle)
-        self.FuncButtonText.clicked.connect(self.switchToTranslate)
-        self.FuncButtonDownload.clicked.connect(self.switchToDownload)
-        self.FuncButtonSetting.clicked.connect(self.switchToSetting)
+        self.FuncButtonSubtitle.clicked.connect(lambda: self.switchWidget(0, QtCore.QSize(650, 450)))
+        self.FuncButtonDownload.clicked.connect(lambda: self.switchWidget(1, QtCore.QSize(650, 450)))
+        self.FuncButtonText.clicked.connect(lambda: self.switchWidget(2, QtCore.QSize(1280, 720)))
+        self.FuncButtonSetting.clicked.connect(lambda: self.switchWidget(3, QtCore.QSize(650, 450)))
         self.FuncButtonAbout.clicked.connect(self.AboutWindow)
-        self.switchToSubtitle()
+        self.switchWidget(0, QtCore.QSize(650, 450))
 
         if self.FormSettingWidget.get_config("update"):
             self.update_url = "https://api.github.com/repos/Icexbb/SekaiSubtitle-Python/releases/latest"
@@ -151,25 +151,11 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         dia = AboutDialog(self)
         dia.exec_()
 
-    def switchToSubtitle(self):
-        self.MainLayout.setCurrentIndex(0)
-        self.resize(QtCore.QSize(650, 450))
-        self.center()
-
-    def switchToDownload(self):
-        self.MainLayout.setCurrentIndex(1)
-        self.resize(QtCore.QSize(650, 450))
-        self.center()
-
-    def switchToTranslate(self):
-        self.MainLayout.setCurrentIndex(2)
-        self.resize(QtCore.QSize(1280, 720))
-        self.center()
-
-    def switchToSetting(self):
-        self.MainLayout.setCurrentIndex(3)
-        self.resize(QtCore.QSize(650, 450))
-        self.center()
+    def switchWidget(self, index: int, size: QtCore.QSize):
+        self.MainLayout.setCurrentIndex(index)
+        if self.adjust_window:
+            self.resize(size)
+            self.center()
 
     def center(self):
         cp = QtGui.QGuiApplication.primaryScreen().geometry().center()
@@ -221,6 +207,18 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
     @property
     def max_ram(self):
         return int(self.FormSettingWidget.get_config()["ram"])
+
+    @property
+    def choose_file_root(self):
+        return str(self.FormSettingWidget.get_config()["last_dir"])
+
+    @property
+    def adjust_window(self):
+        return bool(self.FormSettingWidget.get_config()["adjust_window"])
+
+    @choose_file_root.setter
+    def choose_file_root(self, value: str):
+        self.FormSettingWidget.last_dir = value
 
     def restart(self):
         # qDebug("Performing application reboot...")

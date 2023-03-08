@@ -95,7 +95,8 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
         self.data = None
         self.data_file = None
         self.setupUi(self)
-        self.parent = parent
+        from gui.gui_main import MainUi
+        self.parent: MainUi = parent
         self.lines: list[WidgetTranslateItem] = []
 
         self.ButtonLoad.clicked.connect(self.load_json)
@@ -126,9 +127,10 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
     def load_json(self, file_name_choose=None):
         if not file_name_choose:
             file_name_choose, _ = QtWidgets.QFileDialog.getOpenFileName(
-                self, "选取文件", dir=os.getcwd(),
+                self, "选取文件", dir=self.parent.choose_file_root,
                 filter=f"JSON文件 (*.json);;全部文件 (*)")
         if file_name_choose and os.path.exists(file_name_choose):
+            self.parent.choose_file_root = os.path.split(file_name_choose)[0]
             self.clearItem()
             self.data_file = file_name_choose
             self.data = read_json(self.data_file)

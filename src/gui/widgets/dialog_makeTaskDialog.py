@@ -45,22 +45,27 @@ class FileSelector(QtWidgets.QWidget, Selector):
     def chooseFile(self):
         if ("*.json" in self.acceptFileTypes) or self.parent.dryrun:
             files, _ = QtWidgets.QFileDialog.getOpenFileNames(
-                self, "选取文件", dir=os.getcwd(),
+                self, "选取文件", dir=self.parent.parent.choose_file_root,
                 filter=f"可接受的文件 ({' '.join(self.acceptFileTypes)});;全部文件 (*)")
             if files:
-                self.fileSelected = files
+                if len(files) == 1:
+                    self.fileSelected = files[0]
+                else:
+                    self.fileSelected = files
+                self.parent.parent.choose_file_root = os.path.split(files[0])[0]
         else:
             file_name_choose, _ = QtWidgets.QFileDialog.getOpenFileName(
-                self, "选取文件", dir=os.getcwd(),
+                self, "选取文件", dir=self.parent.parent.choose_file_root,
                 filter=f"可接受的文件 ({' '.join(self.acceptFileTypes)});;全部文件 (*)")
             if file_name_choose and os.path.exists(file_name_choose):
                 self.fileSelected = file_name_choose
+                self.parent.parent.choose_file_root = os.path.split(file_name_choose)[0]
 
     def clearSelect(self):
         self.fileSelected = None
 
     def dragEnterEvent(self, event: QtGui.QDragEnterEvent) -> None:
-        if event.mimeData().text().endswith(tuple(self.acceptFileTypes)):
+        if event.mimeData().text().endswith(tuple([filetype.removeprefix("*") for filetype in self.acceptFileTypes])):
             event.accept()
         else:
             event.ignore()
@@ -83,7 +88,8 @@ class NewTaskDialog(FramelessDialog, Dialog):
         self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 
-        self.parent = parent
+        from gui.gui_main import MainUi
+        self.parent: MainUi = parent
 
         self.TitleBar = TitleBar(self)
 
@@ -96,6 +102,7 @@ class NewTaskDialog(FramelessDialog, Dialog):
         self.JsonSelector = FileSelector(self, "数据", ['*.json', ".asset"])
         self.TranslateSelector = FileSelector(self, "翻译", ['*.txt'])
 
+        self.setAcceptDrops(True)
         self.SelectBoxLayout.addWidget(self.VideoSelector)
         self.SelectBoxLayout.addWidget(self.JsonSelector)
         self.SelectBoxLayout.addWidget(self.TranslateSelector)
@@ -114,7 +121,7 @@ class NewTaskDialog(FramelessDialog, Dialog):
             if isinstance(video_file, str) or (isinstance(video_file, list) and len(video_file) == 1):
                 video_file = video_file[0] if isinstance(video_file, list) else video_file
                 if video_file and os.path.exists(video_file):
-                    file_prefix:str = os.path.splitext(video_file)[0]
+                    file_prefix: str = os.path.splitext(video_file)[0]
                     predict_json = file_prefix + ".json"
                     predict_translate = file_prefix + ".txt"
                     if os.path.exists(predict_json):
