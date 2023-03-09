@@ -2,6 +2,14 @@
 <p align="center"><img src="asset/icon.png" alt="Logo" width="150" height="150"></p>
 <h2 align="center" style="font-weight: 600">Sekai Subtitle</h2>
 <p align="center">新一代世界计划多彩舞台剧情对话自动打轴姬</p>
+<p align="center">
+<img alt="GitHub all releases" src="https://img.shields.io/github/downloads/Icexbb/SekaiSubtitle-Python/total">
+<img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/icexbb/sekaisubtitle-python">
+<img alt="GitHub Release Date" src="https://img.shields.io/github/release-date/icexbb/sekaisubtitle-python">
+<img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/icexbb/sekaisubtitle-python">
+<img alt="GitHub" src="https://img.shields.io/github/license/icexbb/sekaisubtitle-python">
+<img alt="GitHub issues" src="https://img.shields.io/github/issues/icexbb/sekaisubtitle-python">
+</p>
 
 ## 简介
 
