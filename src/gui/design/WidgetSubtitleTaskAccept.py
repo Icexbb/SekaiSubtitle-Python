@@ -25,8 +25,9 @@ class Ui_AccWidget(object):
         AccWidget.resize(400, 75)
         AccWidget.setMinimumSize(QSize(0, 75))
         AccWidget.setMaximumSize(QSize(16777215, 75))
-        AccWidget.setStyleSheet(u"QLabel#StatusLabel{	font: 500 24pt \"Microsoft YaHei UI\";}\n"
-"QWidget#StatusWidget{	border: 3px dashed rgba(0, 157, 255, 50);	border-radius:20px;}")
+        AccWidget.setStyleSheet(u"QLabel#StatusLabel{ font: 500 24pt \"Microsoft YaHei UI\";}\n"
+"                QWidget#StatusWidget{ border: 3px dashed rgba(0, 157, 255, 50); border-radius:20px;}\n"
+"            ")
         self.gridLayout = QGridLayout(AccWidget)
         self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(u"gridLayout")

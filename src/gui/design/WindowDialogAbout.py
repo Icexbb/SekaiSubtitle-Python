@@ -25,8 +25,9 @@ class Ui_Dialog(object):
             Dialog.setObjectName(u"Dialog")
         Dialog.resize(576, 329)
         Dialog.setStyleSheet(u"QLabel#IconLabel{font: 700 12pt \"Microsoft YaHei UI\";}\n"
-"QLabel#GroupLabel{font: 700 12pt \"Microsoft YaHei UI\";}\n"
-"QDialog{background-color:rgb(255, 255, 255)}")
+"                QLabel#GroupLabel{font: 700 12pt \"Microsoft YaHei UI\";}\n"
+"                QDialog{background-color:rgb(255, 255, 255)}\n"
+"            ")
         self.gridLayout = QGridLayout(Dialog)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(5, 5, 5, 5)
@@ -187,7 +188,8 @@ class Ui_Dialog(object):
         self.label_7.setText(QCoreApplication.translate("Dialog", u"Author", None))
         self.LabelAuthor.setText(QCoreApplication.translate("Dialog", u"XBB@PJS\u5b57\u5e55\u7ec4", None))
         self.label_9.setText(QCoreApplication.translate("Dialog", u"Github", None))
-        self.LabelPage.setText(QCoreApplication.translate("Dialog", u"https://github.com/Icexbb/SekaiSubtitle-Python", None))
+        self.LabelPage.setText(QCoreApplication.translate("Dialog", u"https://github.com/Icexbb/SekaiSubtitle-Python\n"
+"                                                            ", None))
         self.UpdateButton.setText(QCoreApplication.translate("Dialog", u"\u68c0\u67e5\u66f4\u65b0", None))
         self.PageButton.setText(QCoreApplication.translate("Dialog", u"\u9879\u76ee\u9996\u9875", None))
         self.CloseButton.setText(QCoreApplication.translate("Dialog", u"\u5173\u95ed", None))

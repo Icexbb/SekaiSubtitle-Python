@@ -37,14 +37,14 @@ class TaskAcceptWidget(QtWidgets.QWidget, Ui_AccWidget):
 
     def dragEnterEvent(self, event: QtGui.QDragEnterEvent) -> None:
         path = event.mimeData().text()
-        if path.endswith((".mp4", ".mkv", ".wmv", ".avi", ".json", ".asset", ".txt")):
+        if path.endswith((".mp4", ".mkv", ".wmv", ".avi", ".json", ".asset", ".txt",".yml")):
             event.accept()
         else:
             event.ignore()
 
     def dropEvent(self, event: QtGui.QDropEvent):
         path = event.mimeData().text().removeprefix('file:///')
-        if path.endswith((".mp4", ".mkv", ".wmv", ".avi", ".json", ".asset", ".txt")):
+        if path.endswith((".mp4", ".mkv", ".wmv", ".avi", ".json", ".asset", ".txt",".yml")):
             self.queue.put(path)
 
     def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
@@ -84,18 +84,18 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
     def start_immediate(self):
         return self.parent.immediate_start
 
-    def NewTaskDialog(self, path):
+    def NewTaskDialog(self, path: str):
         dialog = NewTaskDialog(self.parent)
         dialog.signal.connect(self.ProcessSignal)
 
         if path and os.path.exists(path):
-            if path.endswith((".mp4", ".mkv", ".wmv", ".avi",)):
+            if path.lower().endswith((".mp4", ".mkv", ".wmv", ".avi",)):
                 dialog.VideoSelector.FileLabel.setText(path)
                 dialog.VideoSelector.fileSelected = path
-            elif path.endswith((".json", ".asset")):
+            elif path.lower().endswith((".json", ".asset")):
                 dialog.JsonSelector.FileLabel.setText(path)
                 dialog.JsonSelector.fileSelected = path
-            elif path.endswith((".txt",)):
+            elif path.lower().endswith((".txt", ".yml")):
                 dialog.TranslateSelector.FileLabel.setText(path)
                 dialog.TranslateSelector.fileSelected = path
         dialog.show()

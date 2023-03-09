@@ -30,10 +30,11 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Form.sizePolicy().hasHeightForWidth())
         Form.setSizePolicy(sizePolicy)
-        Form.setStyleSheet(u"QListWidget{	background-color: rgba(255, 255, 255, 0);	border: none;outline:0px;}\n"
-"QListWidget::item{background-color: rgba(255, 255, 255, 0);	border: none;outline:0px;}\n"
-"QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:20px;}\n"
-"QPushButton{max-width:50px}")
+        Form.setStyleSheet(u"QListWidget{ background-color: rgba(255, 255, 255, 0); border: none;outline:0px;}\n"
+"                QListWidget::item{background-color: rgba(255, 255, 255, 0); border: none;outline:0px;}\n"
+"                QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:20px;}\n"
+"                QPushButton{max-width:50px}\n"
+"            ")
         self.gridLayout = QGridLayout(Form)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setVerticalSpacing(0)

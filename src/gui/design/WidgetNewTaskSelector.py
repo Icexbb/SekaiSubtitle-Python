@@ -28,7 +28,9 @@ class Ui_SelectWidget(object):
         self.gridLayout.setObjectName(u"gridLayout")
         self.SelectGroupBox = QGroupBox(SelectWidget)
         self.SelectGroupBox.setObjectName(u"SelectGroupBox")
-        self.SelectGroupBox.setStyleSheet(u"QLineEdit{background-color:\"transparent\";border:None;font: 12pt \"Microsoft YaHei UI\";}")
+        self.SelectGroupBox.setStyleSheet(u"QLineEdit{background-color:\"transparent\";border:None;font: 12pt\n"
+"                            \"Microsoft YaHei UI\";}\n"
+"                        ")
         self.horizontalLayout = QHBoxLayout(self.SelectGroupBox)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.HintLabel = QLabel(self.SelectGroupBox)

@@ -99,7 +99,7 @@ class NewTaskDialog(FramelessDialog, Dialog):
 
         self.VideoSelector = FileSelector(self, "视频", ['*.mp4', '*.avi', '*.wmv', "*.mkv"])
         self.JsonSelector = FileSelector(self, "数据", ['*.json', ".asset"])
-        self.TranslateSelector = FileSelector(self, "翻译", ['*.txt'])
+        self.TranslateSelector = FileSelector(self, "翻译", ['*.txt', "*.yml"])
 
         self.setAcceptDrops(True)
         self.SelectBoxLayout.addWidget(self.VideoSelector)
@@ -137,12 +137,14 @@ class NewTaskDialog(FramelessDialog, Dialog):
                 video_file = video_file[0] if isinstance(video_file, list) else video_file
                 if video_file and os.path.exists(video_file):
                     file_prefix: str = os.path.splitext(video_file)[0]
-                    predict_json = file_prefix + ".json"
-                    predict_translate = file_prefix + ".txt"
-                    if os.path.exists(predict_json):
-                        self.JsonSelector.fileSelected = predict_json
-                    if os.path.exists(predict_translate):
-                        self.TranslateSelector.fileSelected = predict_translate
+                    for ext in [".json", ".asset"]:
+                        predict_json = file_prefix + ext
+                        if os.path.exists(predict_json):
+                            self.JsonSelector.fileSelected = predict_json
+                    for ext in [".txt", ".yml"]:
+                        predict_translate = file_prefix + ext
+                        if os.path.exists(predict_translate):
+                            self.TranslateSelector.fileSelected = predict_translate
         else:
             self.clear_auto_select()
 

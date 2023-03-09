@@ -10,13 +10,13 @@ from queue import Queue
 
 import cv2
 import numpy
+import numpy as np
 import psutil as psutil
+import yaml
 from PySide6 import QtCore
 
-import script
-from script import match
-from script.data import DISPLAY_NAME_STYLE, subtitle_styles_format, staff_style_format
-from script.reference import get_dialog_mask, get_frame_data, get_area_mask, get_area_mask_size
+from script import match, reference, tools
+from script.data import DISPLAY_NAME_STYLE, subtitle_styles_format, staff_style_format, get_divider_event
 from script.subtitle import Subtitle
 
 
@@ -90,6 +90,7 @@ class SekaiJsonVideoProcess:
         elif os.path.exists(self.output_path):
             if not self.overwrite:
                 raise FileExistsError
+
         if not self.dryrun:
             self.load_json()
         else:
@@ -121,45 +122,80 @@ class SekaiJsonVideoProcess:
                     if isinstance(self.translate_file, list) and self.translate_file:
                         self.translate_file = self.translate_file[0]
                     if os.path.exists(self.translate_file):
-                        pattern_body = re.compile(r"^(?P<name>\S*)：(?P<body>.+)$")
-                        pattern_place = re.compile(r"^(?P<place>\S[^：]*)$")
-                        with open(self.translate_file, 'r', encoding='utf-8') as fp:
-                            translate_data = fp.readlines()
-                        body = [
-                            re.match(pattern_body, string).group("body") for string in translate_data if
-                            re.match(pattern_body, string.strip())
-                        ]
-                        place = [
-                            re.match(pattern_place, string).group("place") for string in translate_data if
-                            re.match(pattern_place, string.strip())
-                        ]
-                        changed = 0
-                        if len(body) == len(self.json_data['TalkData']):
-                            result = []
-                            for i in range(len(body)):
-                                item = self.json_data['TalkData'][i]
-                                replaced = body[i]
-                                item["Body"] = replaced.replace("\\N", "\n")
-                                result.append(item)
-                            self.json_data['TalkData'] = result
-                            changed += 1
-                        else:
-                            self.log("[Initial] 翻译文件与对话数据不符")
+                        if os.path.splitext(self.translate_file)[-1].lower() == ".txt":
+                            pattern_body = re.compile(r"^(?P<name>\S*)：(?P<body>.+)$")
+                            pattern_place = re.compile(r"^(?P<place>\S[^：]*)$")
+                            with open(self.translate_file, 'r', encoding='utf-8') as fp:
+                                translate_data = fp.readlines()
+                            body = [
+                                re.match(pattern_body, string).group("body") for string in translate_data if
+                                re.match(pattern_body, string.strip())
+                            ]
+                            place = [
+                                re.match(pattern_place, string).group("place") for string in translate_data if
+                                re.match(pattern_place, string.strip())
+                            ]
+                            changed = 0
+                            if len(body) == len(self.json_data['TalkData']):
+                                result = []
+                                for i in range(len(body)):
+                                    item = self.json_data['TalkData'][i]
+                                    replaced = body[i]
+                                    item["Body"] = replaced.replace("\\N", "\n")
+                                    result.append(item)
+                                self.json_data['TalkData'] = result
+                                changed += 1
+                            else:
+                                self.log("[Initial] 翻译文件与对话数据不符")
 
-                        if len(place) == len(
-                                [item for item in self.json_data['SpecialEffectData'] if item['EffectType'] == 8]):
-                            raw = self.json_data['SpecialEffectData']
-                            result = []
-                            for item in raw:
-                                if item['EffectType'] == 8:
-                                    item["StringVal"] = place.pop(0)
-                                result.append(item)
-                            self.json_data['SpecialEffectData'] = result
-                            changed += 1
-                        else:
-                            self.log("[Initial] 翻译文件与地点数据不符")
-                        if changed == 2:
-                            self.log("[Initial] 已进行中文替换")
+                            if len(place) == len(
+                                    [item for item in self.json_data['SpecialEffectData'] if
+                                     dict(item)['EffectType'] == 8]):
+                                raw = self.json_data['SpecialEffectData']
+                                result = []
+                                for item in raw:
+                                    if item['EffectType'] == 8:
+                                        item["StringVal"] = place.pop(0)
+                                    result.append(item)
+                                self.json_data['SpecialEffectData'] = result
+                                changed += 1
+                            else:
+                                self.log("[Initial] 翻译文件与地点数据不符")
+                            if changed == 2:
+                                self.log("[Initial] 已进行中文替换")
+                        if os.path.splitext(self.translate_file)[-1].lower() == ".yml":
+                            with open(self.translate_file, "r", encoding="utf8") as fp:
+                                data = yaml.load(fp, yaml.Loader)
+
+                            not_changed = 0
+
+                            data_d: list[str] = data["dialog"]
+                            if len(data_d) == len([self.json_data['TalkData']]):
+                                for index, string in enumerate(data_d):
+                                    self.json_data['TalkData'][index]["Body"] = string
+                            else:
+                                self.log("[Initial] 翻译文件与对话数据不符")
+                                not_changed += 1
+
+                            effect_type = {"tag": 18, "banner": 8}
+                            for effect_name, effect_id in effect_type.items():
+                                data_d: list[str] = data[effect_name][:]
+                                if len(data_d) == len([1 for item in self.json_data['SpecialEffectData'] if
+                                                       dict(item)['EffectType'] == effect_id]):
+                                    raw = self.json_data['SpecialEffectData']
+                                    result = []
+                                    for item in raw:
+                                        if item['EffectType'] == effect_id:
+                                            if p := data_d.pop(0):
+                                                item["StringVal"] = p
+                                        result.append(item)
+                                    self.json_data['SpecialEffectData'] = result
+                                else:
+                                    self.log(f"[Initial] 翻译文件与{'角标' if effect_id == 18 else '横幅'}数据不符")
+                                    not_changed += 1
+
+                            if not_changed != 3:
+                                self.log("[Initial] 已进行中文替换")
                     else:
                         self.log("[Initial] 翻译文件不存在")
             else:
@@ -171,7 +207,7 @@ class SekaiJsonVideoProcess:
             res = {}
             for file in self.json_file:
                 data = json.load(open(file, 'r', encoding='utf-8'))
-                res = script.tools.merge_dict(res, data)
+                res = tools.merge_dict(res, data)
             self.json_data = res
         self.log("[Initial] JSON数据读取完成")
 
@@ -348,12 +384,12 @@ class SekaiJsonVideoProcess:
 
         jitter = False
         for item in dialog_frames:
-            if script.tools.check_distance(item["point_center"], start_frame["point_center"]) > pow(pow(5, 2) * 2, 0.5):
+            if tools.check_distance(item["point_center"], start_frame["point_center"]) > pow(pow(5, 2) * 2, 0.5):
                 jitter = True
                 break
 
         if not jitter:
-            start_time = script.tools.timedelta_to_string(frame_time * start_frame['frame'])
+            start_time = tools.timedelta_to_string(frame_time * start_frame['frame'])
             if last_dialog_frame and last_dialog_event:
                 if start_frame['frame'] - last_dialog_frame['frame'] <= 1:
                     start_time = last_dialog_event['End']
@@ -364,7 +400,7 @@ class SekaiJsonVideoProcess:
             event_data = {
                 "Layer": 1,
                 "Start": start_time,
-                "End": script.tools.timedelta_to_string(frame_time * end_frame['frame']),
+                "End": tools.timedelta_to_string(frame_time * end_frame['frame']),
                 "Style": style,
                 "Name": dialog_data['WindowDisplayName'] if dialog_data else "",
                 "MarginL": 0, "MarginR": 0, "MarginV": 0,
@@ -373,8 +409,8 @@ class SekaiJsonVideoProcess:
             }
             mask_data = copy.deepcopy(event_data)
 
-            mask_data["Text"] = get_dialog_mask(
-                get_frame_data((video_width, video_height), dialog_frames[0]['point_center']), None)
+            mask_data["Text"] = reference.get_dialog_mask(
+                reference.get_frame_data((video_width, video_height), dialog_frames[0]['point_center']), None)
             mask_data["Style"] = 'screen'
             results.append(mask_data)
             results.append(event_data)
@@ -382,7 +418,7 @@ class SekaiJsonVideoProcess:
         else:
             masks = []
             dialogs = []
-            frame_data = get_frame_data((video_width, video_height), dialog_frames[0]['point_center'])
+            frame_data = reference.get_frame_data((video_width, video_height), dialog_frames[0]['point_center'])
             for index, frame in enumerate(dialog_frames):
                 move = r"{\an7\pos(" \
                        f"{int(frame['point_center'][0] - 0.5 * point_size)}," \
@@ -398,8 +434,8 @@ class SekaiJsonVideoProcess:
 
                 event_data = {
                     "Layer": 1,
-                    "Start": script.tools.timedelta_to_string(frame_time * frame['frame']),
-                    "End": script.tools.timedelta_to_string(frame_time * (frame['frame'] + 1)),
+                    "Start": tools.timedelta_to_string(frame_time * frame['frame']),
+                    "End": tools.timedelta_to_string(frame_time * (frame['frame'] + 1)),
                     "Style": style,
                     "Name": dialog_data['WindowDisplayName'] if dialog_data else "",
                     "MarginL": 0, "MarginR": 0, "MarginV": 0,
@@ -417,12 +453,12 @@ class SekaiJsonVideoProcess:
                 pc_str = 'point_center'
                 mask_move = [(frame[pc_str][i] - start_frame[pc_str][i]) for i in range(len(frame[pc_str]))]
 
-                mask = get_dialog_mask(frame_data, mask_move)
+                mask = reference.get_dialog_mask(frame_data, mask_move)
 
                 mask_data = {
                     "Layer": 1,
-                    "Start": script.tools.timedelta_to_string(frame_time * frame['frame']),
-                    "End": script.tools.timedelta_to_string(frame_time * (frame['frame'] + 1)),
+                    "Start": tools.timedelta_to_string(frame_time * frame['frame']),
+                    "End": tools.timedelta_to_string(frame_time * (frame['frame'] + 1)),
                     "Style": 'screen',
                     "Name": dialog_data['WindowDisplayName'] if dialog_data else "",
                     "MarginL": 0, "MarginR": 0, "MarginV": 0, "Effect": '',
@@ -436,94 +472,154 @@ class SekaiJsonVideoProcess:
                 else:
                     masks.append(mask_data)
 
+            event_data = {
+                "Layer": 1, "Type": "Comment", "Style": style, "Effect": '',
+                "Start": tools.timedelta_to_string(frame_time * dialog_frames[0]["frame"]),
+                "End": tools.timedelta_to_string(frame_time * (dialog_frames[-1]["frame"] + 1)),
+                "Name": dialog_data['WindowDisplayName'] if dialog_data else "",
+                "MarginL": 0, "MarginR": 0, "MarginV": 0, "Text": dialog_data["Body"]
+            }
+            dialogs.append(event_data)
+            mask_data = {
+                "Layer": 1, "Type": "Comment", "Style": 'screen', "Effect": '',
+                "Start": tools.timedelta_to_string(frame_time * dialog_frames[0]["frame"]),
+                "End": tools.timedelta_to_string(frame_time * (dialog_frames[-1]["frame"] + 1)),
+                "Name": dialog_data['WindowDisplayName'] if dialog_data else "",
+                "MarginL": 0, "MarginR": 0, "MarginV": 0, "Text": reference.get_dialog_mask(frame_data)
+            }
+            masks.append(mask_data)
             return masks + dialogs
 
     def area_match(self, queue: Queue, result: list):
         vc = self.VideoCapture
         video_fps = vc.get(5)
         height, width = (vc.get(4), vc.get(3))
-        area_mask = get_area_mask(get_area_mask_size((width, height)))
-        if not self.dryrun:
-            area_data: list[dict] = [item for item in self.json_data['SpecialEffectData'] if item['EffectType'] == 8]
-            area_data_count = len(area_data)
-        else:
-            area_data: list[dict] = []
-            area_data_count = len(area_data)
 
-        area_events = []
-        area_mask_area = match.get_square_mask_area(height, width)
+        banner_data: list[dict] = []
+        banner_data_count = len(banner_data)
+        tag_data: list[dict] = []
+        tag_data_count = len(tag_data)
+        if not self.dryrun:
+            banner_data: list[dict] = [item for item in self.json_data['SpecialEffectData'] if item['EffectType'] == 8]
+            banner_data_count = len(banner_data)
+            tag_data: list[dict] = [item for item in self.json_data['SpecialEffectData'] if item['EffectType'] == 18]
+            tag_data_count = len(tag_data)
+
+        content_started = False
         now_frame_count = 0
 
-        area_processing = None
-        area_processing_frames = []
-        area_processed = 0
-        content_started = False
-        last_result = False
-        running = True
+        banner_events = []
+        banner_mask = reference.get_area_banner_mask(reference.get_area_mask_size((width, height)))
+        banner_mask_area = match.get_square_mask_area(height, width)
+        banner_data_processing = None
+        banner_processing_frames = []
+        banner_processed = 0
+        banner_last_result = False
+        banner_process_running = True
+
+        tag_events = []
+        tag_pattern = match.get_resized_area_tag(height, width)
+        tag_processing_frames = []
+        tag_data_processing = None
+        tag_processed_count = 0
+        tag_last_result = None
+        tag_process_running = True
 
         while not self.stop:
             frame = queue.get()
             if isinstance(frame, numpy.ndarray):
-                if running:
-                    frame_result: bool = match.check_frame_area_mask(frame, area_mask_area, content_started)
+                if banner_process_running:
+                    frame_result: bool = match.check_frame_area_mask(frame, banner_mask_area, content_started)
                     if frame_result:
                         content_started = True
-                        area_processing_frames.append(now_frame_count)
+                        banner_processing_frames.append(now_frame_count)
 
-                    if last_result and not frame_result:
-                        area_processed += 1
+                    if banner_last_result and not frame_result:
+                        banner_processed += 1
 
                         if self.dryrun:
-                            events = self.area_make_sequence(area_processing_frames, None, area_mask, video_fps)
-                            self.log(f"[Processing] AreaInfo {area_processed}: Output {len(events)} Events")
+                            events = self.area_banner_make_sequence(banner_processing_frames, None, banner_mask,
+                                                                    video_fps)
+                            self.log(f"[Processing] Area Banner {banner_processed}: Output {len(events)} Events")
                         else:
-                            events = self.area_make_sequence(area_processing_frames, area_processing, area_mask,
-                                                             video_fps)
-                            self.log(f"[Processing] AreaInfo {area_processed}: Output {len(events)} Events, "
-                                     f"Remain {area_data_count - area_processed}/{area_data_count}")
+                            events = self.area_banner_make_sequence(banner_processing_frames, banner_data_processing,
+                                                                    banner_mask,
+                                                                    video_fps)
+                            self.log(f"[Processing] Area Banner {banner_processed}: Output {len(events)} Events, "
+                                     f"Remain {banner_data_count - banner_processed}/{banner_data_count}")
 
-                        area_events += events
-                        area_processing_frames = []
-                        area_processing = None
+                        banner_events += events
+                        banner_processing_frames = []
+                        banner_data_processing = None
 
-                        if not self.dryrun and area_processed == area_data_count:
-                            running = False
+                        if not self.dryrun and banner_processed == banner_data_count:
+                            banner_process_running = False
 
-                    if not self.dryrun and not area_processing:
+                    if not self.dryrun and not banner_data_processing:
                         try:
-                            area_processing = area_data.pop(0)
+                            banner_data_processing = banner_data.pop(0)
                         except IndexError:
-                            area_processing = None
-                    now_frame_count += 1
-                    last_result = frame_result
+                            banner_data_processing = None
+                    banner_last_result = frame_result
+                if tag_process_running:
+                    tag_frame_result = match.check_area_tag_position(frame, tag_pattern)
+                    if tag_frame_result:
+                        tag_processing_frames.append(
+                            {"frame_id": now_frame_count, "position": tag_frame_result, "height": height,
+                             "width": width}
+                        )
+                    if tag_last_result and not tag_frame_result:
+                        tag_processed_count += 1
+
+                        if self.dryrun:
+                            events = self.area_tag_make_sequence(None, height, width, video_fps, tag_processing_frames)
+                            self.log(f"[Processing] Area Tag {tag_processed_count}: Output {len(events)} Events")
+                        else:
+                            events = self.area_tag_make_sequence(tag_data_processing, height, width, video_fps,
+                                                                 tag_processing_frames)
+                            self.log(f"[Processing] Area Tag {tag_processed_count}: Output {len(events)} Events, "
+                                     f"Remain {tag_data_count - tag_processed_count}/{tag_data_count}")
+                        tag_events += events
+                        tag_processing_frames = []
+                        tag_data_processing = None
+
+                        if not self.dryrun and tag_processed_count == tag_data_count:
+                            tag_process_running = False
+
+                    if not self.dryrun and not tag_data_processing:
+                        try:
+                            tag_data_processing = tag_data.pop(0)
+                        except IndexError:
+                            tag_data_processing = None
+                    tag_last_result = tag_frame_result
                 del frame
+                now_frame_count += 1
             else:
                 break
             self.emit({"done": 1, "time": time.time() - self.time_start})
         if not self.stop:
-            result.append(area_events)
-            if self.dryrun:
-                self.log("[Processing] AreaInfo Matching Process Finished")
-            else:
-                self.log(
-                    "[Processing] AreaInfo Matching Process Finished" + (" But not Fully Matched" if area_data else ""))
+            result.append(banner_events)
+            result.append(tag_events)
+            self.log(
+                "[Processing] Area Info Matching Process Finished" +
+                (" But not Fully Matched" if (not self.dryrun) and (banner_data or tag_data) else ""))
 
     @staticmethod
-    def area_make_sequence(frame_array: list[int], area_info: dict | None, area_mask, fps):
+    def area_banner_make_sequence(frame_array: list[int], area_info: dict | None, area_mask, fps):
         events = []
         frame_time = timedelta(seconds=1 / fps)
         event_mask = {
             "Layer": 0,
-            "Start": script.tools.timedelta_to_string(frame_array[0] * frame_time),
-            "End": script.tools.timedelta_to_string(frame_array[-1] * frame_time),
+            "Start": tools.timedelta_to_string(frame_array[0] * frame_time),
+            "End": tools.timedelta_to_string(frame_array[-1] * frame_time),
             "Style": "address", "Name": '',
             "MarginL": 0, "MarginR": 0, "MarginV": 0, "Effect": '',
             "Text": r"{\fad(100,100)}" + area_mask
         }
         event_data = {
             "Layer": 1,
-            "Start": script.tools.timedelta_to_string(frame_array[0] * frame_time),
-            "End": script.tools.timedelta_to_string(frame_array[-1] * frame_time),
+            "Start": tools.timedelta_to_string(frame_array[0] * frame_time),
+            "End": tools.timedelta_to_string(frame_array[-1] * frame_time),
             "Style": "address", "Name": '',
             "MarginL": 0, "MarginR": 0, "MarginV": 0, "Effect": '',
             "Text": area_info["StringVal"] if area_info else "LOCATION"
@@ -531,6 +627,46 @@ class SekaiJsonVideoProcess:
         events.append(event_mask)
         events.append(event_data)
         return events
+
+    @staticmethod
+    def area_tag_make_sequence(tag_info: dict | None, h: int, w: int, fps: int,
+                               frames: list[dict[str, tuple[int, int] | int]]):
+        events_mask = []
+        events_body = []
+        frame_time = timedelta(seconds=1 / fps)
+        body = tag_info["StringVal"] if tag_info else ""
+        for frame in frames:
+            right_position = np.multiply(frame['position'], (1, 7 / 6)).tolist()
+            mask_string, mask_size = reference.get_area_tag_mask(h, w, move=right_position)
+            body_pos = rf"{{\an7\fs{int(mask_size[0] * 0.85)}" \
+                       rf"\pos({int(right_position[0] - mask_size[1] * 19 / 20)},{int(right_position[1] - mask_size[0] * 0.4)})}}"
+            body_event_data = {
+                "Layer": 1, "Style": "address", "Name": '', "MarginL": 0, "MarginR": 0, "MarginV": 0,
+                "Start": tools.timedelta_to_string(frame_time * frame['frame_id']),
+                "End": tools.timedelta_to_string(frame_time * (frame['frame_id'] + 1)),
+                "Effect": '', "Text": body_pos + body
+            }
+            if events_body and events_body[-1]["Text"] == body_event_data["Text"]:
+                events_body[-1]["End"] = body_event_data["End"]
+                events_mask[-1]["End"] = body_event_data["End"]
+            else:
+                events_body.append(body_event_data)
+                mask_event_data = copy.deepcopy(body_event_data)
+                mask_event_data["Text"] = mask_string
+                events_mask.append(mask_event_data)
+
+        body_event_data = {
+            "Layer": 1, "Style": "address", "Name": '', "Type": "Comment",
+            "Start": tools.timedelta_to_string(frame_time * frames[0]['frame_id']),
+            "End": tools.timedelta_to_string(frame_time * (frames[-1]['frame_id'] + 1)),
+            "MarginL": 0, "MarginR": 0, "MarginV": 0, "Effect": '', "Text": body
+        }
+        events_body.append(body_event_data)
+        mask_event_data = copy.deepcopy(body_event_data)
+        mask_string, _ = reference.get_area_tag_mask(h, w)
+        mask_event_data["Text"] = mask_string
+        events_mask.append(mask_event_data)
+        return events_mask + events_body
 
     def queue_video_frame(self, queue_array: list[Queue]):
         self.emit({"total": 2 * self.VideoCapture.get(7)})
@@ -547,7 +683,6 @@ class SekaiJsonVideoProcess:
                 else:
                     vc_status = 0
             else:
-                print([queue.qsize() for queue in queue_array], ram_use_total)
                 gc.collect()
             if not vc_status:
                 break
@@ -583,8 +718,8 @@ class SekaiJsonVideoProcess:
             raise KeyboardInterrupt
         else:
             [dialogs_events, dialog_styles] = dialog_match_result
-            [area_events] = area_match_result
-            return dialogs_events, dialog_styles, area_events
+            [banner_events, tag_events] = area_match_result
+            return dialogs_events, dialog_styles, banner_events, tag_events
 
     def run(self):
         self.time_start = time.time()
@@ -594,7 +729,7 @@ class SekaiJsonVideoProcess:
         video_height = self.VideoCapture.get(4)
         video_width = self.VideoCapture.get(3)
         try:
-            dialogs_events, dialog_styles, area_events = self.process()
+            dialogs_events, dialog_styles, banner_events, tag_events = self.process()
 
         except KeyboardInterrupt:
             self.log(f"[Terminated] Process Terminated Prematurely By User")
@@ -610,11 +745,19 @@ class SekaiJsonVideoProcess:
                 style['Name'] = staff["Style"]
                 style['Alignment'] = int(staff["Style"][-1])
                 staff_style.append(style)
+            filename = os.path.splitext(os.path.split(self.video_file)[-1])[0]
+            events = \
+                get_divider_event(f"{filename} - Made by SekaiSubtitle", 10) + \
+                get_divider_event("Staff Start") + self.staff + get_divider_event("Staff End") + \
+                get_divider_event("Banner Start") + banner_events + get_divider_event("Banner End") + \
+                get_divider_event("Tag Start") + tag_events + get_divider_event("Tag End") + \
+                get_divider_event("Dialog Start") + dialogs_events + get_divider_event("Dialog End")
+
             res = {
                 "ScriptInfo": {"PlayResX": video_width, "PlayResY": video_height},
                 "Garbage": {"video": self.video_file},
                 "Styles": dialog_styles + staff_style,
-                "Events": Subtitle.Events(self.staff + area_events + dialogs_events).list,
+                "Events": Subtitle.Events(events).list,
             }
             subtitle = Subtitle(res)
             if os.path.exists(self.output_path):

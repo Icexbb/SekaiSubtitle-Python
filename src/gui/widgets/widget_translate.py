@@ -2,7 +2,9 @@ import os
 import re
 import sys
 
+import yaml
 from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6.QtCore import Signal
 
 from gui.design.WidgetTranslate import Ui_Form as Ui_Translate
 from gui.design.WidgetTranslateIcon import Ui_Form as Ui_CharaIcon
@@ -33,10 +35,6 @@ class WidgetTranslateLines(Ui_TranslateLines, QtWidgets.QWidget):
         len_translate = len(self.TextEditTranslate.text().replace("...", "…"))
         if len_translate > 30:
             self.TextEditTranslate.setStyleSheet(f"color: rgb(255, 0, 0);")
-        # elif len_translate > len_origin:
-        #    waring = int((1 - min((len_translate - len_origin) / (len_origin * 0.5), 1)) * 160) + 60
-        #    ss = f"color: rgb(255, {max(60, waring)}, 60);"
-        #    self.TextEditTranslate.setStyleSheet(ss)
         else:
             self.TextEditTranslate.setStyleSheet("")
         if len_translate:
@@ -47,6 +45,10 @@ class WidgetTranslateLines(Ui_TranslateLines, QtWidgets.QWidget):
     @property
     def translatedString(self):
         return self.TextEditTranslate.text()
+
+    @translatedString.setter
+    def translatedString(self, value: str):
+        self.TextEditTranslate.setText(value)
 
 
 class WidgetTranslateItem(Ui_TranslateItem, QtWidgets.QWidget):
@@ -61,9 +63,15 @@ class WidgetTranslateItem(Ui_TranslateItem, QtWidgets.QWidget):
             self.chara = s
             self.LabelType.setText("对话")
             self.strings = self.data.get("Body").split("\n")
+            self.type = "dialog"
         else:
             self.chara = ""
-            self.LabelType.setText("位置")
+            if self.data.get("EffectType") == 18:
+                self.LabelType.setText("角标")
+                self.type = "tag"
+            else:
+                self.LabelType.setText("横幅")
+                self.type = "banner"
             self.strings = [self.data.get("StringVal")]
         self.CharaWidget = WidgetCharaIcon(self.chara)
         self.FrameCharaLayout.addWidget(self.CharaWidget)
@@ -81,11 +89,42 @@ class WidgetTranslateItem(Ui_TranslateItem, QtWidgets.QWidget):
             res.append(line.translatedString)
         return r"\N".join(res)
 
+    @translated.setter
+    def translated(self, value: str):
+        strings = value.replace(r"\N", "\n").split("\n")
+        if len(strings) != len(self.lines):
+            p = ["" for _ in self.lines]
+            for index, string in enumerate(strings):
+                p[index] = string
+            strings = p
+        for line, string in zip(self.lines, strings):
+            line.translatedString = string
+
 
 class ListWidgetItem(QtWidgets.QListWidgetItem):
     def __init__(self):
         super().__init__()
         self.num = None
+
+
+class RightClickEnabledButton(QtWidgets.QPushButton):
+    def __init__(self, text=None, name=None):
+        super().__init__()
+        if text:
+            self.setText(text)
+        if name:
+            self.setObjectName(name)
+
+    rightClicked = Signal()
+    clicked = Signal()
+
+    def mousePressEvent(self, evt):
+        super().mousePressEvent(evt)
+        # 为右键单击事件建立信号
+        if evt.button() == QtCore.Qt.MouseButton.RightButton:
+            self.rightClicked.emit()
+        elif evt.button() == QtCore.Qt.MouseButton.LeftButton:
+            self.clicked.emit()
 
 
 class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
@@ -100,16 +139,22 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
         self.lines: list[WidgetTranslateItem] = []
 
         self.ButtonLoad.clicked.connect(self.load_json)
-        self.ButtonSave.clicked.connect(self.save_file)
-        self.ButtonOpen.clicked.connect(self.load_text)
         self.ButtonClear.clicked.connect(self.clearItem)
+        self.ButtonOpen.clicked.connect(self.load_text)
+
+        self.ButtonSave.deleteLater()
+        self.ButtonSave = RightClickEnabledButton("保存", "ButtonSave")
+        self.horizontalLayout.addWidget(self.ButtonSave)
+
+        self.ButtonSave.clicked.connect(self.save_file_yaml)
+        self.ButtonSave.rightClicked.connect(self.save_file_txt)
         self.setAcceptDrops(True)
 
     def dragEnterEvent(self, event: QtGui.QDragEnterEvent) -> None:
         path = event.mimeData().text()
         if path.endswith(".json"):
             event.accept()
-        elif path.endswith(".txt"):
+        elif path.endswith((".txt", ".yml")):
             if self.data_file and self.data:
                 event.accept()
             else:
@@ -119,7 +164,7 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
 
     def dropEvent(self, event: QtGui.QDropEvent):
         path = event.mimeData().text().replace('file:///', '')
-        if path.endswith((".json", ".asset")):
+        if path.lower().endswith((".json", ".asset")):
             self.load_json(path)
         else:
             self.load_text(path)
@@ -128,7 +173,7 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
         if not file_name_choose:
             file_name_choose, _ = QtWidgets.QFileDialog.getOpenFileName(
                 self, "选取文件", dir=self.parent.choose_file_root,
-                filter=f"JSON文件 (*.json);;全部文件 (*)")
+                filter=f"剧情数据文件 (*.json,*.asset);;全部文件 (*)")
         if file_name_choose and os.path.exists(file_name_choose):
             self.parent.choose_file_root = os.path.split(file_name_choose)[0]
             self.clearItem()
@@ -140,14 +185,17 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
             for item in self.data.get("Snippets"):
                 if item["Action"] == 1:
                     self.newItem(self.data["TalkData"][td_count], total_count)
-                    td_count += 1
                     total_count += 1
+                    td_count += 1
                 elif item["Action"] == 6:
                     data = self.data["SpecialEffectData"][se_count]
                     if data['EffectType'] == 8:
                         self.newItem(data, total_count)
+                        total_count += 1
+                    elif data['EffectType'] == 18:
+                        self.newItem(data, total_count)
+                        total_count += 1
                     se_count += 1
-                    total_count += 1
 
     def clearItem(self):
         for i in range(self.ListWidgetLine.count()):
@@ -179,42 +227,68 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
         self.ListWidgetLine.setItemWidget(item, line)
         self.lines.append(line)
 
-    def save_file(self):
+    def save_file_txt(self):
+        if [line for line in self.lines if line.type == 'tag']:
+            msg = QtWidgets.QMessageBox.question(
+                self, "SekaiText - 保存", "目前的翻译文档内有角标，保存为旧版txt格式会丢失该部分信息\n是否继续？",
+                QtWidgets.QMessageBox.StandardButton.Yes, QtWidgets.QMessageBox.StandardButton.No
+            )
+            if msg == QtWidgets.QMessageBox.StandardButton.No:
+                return
         result = []
         if self.data_file:
             filename = QtWidgets.QFileDialog.getSaveFileName(
-                self, "保存", os.path.split(self.trans_file)[0] if self.trans_file else "" or self.parent.choose_file_root,
+                self, "保存",
+                os.path.split(self.trans_file)[0] if self.trans_file else "" or self.parent.choose_file_root,
                 "SekaiText文件(*.txt);;all files(*.*)")
-            filepath, filename = os.path.split(filename[0])
-            for line in self.lines:
-                if line.CharaWidget.LabelName.text():
-                    string = line.CharaWidget.LabelName.text() + "："
-                else:
-                    string = ""
-                string += line.translated
-                result.append(string)
-            with open(os.path.join(filepath, filename), 'w', encoding='utf8') as fp:
-                fp.writelines("\n".join(result))
-            msg = QtWidgets.QMessageBox(
-                icon=QtWidgets.QMessageBox.Icon.NoIcon,
-                text=f"已保存到 {os.path.join(filepath, filename)}", parent=self
-            )
-            msg.setWindowTitle("SekaiText")
-            msg.exec_()
-            msg.close()
+            if filename[1]:
+                for line in self.lines:
+                    if line.CharaWidget.LabelName.text():
+                        string = line.CharaWidget.LabelName.text() + "："
+                    else:
+                        string = ""
+                    string += line.translated
+                    result.append(string)
+                with open(filename[0], 'w', encoding='utf8') as fp:
+                    fp.writelines("\n".join(result))
+                msg = QtWidgets.QMessageBox(
+                    icon=QtWidgets.QMessageBox.Icon.NoIcon,
+                    text=f"已保存到 {filename[0]}", parent=self
+                )
+                msg.setWindowTitle("SekaiText")
+                msg.exec_()
 
-        # Action 1 TalkData
-        # Action 2 LayoutData
-        # Action 4 LayoutData
-        # Action 6 SpecialEffectData
-        # Action 7 SoundData
-        # Action 8 ScenarioSnippetCharacterLayoutModes
+    def save_file_yaml(self):
+        if self.data_file:
+            filename = QtWidgets.QFileDialog.getSaveFileName(
+                self, "保存",
+                os.path.split(self.trans_file)[0] if self.trans_file else "" or self.parent.choose_file_root,
+                "SekaiSubtitle翻译文件(*.yml);;all files(*.*)")
+            if filename[1]:
+                data = {"dialog": [], "tag": [], "banner": []}
+                for line in self.lines:
+                    if line.type in data.keys():
+                        data[line.type].append(line.translated)
+                with open(filename[0], 'w', encoding='utf8') as fp:
+                    fp.write(yaml.dump(data))
+                msg = QtWidgets.QMessageBox(
+                    icon=QtWidgets.QMessageBox.Icon.NoIcon,
+                    text=f"已保存到 {filename[0]}", parent=self
+                )
+                msg.setWindowTitle("SekaiText")
+                msg.exec_()
+
+    # Action 1 TalkData
+    # Action 2 LayoutData
+    # Action 4 LayoutData
+    # Action 6 SpecialEffectData
+    # Action 7 SoundData
+    # Action 8 ScenarioSnippetCharacterLayoutModes
 
     def load_text(self, file_name_choose=None):
         if not self.data:
             msg = QtWidgets.QMessageBox(
-                icon=QtWidgets.QMessageBox.Icon.Warning,
-                text=f"请先载入一个Json文件", parent=self
+                icon=QtWidgets.QMessageBox.Icon.Warning, text=f"请先载入一个数据文件", parent=self
             )
             msg.setWindowTitle("SekaiText")
             msg.exec_()
@@ -223,27 +297,39 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
         if not file_name_choose:
             file_name_choose, _ = QtWidgets.QFileDialog.getOpenFileName(
                 self, "选取文件", dir=os.getcwd(),
-                filter=f"SekaiText文件 (*.txt);;全部文件 (*)")
+                filter=f"SekaiText文件 (*.txt *.yml);;全部文件 (*)")
         if file_name_choose and os.path.exists(file_name_choose):
             self.trans_file = file_name_choose
             self.EditTitle.setText(os.path.splitext(os.path.split(file_name_choose)[-1])[0])
-            pattern_body = re.compile(r"^(?P<name>\S*)：(?P<body>.+)$")
-            pattern_place = re.compile(r"^(?P<place>\S[^：]*)$")
-            with open(file_name_choose, 'r', encoding='utf-8') as fp:
-                data = fp.readlines()
-            res = []
-            for data_string in data:
-                if data_string:
-                    if s := re.match(pattern_body, data_string.strip()):
-                        res.append(s.group("body").split(r"\N"))
-                    elif s := re.match(pattern_place, data_string.strip()):
-                        res.append([s.group("place")])
-            if len(res) == len(self.lines):
-                for lines, widget in zip(res, self.lines):
-                    for index, string in enumerate(lines):
-                        widget.lines[index].TextEditTranslate.setText(string)
-            else:
-                for line_index, lines in enumerate(res):
-                    widget = self.lines[line_index]
-                    for index, string in enumerate(lines):
-                        widget.lines[index].TextEditTranslate.setText(string)
+
+            if os.path.splitext(file_name_choose)[-1].lower() == ".txt":
+                pattern_body = re.compile(r"^(?P<name>\S*)：(?P<body>.+)$")
+                pattern_place = re.compile(r"^(?P<place>\S[^：]*)$")
+                with open(file_name_choose, 'r', encoding='utf-8') as fp:
+                    data = fp.readlines()
+                res = []
+                for data_string in data:
+                    if data_string:
+                        if s := re.match(pattern_body, data_string.strip()):
+                            res.append(s.group("body").split(r"\N"))
+                        elif s := re.match(pattern_place, data_string.strip()):
+                            res.append([s.group("place")])
+                limited_lines = [line for line in self.lines if line.type in ["dialog", "banner"]]
+                if len(res) == len(limited_lines):
+                    for lines, widget in zip(res, limited_lines):
+                        for index, string in enumerate(lines):
+                            widget.lines[index].TextEditTranslate.setText(string)
+                else:
+                    for line_index, lines in enumerate(res):
+                        widget = limited_lines[line_index]
+                        for index, string in enumerate(lines):
+                            widget.lines[index].TextEditTranslate.setText(string)
+            elif os.path.splitext(file_name_choose)[-1].lower() == ".yml":
+                with open(file_name_choose, 'r', encoding='utf-8') as fp:
+                    data = yaml.load(fp, yaml.Loader)
+                for line_type in ["banner", "tag", "dialog"]:
+                    index_list = [index for index, line in enumerate(self.lines) if line.type == line_type]
+                    index_count = len(index_list)
+                    if index_count == len(data[line_type]):
+                        for index_of_data, index_of_widget in enumerate(index_list):
+                            self.lines[index_of_widget].translated = data[line_type][index_of_data]

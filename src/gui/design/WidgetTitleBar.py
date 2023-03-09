@@ -29,11 +29,11 @@ class Ui_TitleBar(object):
         sizePolicy.setHeightForWidth(TitleBar.sizePolicy().hasHeightForWidth())
         TitleBar.setSizePolicy(sizePolicy)
         TitleBar.setStyleSheet(u"QPushButton{border-radius:10px;border:2px solid gray;}\n"
-"QPushButton#WindowCloseButton{	background-color: rgb(255,100,100);}\n"
-"QPushButton#WindowMaxButton{background-color: rgb(100, 255, 100);}\n"
-"QPushButton#WindowMinButton{background-color: rgb(255, 255, 100);}\n"
-"QLabel#TitleLabel{font: 500 12pt \"Microsoft YaHei UI\";}\n"
-"")
+"                QPushButton#WindowCloseButton{ background-color: rgb(255,100,100);}\n"
+"                QPushButton#WindowMaxButton{background-color: rgb(100, 255, 100);}\n"
+"                QPushButton#WindowMinButton{background-color: rgb(255, 255, 100);}\n"
+"                QLabel#TitleLabel{font: 500 12pt \"Microsoft YaHei UI\";}\n"
+"            ")
         self.horizontalLayout = QHBoxLayout(TitleBar)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(15, -1, 15, -1)

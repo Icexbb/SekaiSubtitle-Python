@@ -26,9 +26,10 @@ class Ui_Form(object):
             Form.setObjectName(u"Form")
         Form.resize(418, 348)
         Form.setStyleSheet(u"QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:20px;}\n"
-"QScrollArea{background-color: transparent;}\n"
-"QWidget#scrollAreaWidgetContents{background-color: transparent;}\n"
-"QLabel{	font: 10pt \"Microsoft YaHei UI\";}")
+"                QScrollArea{background-color: transparent;}\n"
+"                QWidget#scrollAreaWidgetContents{background-color: transparent;}\n"
+"                QLabel{ font: 10pt \"Microsoft YaHei UI\";}\n"
+"            ")
         self.gridLayout = QGridLayout(Form)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(0, 0, 0, 0)

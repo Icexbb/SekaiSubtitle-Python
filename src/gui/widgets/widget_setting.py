@@ -13,7 +13,7 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
     def __init__(self, parent):
         super().__init__()
         self.setupUi(self)
-        self.parent=parent
+        self.parent = parent
         self.load_chibi()
         self.pushButton.clicked.connect(self.change_config)
         self.root = os.path.join(os.path.expanduser('~'), "SekaiSubtitle", "setting")

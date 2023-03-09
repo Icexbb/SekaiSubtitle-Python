@@ -4,13 +4,12 @@ from typing import List
 import cv2
 import numpy as np
 
-from script.data import menu as template_menu
-from script.data import point as template_point
-from script.reference import get_area_mask_size, get_area_mask
+from script.data import template_menu, template_point, template_place
+from script.reference import get_area_mask_size, get_area_banner_mask
 from script.tools import check_aberration, check_dark
 
 
-def __scaling_ratio(h, w) -> float:
+def __scaling_ratio(h: int, w: int) -> float:
     size = int((int((h / 1080) * 136)) * (886 / 136)) if (w / h) > (16 / 9) else int((w / 1920) * 886)
     i = size / 886
     return i
@@ -18,23 +17,29 @@ def __scaling_ratio(h, w) -> float:
 
 def get_resized_dialog_pointer(h, w) -> np.ndarray:
     i = __scaling_ratio(h, w)
-    template = template_point
-    template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+    template = cv2.cvtColor(template_point, cv2.COLOR_BGR2GRAY)
     pointer = cv2.resize(template, (int(template.shape[0] * i), int(template.shape[1] * i)))
     return pointer
 
 
 def get_resized_interface_menu(h, w) -> np.ndarray:
     i = __scaling_ratio(h, w)
-    template = template_menu
-    template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+    template = cv2.cvtColor(template_menu, cv2.COLOR_BGR2GRAY)
     menu = cv2.resize(template, (int(template.shape[0] * i), int(template.shape[1] * i)))
     return menu
 
 
+def get_resized_area_tag(h, w) -> np.ndarray:
+    i = __scaling_ratio(h, w)
+    place_frame = cv2.resize(
+        template_place, (int(template_place.shape[1] * i), int(template_place.shape[0] * i)),
+        interpolation=cv2.INTER_AREA)
+    return place_frame
+
+
 def get_square_mask_area(h, w) -> list[int]:
     mask = get_area_mask_size((w, h))
-    mask_string = [i for i in get_area_mask(mask).split(' ') if i.isdigit()]
+    mask_string = [i for i in get_area_banner_mask(mask).split(' ') if i.isdigit()]
     x_a = sorted(map(int, mask_string[::2]))[1:3]
     y_a = sorted(set(map(int, mask_string[1::2])))
     return y_a + x_a
@@ -107,11 +112,7 @@ def check_frame_area_mask(frame: np.ndarray, area_mask: List[int], content_start
             return False
     check_size_y = abs(int((area_mask[1] - area_mask[0]) / 3))
     check_size_x = abs(int((area_mask[2] - area_mask[3]) / 2))
-    cut1 = frame[
-           area_mask[0]:area_mask[0] + check_size_y,
-           area_mask[2]:area_mask[2] + check_size_x,
-           ]
-
+    cut1 = frame[area_mask[0]:area_mask[0] + check_size_y, area_mask[2]:area_mask[2] + check_size_x]
     area_purple = [141, 137, 171]
     area_purple.reverse()
     num = check_size_y * check_size_x
@@ -120,9 +121,9 @@ def check_frame_area_mask(frame: np.ndarray, area_mask: List[int], content_start
         for array in cut1:
             for pixel in array:
                 dis = check_aberration(pixel, area_purple)
-                if dis < 20:
+                if dis < 18:
                     exist += 1
-    res = True if exist > num * 0.85 else False
+    res = True if exist > num * 0.95 else False
     return res
 
 
@@ -134,7 +135,20 @@ def check_frame_content_start(frame: np.ndarray, menu_sign: np.ndarray) -> bool:
     cut = frame[:cut_down, cut_left:]
     res = cv2.matchTemplate(cut, menu_sign, cv2.TM_CCOEFF_NORMED)
     threshold = 0.70
-
     loc = divmod(np.argmax(res), res.shape[1])
     exist = (not (res[loc[0], loc[1]] < threshold))
     return exist
+
+
+def check_area_tag_position(frame: np.ndarray, tag_pattern: np.ndarray, content_started=True) -> tuple[int] | None:
+    if not content_started:
+        return None
+    cut = frame[:int(frame.shape[0] / 8), :int(frame.shape[1] / 3)]
+    res = cv2.matchTemplate(cut, tag_pattern, cv2.TM_CCOEFF_NORMED)
+    threshold = 0.8
+    loc = divmod(np.argmax(res), res.shape[1])
+    if res[loc[0], loc[1]] < threshold:
+        return None
+    else:
+        left_top = (loc[1].item(), loc[0].item())
+        return tuple([int(left_top[0] + tag_pattern.shape[1]), int(left_top[1] + tag_pattern.shape[1] / 2)])

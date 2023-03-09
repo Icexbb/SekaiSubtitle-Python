@@ -23,7 +23,7 @@ from gui.widgets.widget_translate import TranslateWidget
 EXIT_CODE_REBOOT = -11231351
 
 PROGRAM_NAME = "Sekai Subtitle"
-VERSION = "v0.4.8"
+VERSION = "v0.5.0"
 
 
 class MainUi(FramelessMainWindow, Ui_MainWindow):
@@ -132,8 +132,8 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
                     QtGui.QPixmap(i).scaledToHeight(self.FigureLabel.height(),
                                                     QtCore.Qt.TransformationMode.SmoothTransformation))
         except BaseException as e:
-            print(e)
             self.FigureLabel.setText("")
+            raise e
 
     def load_icon(self):
         icon_path = "asset"
@@ -232,7 +232,7 @@ def handleException(exc_type, exc_value, exc_traceback):
     exception = str("".join(traceback.format_exception(exc_type, exc_value, exc_traceback)))
     dialog = QtWidgets.QDialog()
     os.makedirs("data/log", exist_ok=True)
-    filename = f"data/log/Exception-{datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}.txt"
+    filename = os.path.realpath(f"data/log/Exception-{datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}.txt")
     with open(filename, 'w', encoding="utf-8") as fp:
         fp.write(exception)
     dialog.setAttribute(QtCore.Qt.WidgetAttribute.WA_DeleteOnClose)

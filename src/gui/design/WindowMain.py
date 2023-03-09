@@ -24,11 +24,12 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(640, 480)
-        MainWindow.setStyleSheet(u"QWidget#MainFrame{background-color: rgb(255, 255, 255);border-color: rgb(204, 204, 204);border-size: 2px;border-radius:20px;}\n"
-"QFrame#CenterFrame{border-radius:20px;background-color: rgb(238, 238, 238);}\n"
-"QFrame#MenuFrame{	border-radius:20px;	background-color: rgba(238, 238, 238,128);}\n"
-"#MenuFrame QPushButton{font: 500 14pt \"Microsoft YaHei UI\";border:none}\n"
-"")
+        MainWindow.setStyleSheet(u"QWidget#MainFrame{background-color: rgb(255, 255, 255);border-color: rgb(204, 204,\n"
+"                204);border-size: 2px;border-radius:20px;}\n"
+"                QFrame#CenterFrame{border-radius:20px;background-color: rgb(238, 238, 238);}\n"
+"                QFrame#MenuFrame{ border-radius:20px; background-color: rgba(238, 238, 238,128);}\n"
+"                #MenuFrame QPushButton{font: 500 14pt \"Microsoft YaHei UI\";border:none}\n"
+"            ")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)

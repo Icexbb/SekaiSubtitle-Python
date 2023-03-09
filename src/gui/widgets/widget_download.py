@@ -241,7 +241,7 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
             tree['活动剧情'] = {}
             for item in data:
                 try:
-                    ev_name = f"{item['eventId']}:{events[item['eventId']]['name']}"
+                    ev_name = f"{item['eventId']}:{events[item['eventId']-1]['name']}"
                 except IndexError:
                     ev_name = f"Event{item['eventId']}"
                 ev_ep = {}

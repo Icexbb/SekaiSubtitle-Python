@@ -97,7 +97,7 @@ def get_dialog_mask(screen_data: dict, move: list[int, int] = None) -> str:
     return r"{\p1\pos(0,0)\c&HFFFFFF&}" + mask.string()
 
 
-def get_area_mask(screen_data: dict) -> str:
+def get_area_banner_mask(screen_data: dict) -> str:
     origin_mask = 'm 566 472 ' \
                   'l 517 608 ' \
                   'l 1354 608 ' \
@@ -107,3 +107,23 @@ def get_area_mask(screen_data: dict) -> str:
     mask.scale(screen_data['area_mask_coefficient'])
     mask.move(screen_data['area_mask_area'][:2])
     return r"{\an7\p1\c&HB68B89&\pos(0,0)\fad(100,100)}" + mask.string()
+
+
+def get_area_tag_mask(frame_height: int, frame_width: int, move: tuple[int, int] = None) -> tuple[str, tuple[int, int]]:
+    origin_mask = "m 88 64 " \
+                  "b 70 65 54 85 54 102 " \
+                  "b 54 119 70 138 88 138 " \
+                  "l 749 138 " \
+                  "b 770 138 787 118 787 102 " \
+                  "b 787 85 770 65 749 64"
+    mask = AssDraw(origin_mask)
+    mask.move([-420, -101])
+    from script.match import __scaling_ratio
+    mask.scale(1 / __scaling_ratio(1600, 2560))
+    mask.move([-275, 0])
+    mask.scale(__scaling_ratio(frame_height, frame_width)*0.99)
+    w = int(abs(mask.ad_list[1].points[-1][-2]))
+    h = int(abs(mask.ad_list[0].point[-1]) * 2)
+    if move:
+        mask.move(list(move))
+    return r"{\an7\p1\c&H674445&\pos(0,0)}" + mask.string(), (h, w)

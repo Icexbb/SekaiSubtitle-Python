@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import datetime
+import json
 import os
 from typing import Union
 
 import ass
-import json
 from ass.data import Color
 
 from script.tools import timedelta_to_string
@@ -143,9 +143,9 @@ class Subtitle:
             @property
             def dict(self):
                 return {
-                    "Layer": self.Layer, "Start": self.Start, "End": self.End, "Style": self.Style, "Name": self.Name,
-                    "MarginL": self.MarginL, "MarginR": self.MarginR, "MarginV": self.MarginV, "Effect": self.Effect,
-                    "Text": self.Text
+                    "Type": self.Type, "Layer": self.Layer, "Start": self.Start, "End": self.End, "Style": self.Style,
+                    "Name": self.Name, "MarginL": self.MarginL, "MarginR": self.MarginR, "MarginV": self.MarginV,
+                    "Effect": self.Effect, "Text": self.Text
                 }
 
             @property

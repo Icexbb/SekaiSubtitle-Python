@@ -28,7 +28,8 @@ class Ui_NewStaffDialog(object):
         NewStaffDialog.setMinimumSize(QSize(500, 350))
         NewStaffDialog.setMaximumSize(QSize(500, 350))
         NewStaffDialog.setStyleSheet(u"QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:20px;}\n"
-"QLabel{	font: 10pt \"Microsoft YaHei UI\";}")
+"                QLabel{ font: 10pt \"Microsoft YaHei UI\";}\n"
+"            ")
         self.gridLayout = QGridLayout(NewStaffDialog)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(0, 0, 0, 0)

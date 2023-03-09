@@ -32,10 +32,11 @@ class Ui_Form(object):
         Form.setMinimumSize(QSize(0, 64))
         Form.setMaximumSize(QSize(16777215, 64))
         Form.setStyleSheet(u"#WidgetUp{background-color: rgba(150, 255, 150,50);}\n"
-"#WidgetDown{background-color: rgba(255, 255, 150, 50);}\n"
-"QLineEdit{margin:2px;background-color:rgba(0,0,0,0);}\n"
-"QToolButton#ClearButton{border:0px;background-color: rgba(255, 150, 150, 50);}\n"
-"#LineFrame{border:0.5px groove gray;border-radius:10px;}")
+"                #WidgetDown{background-color: rgba(255, 255, 150, 50);}\n"
+"                QLineEdit{margin:2px;background-color:rgba(0,0,0,0);}\n"
+"                QToolButton#ClearButton{border:0px;background-color: rgba(255, 150, 150, 50);}\n"
+"                #LineFrame{border:0.5px groove gray;border-radius:10px;}\n"
+"            ")
         self.gridLayout = QGridLayout(Form)
         self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(u"gridLayout")

@@ -24,9 +24,11 @@ class Ui_ProcessWidget(object):
         if not ProcessWidget.objectName():
             ProcessWidget.setObjectName(u"ProcessWidget")
         ProcessWidget.resize(448, 462)
-        ProcessWidget.setStyleSheet(u"QListWidget#ProcessingListWidget{	background-color: rgba(255, 255, 255, 0);	border: none;outline:0px;}\n"
-"QListWidget::item{background-color: rgba(255, 255, 255, 0);	border: none;outline:0px;}\n"
-"QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:20px;}")
+        ProcessWidget.setStyleSheet(u"QListWidget#ProcessingListWidget{ background-color: rgba(255, 255, 255, 0); border:\n"
+"                none;outline:0px;}\n"
+"                QListWidget::item{background-color: rgba(255, 255, 255, 0); border: none;outline:0px;}\n"
+"                QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:20px;}\n"
+"            ")
         self.gridLayout = QGridLayout(ProcessWidget)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(0, 0, 0, 0)

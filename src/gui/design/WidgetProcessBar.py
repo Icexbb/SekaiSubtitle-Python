@@ -32,15 +32,17 @@ class Ui_ProgressBarWidget(object):
         ProgressBarWidget.setSizePolicy(sizePolicy)
         ProgressBarWidget.setMinimumSize(QSize(0, 100))
         ProgressBarWidget.setMaximumSize(QSize(16777215, 200))
-        ProgressBarWidget.setStyleSheet(u"QProgressBar{height : 10px; border: 2px solid grey; border-radius: 5px; background-color: #FFFFFF;}\n"
-"QProgressBar::chunk { background-color: #007FFF; width: 10px;}\n"
-"QFrame#MainFrame{ background-color:rgb(248, 248, 248);border-color: rgb(204, 204, 204);border-size: 2px;border-radius:20px;}\n"
-"QPushButton#StartButton{background-color:rgb(100,255,100);border: 2px solid grey; border-radius: 10px;}\n"
-"QPushButton#DeleteButton{background-color:rgb(255,100,100);border: 2px solid grey; border-radius: 10px;}\n"
-"QPushButton#LogShowButton{border: 2px solid grey; border-radius: 10px;}\n"
-"QListWidget#StatusLogList{	background-color: rgba(255, 255, 255, 0);	border: none;outline:0px;}\n"
-"QListWidget::item{background-color: rgba(255, 255, 255, 0);border: none;outline:0px;}\n"
-"")
+        ProgressBarWidget.setStyleSheet(u"QProgressBar{height : 10px; border: 2px solid grey; border-radius: 5px;\n"
+"                background-color: #FFFFFF;}\n"
+"                QProgressBar::chunk { background-color: #007FFF; width: 10px;}\n"
+"                QFrame#MainFrame{ background-color:rgb(248, 248, 248);border-color: rgb(204, 204, 204);border-size:\n"
+"                2px;border-radius:20px;}\n"
+"                QPushButton#StartButton{background-color:rgb(100,255,100);border: 2px solid grey; border-radius: 10px;}\n"
+"                QPushButton#DeleteButton{background-color:rgb(255,100,100);border: 2px solid grey; border-radius: 10px;}\n"
+"                QPushButton#LogShowButton{border: 2px solid grey; border-radius: 10px;}\n"
+"                QListWidget#StatusLogList{ background-color: rgba(255, 255, 255, 0); border: none;outline:0px;}\n"
+"                QListWidget::item{background-color: rgba(255, 255, 255, 0);border: none;outline:0px;}\n"
+"            ")
         self.gridLayout = QGridLayout(ProgressBarWidget)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(5, 5, 5, 5)

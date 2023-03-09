@@ -25,9 +25,11 @@ class Ui_WidgetTranslateItem(object):
             WidgetTranslateItem.setObjectName(u"WidgetTranslateItem")
         WidgetTranslateItem.resize(172, 62)
         WidgetTranslateItem.setMinimumSize(QSize(0, 62))
-        WidgetTranslateItem.setStyleSheet(u"QFrame#MainFrame{background-color:rgb(250, 250, 250);border:1px solid gray;border-radius:10px;}\n"
-"QListWidget{background-color: rgba(255, 255, 255, 0);	border: none;outline:0px;}\n"
-"QListWidget::item{background-color: rgba(255, 255, 255, 0);	border: none;outline:0px;}")
+        WidgetTranslateItem.setStyleSheet(u"QFrame#MainFrame{background-color:rgb(250, 250, 250);border:1px solid\n"
+"                gray;border-radius:10px;}\n"
+"                QListWidget{background-color: rgba(255, 255, 255, 0); border: none;outline:0px;}\n"
+"                QListWidget::item{background-color: rgba(255, 255, 255, 0); border: none;outline:0px;}\n"
+"            ")
         self.gridLayout = QGridLayout(WidgetTranslateItem)
         self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(u"gridLayout")
