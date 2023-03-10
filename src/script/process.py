@@ -277,7 +277,7 @@ class SekaiJsonVideoProcess:
                         dialog_data_processing = None
 
                         if dialog_processed == dialog_total_count and not self.dryrun:
-                            break
+                            running  = False
 
                     if not self.dryrun and not dialog_data_processing:
                         try:
@@ -287,7 +287,7 @@ class SekaiJsonVideoProcess:
 
                     last_status = status
                     last_center = pc
-                    now_frame_count += 1
+                now_frame_count += 1
                 del frame
             else:
                 break
