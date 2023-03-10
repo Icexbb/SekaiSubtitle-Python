@@ -277,7 +277,7 @@ class SekaiJsonVideoProcess:
                         dialog_data_processing = None
 
                         if dialog_processed == dialog_total_count and not self.dryrun:
-                            running  = False
+                            running = False
 
                     if not self.dryrun and not dialog_data_processing:
                         try:
@@ -743,7 +743,10 @@ class SekaiJsonVideoProcess:
             for staff in self.staff:
                 style = copy.deepcopy(staff_style_format)
                 style['Name'] = staff["Style"]
-                style['Alignment'] = int(staff["Style"][-1])
+                style_align = int(staff["Style"][-1])
+                style['Alignment'] = style_align
+                if style_align == 1:
+                    style["MarginL"] = int(style["MarginL"] * (5 / 3))
                 staff_style.append(style)
             filename = os.path.splitext(os.path.split(self.video_file)[-1])[0]
             events = \

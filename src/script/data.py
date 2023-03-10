@@ -16,7 +16,7 @@ chara_name = {
 staff_style_format = {
     "Name": "staff",
     "Fontname": "思源黑体 CN Bold",
-    "Fontsize": 83,
+    "Fontsize": 70,
     "PrimaryColour": "&H00715659",
     "SecondaryColour": "&H000000FF",
     "OutlineColour": "&H00FFFFFF",
