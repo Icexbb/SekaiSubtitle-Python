@@ -6,7 +6,7 @@ import numpy as np
 
 from script.data import template_menu, template_point, template_place
 from script.reference import get_area_mask_size, get_area_banner_mask
-from script.tools import check_aberration, check_dark
+from script.tools import check_dark, check_img_aberration
 
 
 def __scaling_ratio(h: int, w: int) -> float:
@@ -59,9 +59,9 @@ def check_frame_pointer_position(
         cut_right = int(lft + border)
     else:
         cut_up = int(height * 0.6)
-        cut_down = int(height * 9)
+        cut_down = int(height * 0.85)
         cut_left = int(width * 0)
-        cut_right = int(width * 0.4)
+        cut_right = int(width * 0.3)
     cut = frame[cut_up:cut_down, cut_left:cut_right]
 
     res = cv2.matchTemplate(cut, pointer, cv2.TM_CCOEFF_NORMED)
@@ -112,19 +112,27 @@ def check_frame_area_mask(frame: np.ndarray, area_mask: List[int], content_start
             return False
     check_size_y = abs(int((area_mask[1] - area_mask[0]) / 3))
     check_size_x = abs(int((area_mask[2] - area_mask[3]) / 2))
-    cut1 = frame[area_mask[0]:area_mask[0] + check_size_y, area_mask[2]:area_mask[2] + check_size_x]
+    cut1: np.ndarray = frame[area_mask[0]:area_mask[0] + check_size_y, area_mask[2]:area_mask[2] + check_size_x]
     area_purple = [141, 137, 171]
     area_purple.reverse()
-    num = check_size_y * check_size_x
-    exist = 0
-    if max([(cut1[:, :, i]).var() for i in range(cut1.shape[2])]) < 100:
-        for array in cut1:
-            for pixel in array:
-                dis = check_aberration(pixel, area_purple)
-                if dis < 18:
-                    exist += 1
-    res = True if exist > num * 0.95 else False
-    return res
+
+    return check_img_aberration(cut1, np.array(area_purple))
+    # num = check_size_y * check_size_x
+    # exist = 0
+    # lost = 0
+    # if max([(cut1[:, :, i]).var() for i in range(cut1.shape[2])]) < 100:
+    #     for array in cut1:
+    #         for pixel in array:
+    #             dis = check_aberration(pixel, area_purple)
+    #             if dis < 18:
+    #                 exist += 1
+    #             else:
+    #                 lost += 1
+    #         if exist > num * 0.9:
+    #             return True
+    #         if lost > num * 0.1:
+    #             return False
+    # return False
 
 
 def check_frame_content_start(frame: np.ndarray, menu_sign: np.ndarray) -> bool:

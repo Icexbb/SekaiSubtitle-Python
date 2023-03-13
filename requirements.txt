@@ -4,4 +4,5 @@ PySide6==6.4.2
 
 packaging~=23.0
 opencv-python~=4.7.0.72
-psutil~=5.9.4
+PyYAML~=6.0
+pyqtgraph~=0.13.2

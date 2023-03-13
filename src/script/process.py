@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 import copy
-import gc
 import json
 import os
 import re
 import time
+from concurrent import futures
 from datetime import timedelta
 from queue import Queue
 
 import cv2
-import numpy
 import numpy as np
-import psutil as psutil
 import yaml
 from PySide6 import QtCore
 
@@ -33,10 +31,8 @@ class SekaiJsonVideoProcess:
             queue_in: Queue = Queue(),
             font_custom: str = None,
             use_no_json_file: bool = False,
-            ram_max: int = 1500,
             staff: list[dict] = None
     ):
-        self.ram_max = ram_max
         self.time_start = time.time()
         self.json_data = None
         self.font = font_custom
@@ -211,101 +207,286 @@ class SekaiJsonVideoProcess:
             self.json_data = res
         self.log("[Initial] JSON数据读取完成")
 
-    def dialog_match(self, queue: Queue, results: list):
-        vc = self.VideoCapture
+    @staticmethod
+    def match_frame_dialog(frame, pointer, last_center):
+        g_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        center = match.check_frame_pointer_position(g_frame, pointer, last_center)
+        status = match.check_frame_dialog_status(g_frame, pointer, center)
+        return "dialog", (status, center)
+
+    @staticmethod
+    def match_frame_banner(frame, banner_mask_area):
+        banner_frame_result: bool = match.check_frame_area_mask(frame, banner_mask_area, True)
+        return "banner", (banner_frame_result,)
+
+    @staticmethod
+    def match_frame_tag(frame, tag_pattern):
+        tag_frame_result = match.check_area_tag_position(frame, tag_pattern)
+        return "tag", (tag_frame_result,)
+
+    @staticmethod
+    def match_check_start(frame):
+        start = match.check_frame_content_start(
+            cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), match.get_resized_interface_menu(frame.shape[1], frame.shape[0]))
+        return start
+
+    def match(self):
+        vc = cv2.VideoCapture(self.video_file)
         video_fps = vc.get(5)
         height, width = (vc.get(4), vc.get(3))
-
-        last_center = None
+        dialog_last_center = None
         last_status = 0
-        pointer = match.get_resized_dialog_pointer(height, width)
+        dialog_pointer = match.get_resized_dialog_pointer(height, width)
+        dialog_data: list[dict] = []
+        dialog_total_count = len(dialog_data)
+        banner_data: list[dict] = []
+        banner_data_count = len(banner_data)
+        tag_data: list[dict] = []
+        tag_data_count = len(tag_data)
 
         if not self.dryrun:
             dialog_data: list[dict] = copy.deepcopy(self.json_data['TalkData'])
             dialog_total_count = len(dialog_data)
-        else:
-            dialog_data: list[dict] = []
-            dialog_total_count = len(dialog_data)
+            banner_data: list[dict] = [item for item in self.json_data['SpecialEffectData'] if item['EffectType'] == 8]
+            banner_data_count = len(banner_data)
+            tag_data: list[dict] = [item for item in self.json_data['SpecialEffectData'] if item['EffectType'] == 18]
+            tag_data_count = len(tag_data)
 
+        content_started = False
+
+        banner_events = []
+        banner_mask = reference.get_area_banner_mask(reference.get_area_mask_size((width, height)))
+        banner_mask_area = match.get_square_mask_area(height, width)
+        banner_data_processing = None
+        banner_processing_frames = []
+        banner_processed = 0
+        banner_last_result = False
+        banner_process_running = True
+
+        tag_events = []
+        tag_pattern = match.get_resized_area_tag(height, width)
+        tag_processing_frames = []
+        tag_data_processing = None
+        tag_processed_count = 0
+        tag_last_result = None
+        tag_process_running = True
         dialog_data_processing = None
         dialog_processing_frames = []
-        dialog_events = []
+        dialogs_events = []
 
         now_frame_count = 0
-        last_end_frame = None
-        last_end_event = None
-        constant_pc = None
+        dialog_last_end_frame = None
+        dialog_last_end_event = None
+        dialog_const_point_center = None
         dialog_processed = 0
-        running = True
+        dialog_process_running = True
+
+        self.emit({"total": self.VideoCapture.get(7)})
+
+        se_count = 0
+        banner_index = []
+        tag_index = []
+        dialog_index = []
+        td_count = 0
+        total_count = 0
+        if not self.dryrun:
+            for item in self.json_data.get("Snippets"):
+                if item["Action"] == 1:
+                    total_count += 1
+                    td_count += 1
+                    dialog_index.append(total_count - 1)
+                elif item["Action"] == 6:
+                    data = self.json_data["SpecialEffectData"][se_count]
+                    if data['EffectType'] == 8:
+                        total_count += 1
+                        banner_index.append(total_count - 1)
+                    elif data['EffectType'] == 18:
+                        total_count += 1
+                        tag_index.append(total_count - 1)
+                    se_count += 1
+        if not self.dryrun:
+            tag_process_running = bool(tag_data)
+            banner_process_running = bool(banner_data)
+            dialog_process_running = bool(dialog_data)
+
         while not self.stop:
-            frame = queue.get()
-            if isinstance(frame, numpy.ndarray):
-                if running:
-                    g_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                    pc = match.check_frame_pointer_position(g_frame, pointer, last_center)
-                    status = match.check_frame_dialog_status(g_frame, pointer, pc)
-                    if status in [1, 2]:
-                        dialog_processing_frames.append({"frame": now_frame_count, "point_center": pc})
-
-                    if status == 2 and not constant_pc:
-                        constant_pc = pc
-
-                    if status in [0, 1] and last_status == 2:  # End Dialog
-                        dialog_processed += 1
-                        if not self.dryrun and dialog_data_processing:
-                            events = self.dialog_make_sequence(
-                                dialog_processing_frames, dialog_data_processing, int(pointer.shape[0]),
-                                height, width, video_fps, last_end_frame, last_end_event)
-                            self.log(f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events, "
-                                     f"Remains {dialog_total_count - dialog_processed}/{dialog_total_count}")
-                        else:
-                            events = self.dialog_make_sequence(
-                                dialog_processing_frames, None, int(pointer.shape[0]),
-                                height, width, video_fps, last_end_frame, last_end_event)
-                            if self.dryrun:
-                                self.log(f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events")
-                                self.log("[Warning] No Data For This Dialog, Please Recheck")
-                            else:
-                                self.log(f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events")
-                                if len(events) > 2:
-                                    self.log(f"[Processing] Jitter Happened in a No-Json Task, Please Recheck")
-
-                        last_end_frame = dialog_processing_frames[-1]
-                        last_end_event = events[-1]
-                        dialog_events += events
-                        dialog_processing_frames = []
-                        dialog_data_processing = None
-
-                        if dialog_processed == dialog_total_count and not self.dryrun:
-                            running = False
-
-                    if not self.dryrun and not dialog_data_processing:
-                        try:
-                            dialog_data_processing = dialog_data.pop(0)
-                        except IndexError:
-                            dialog_data_processing = None
-
-                    last_status = status
-                    last_center = pc
-                now_frame_count += 1
-                del frame
-            else:
+            if not self.queue.empty():
+                self.set_stop()
                 break
+            ret, frame = vc.read()
+            if not ret:
+                break
+            if not content_started:
+                content_started = self.match_check_start(frame)
+            if content_started:
+                running_process_count = sum([dialog_process_running, banner_process_running, tag_process_running])
+                if running_process_count:
+                    with futures.ThreadPoolExecutor(running_process_count) as executor:
+                        future_tasks = []
+                        se_index_now = min(dialog_index[dialog_processed:] + banner_index[banner_processed:] +
+                                           tag_index[tag_processed_count:])
+                        if dialog_process_running:
+                            future = executor.submit(self.match_frame_dialog, frame, dialog_pointer,
+                                                     dialog_last_center)
+                            future_tasks.append(future)
+                        if banner_process_running:
+                            if not self.dryrun and (banner_index[banner_processed] != se_index_now):
+                                pass
+                            else:
+                                future = executor.submit(self.match_frame_banner, frame, banner_mask_area)
+                                future_tasks.append(future)
+                        if tag_process_running:
+                            if not self.dryrun and (tag_index[tag_processed_count] != se_index_now):
+                                pass
+                            else:
+                                future = executor.submit(self.match_frame_tag, frame, tag_pattern)
+                                future_tasks.append(future)
+
+                        task_iter = futures.as_completed(future_tasks)
+                        for future in task_iter:
+                            function_type, function_result = future.result()
+                            if function_type == "dialog":
+                                dialog_status, dialog_point_center = function_result
+                                if dialog_status in [1, 2]:
+                                    dialog_processing_frames.append(
+                                        {"frame": now_frame_count, "point_center": dialog_point_center})
+
+                                if dialog_status == 2 and not dialog_const_point_center:
+                                    dialog_const_point_center = dialog_point_center
+
+                                if dialog_status in [0, 1] and last_status == 2:  # End Dialog
+                                    dialog_processed += 1
+                                    if not self.dryrun and dialog_data_processing:
+                                        events = self.dialog_make_sequence(
+                                            dialog_processing_frames, dialog_data_processing,
+                                            int(dialog_pointer.shape[0]),
+                                            height, width, video_fps, dialog_last_end_frame, dialog_last_end_event)
+                                        self.log(
+                                            f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events, "
+                                            f"Remains {dialog_total_count - dialog_processed}/{dialog_total_count}")
+                                    else:
+                                        events = self.dialog_make_sequence(
+                                            dialog_processing_frames, None, int(dialog_pointer.shape[0]),
+                                            height, width, video_fps, dialog_last_end_frame, dialog_last_end_event)
+                                        if self.dryrun:
+                                            self.log(
+                                                f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events")
+                                            self.log("[Warning] No Data For This Dialog, Please Recheck")
+                                        else:
+                                            self.log(
+                                                f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events")
+                                            if len(events) > 2:
+                                                self.log(
+                                                    f"[Processing] Jitter Happened in a No-Json Task, Please Recheck")
+
+                                    dialog_last_end_frame = dialog_processing_frames[-1]
+                                    dialog_last_end_event = events[-1]
+                                    dialogs_events += events
+                                    dialog_processing_frames = []
+                                    dialog_data_processing = None
+
+                                    if dialog_processed == dialog_total_count and not self.dryrun:
+                                        dialog_process_running = False
+
+                                if not self.dryrun and not dialog_data_processing:
+                                    try:
+                                        dialog_data_processing = dialog_data.pop(0)
+                                    except IndexError:
+                                        dialog_data_processing = None
+
+                                last_status = dialog_status
+                                dialog_last_center = dialog_point_center
+                            elif function_type == "banner":
+                                banner_frame_result = function_result[0]
+                                if banner_frame_result:
+                                    content_started = True
+                                    banner_processing_frames.append(now_frame_count)
+
+                                if banner_last_result and not banner_frame_result:
+                                    banner_processed += 1
+
+                                    if self.dryrun:
+                                        events = self.area_banner_make_sequence(banner_processing_frames, None,
+                                                                                banner_mask,
+                                                                                video_fps)
+                                        self.log(
+                                            f"[Processing] Area Banner {banner_processed}: Output {len(events)} Events")
+                                    else:
+                                        events = self.area_banner_make_sequence(banner_processing_frames,
+                                                                                banner_data_processing,
+                                                                                banner_mask,
+                                                                                video_fps)
+                                        self.log(
+                                            f"[Processing] Area Banner {banner_processed}: Output {len(events)} Events, "
+                                            f"Remain {banner_data_count - banner_processed}/{banner_data_count}")
+
+                                    banner_events += events
+                                    banner_processing_frames = []
+                                    banner_data_processing = None
+
+                                    if not self.dryrun and banner_processed == banner_data_count:
+                                        banner_process_running = False
+
+                                if not self.dryrun and not banner_data_processing:
+                                    try:
+                                        banner_data_processing = banner_data.pop(0)
+                                    except IndexError:
+                                        banner_data_processing = None
+                                banner_last_result = banner_frame_result
+                            elif function_type == "tag":
+                                tag_frame_result = function_result[0]
+                                if tag_frame_result:
+                                    tag_processing_frames.append(
+                                        {"frame_id": now_frame_count, "position": tag_frame_result, "height": height,
+                                         "width": width}
+                                    )
+                                if tag_last_result and not tag_frame_result:
+                                    tag_processed_count += 1
+
+                                    if self.dryrun:
+                                        events = self.area_tag_make_sequence(None, height, width, video_fps,
+                                                                             tag_processing_frames)
+                                        self.log(
+                                            f"[Processing] Area Tag {tag_processed_count}: Output {len(events)} Events")
+                                    else:
+                                        events = self.area_tag_make_sequence(tag_data_processing, height, width,
+                                                                             video_fps,
+                                                                             tag_processing_frames)
+                                        self.log(
+                                            f"[Processing] Area Tag {tag_processed_count}: Output {len(events)} Events, "
+                                            f"Remain {tag_data_count - tag_processed_count}/{tag_data_count}")
+                                    tag_events += events
+                                    tag_processing_frames = []
+                                    tag_data_processing = None
+
+                                    if not self.dryrun and tag_processed_count == tag_data_count:
+                                        tag_process_running = False
+
+                                if not self.dryrun and not tag_data_processing:
+                                    try:
+                                        tag_data_processing = tag_data.pop(0)
+                                    except IndexError:
+                                        tag_data_processing = None
+                                tag_last_result = tag_frame_result
+            now_frame_count += 1
+            del frame
             self.emit({"done": 1, "time": time.time() - self.time_start})
 
         if not self.stop:
-            dialog_styles = self.dialog_make_styles(
-                point_center=constant_pc,
-                point_size=int(pointer.shape[0]),
-            )
-            for i in (dialog_events, dialog_styles):
-                results.append(i)
-            if self.dryrun:
-                self.log(f"[Processing] Dialog Matching Process Finished. Generated {len(dialog_events)} Events")
-            else:
-                self.log(
-                    "[Processing] Dialog Matching Process Finished" + (
-                        " But not Fully Matched" if dialog_data and not self.dryrun else ""))
+            dialog_styles = self.dialog_make_styles(dialog_const_point_center, int(dialog_pointer.shape[0]))
+            self.log("[Processing] Matching Process Finished")
+            if (not self.dryrun) and dialog_data + banner_data + tag_data:
+                recheck = []
+                if dialog_data:
+                    recheck.append("Dialog")
+                if banner_data:
+                    recheck.append("Banner")
+                if tag_data:
+                    recheck.append("Tag")
+                self.log("[Warning] Process Not Fully Matched in " + ",".join(recheck))
+            return dialogs_events, dialog_styles, banner_events, tag_events
+        else:
+            raise KeyboardInterrupt
 
     def dialog_make_styles(self, point_center, point_size: int):
         res = []
@@ -490,120 +671,6 @@ class SekaiJsonVideoProcess:
             masks.append(mask_data)
             return masks + dialogs
 
-    def area_match(self, queue: Queue, result: list):
-        vc = self.VideoCapture
-        video_fps = vc.get(5)
-        height, width = (vc.get(4), vc.get(3))
-
-        banner_data: list[dict] = []
-        banner_data_count = len(banner_data)
-        tag_data: list[dict] = []
-        tag_data_count = len(tag_data)
-        if not self.dryrun:
-            banner_data: list[dict] = [item for item in self.json_data['SpecialEffectData'] if item['EffectType'] == 8]
-            banner_data_count = len(banner_data)
-            tag_data: list[dict] = [item for item in self.json_data['SpecialEffectData'] if item['EffectType'] == 18]
-            tag_data_count = len(tag_data)
-
-        content_started = False
-        now_frame_count = 0
-
-        banner_events = []
-        banner_mask = reference.get_area_banner_mask(reference.get_area_mask_size((width, height)))
-        banner_mask_area = match.get_square_mask_area(height, width)
-        banner_data_processing = None
-        banner_processing_frames = []
-        banner_processed = 0
-        banner_last_result = False
-        banner_process_running = True
-
-        tag_events = []
-        tag_pattern = match.get_resized_area_tag(height, width)
-        tag_processing_frames = []
-        tag_data_processing = None
-        tag_processed_count = 0
-        tag_last_result = None
-        tag_process_running = True
-
-        while not self.stop:
-            frame = queue.get()
-            if isinstance(frame, numpy.ndarray):
-                if banner_process_running:
-                    frame_result: bool = match.check_frame_area_mask(frame, banner_mask_area, content_started)
-                    if frame_result:
-                        content_started = True
-                        banner_processing_frames.append(now_frame_count)
-
-                    if banner_last_result and not frame_result:
-                        banner_processed += 1
-
-                        if self.dryrun:
-                            events = self.area_banner_make_sequence(banner_processing_frames, None, banner_mask,
-                                                                    video_fps)
-                            self.log(f"[Processing] Area Banner {banner_processed}: Output {len(events)} Events")
-                        else:
-                            events = self.area_banner_make_sequence(banner_processing_frames, banner_data_processing,
-                                                                    banner_mask,
-                                                                    video_fps)
-                            self.log(f"[Processing] Area Banner {banner_processed}: Output {len(events)} Events, "
-                                     f"Remain {banner_data_count - banner_processed}/{banner_data_count}")
-
-                        banner_events += events
-                        banner_processing_frames = []
-                        banner_data_processing = None
-
-                        if not self.dryrun and banner_processed == banner_data_count:
-                            banner_process_running = False
-
-                    if not self.dryrun and not banner_data_processing:
-                        try:
-                            banner_data_processing = banner_data.pop(0)
-                        except IndexError:
-                            banner_data_processing = None
-                    banner_last_result = frame_result
-                if tag_process_running:
-                    tag_frame_result = match.check_area_tag_position(frame, tag_pattern)
-                    if tag_frame_result:
-                        tag_processing_frames.append(
-                            {"frame_id": now_frame_count, "position": tag_frame_result, "height": height,
-                             "width": width}
-                        )
-                    if tag_last_result and not tag_frame_result:
-                        tag_processed_count += 1
-
-                        if self.dryrun:
-                            events = self.area_tag_make_sequence(None, height, width, video_fps, tag_processing_frames)
-                            self.log(f"[Processing] Area Tag {tag_processed_count}: Output {len(events)} Events")
-                        else:
-                            events = self.area_tag_make_sequence(tag_data_processing, height, width, video_fps,
-                                                                 tag_processing_frames)
-                            self.log(f"[Processing] Area Tag {tag_processed_count}: Output {len(events)} Events, "
-                                     f"Remain {tag_data_count - tag_processed_count}/{tag_data_count}")
-                        tag_events += events
-                        tag_processing_frames = []
-                        tag_data_processing = None
-
-                        if not self.dryrun and tag_processed_count == tag_data_count:
-                            tag_process_running = False
-
-                    if not self.dryrun and not tag_data_processing:
-                        try:
-                            tag_data_processing = tag_data.pop(0)
-                        except IndexError:
-                            tag_data_processing = None
-                    tag_last_result = tag_frame_result
-                del frame
-                now_frame_count += 1
-            else:
-                break
-            self.emit({"done": 1, "time": time.time() - self.time_start})
-        if not self.stop:
-            result.append(banner_events)
-            result.append(tag_events)
-            self.log(
-                "[Processing] Area Info Matching Process Finished" +
-                (" But not Fully Matched" if (not self.dryrun) and (banner_data or tag_data) else ""))
-
     @staticmethod
     def area_banner_make_sequence(frame_array: list[int], area_info: dict | None, area_mask, fps):
         events = []
@@ -668,59 +735,6 @@ class SekaiJsonVideoProcess:
         events_mask.append(mask_event_data)
         return events_mask + events_body
 
-    def queue_video_frame(self, queue_array: list[Queue]):
-        self.emit({"total": 2 * self.VideoCapture.get(7)})
-        vc = cv2.VideoCapture(self.video_file)
-        vc_status = 1
-        while True:
-            ram_use_process = psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024
-            ram_use_total = psutil.virtual_memory().percent
-            if ram_use_process < self.ram_max and ram_use_total < 90 and vc_status:
-                ret, frame = (vc.read())
-                if ret:
-                    for queue in queue_array:
-                        queue.put(frame)
-                else:
-                    vc_status = 0
-            else:
-                gc.collect()
-            if not vc_status:
-                break
-            if not self.queue.empty():
-                self.set_stop()
-                break
-
-        vc.release()
-        for queue in queue_array:
-            queue.put(False)
-
-    def process(self):
-        from threading import Thread
-        dialog_match_result = []
-        area_match_result = []
-        dialog_frame_queue = Queue()
-        area_frame_queue = Queue()
-        queue_array = [dialog_frame_queue, area_frame_queue]
-
-        thread_read_video = Thread(target=self.queue_video_frame, args=(queue_array,))
-        dialog_match_thread = Thread(target=self.dialog_match, args=(dialog_frame_queue, dialog_match_result,))
-        area_match_thread = Thread(target=self.area_match, args=(area_frame_queue, area_match_result,))
-
-        thread_read_video.start()
-        dialog_match_thread.start()
-        area_match_thread.start()
-
-        dialog_match_thread.join()
-        area_match_thread.join()
-        thread_read_video.join()
-
-        if self.stop:
-            raise KeyboardInterrupt
-        else:
-            [dialogs_events, dialog_styles] = dialog_match_result
-            [banner_events, tag_events] = area_match_result
-            return dialogs_events, dialog_styles, banner_events, tag_events
-
     def run(self):
         self.time_start = time.time()
         self.log(f"[Processing] Start Processing {os.path.split(self.video_file)[-1]}")
@@ -729,12 +743,9 @@ class SekaiJsonVideoProcess:
         video_height = self.VideoCapture.get(4)
         video_width = self.VideoCapture.get(3)
         try:
-            dialogs_events, dialog_styles, banner_events, tag_events = self.process()
-
+            dialogs_events, dialog_styles, banner_events, tag_events = self.match()
         except KeyboardInterrupt:
-            self.log(f"[Terminated] Process Terminated Prematurely By User")
-            self.log(f"[Terminated] No File Changed")
-
+            self.log(f"[Terminated] Process Terminated Prematurely By User,No File Changed")
         except Exception as e:
             self.log(f"[Error] {e}")
             self.emit(4)
@@ -765,21 +776,17 @@ class SekaiJsonVideoProcess:
             subtitle = Subtitle(res)
             if os.path.exists(self.output_path):
                 if self.overwrite:
-                    self.log("[Output] File Exists,Removed")
                     os.remove(self.output_path)
-                    self.log(f"[Success] Existing output files with the same name have been purged {self.output_path}")
+                    self.log(f"[Output] Existing output files with the same name have been purged")
                 else:
                     raise FileExistsError
 
             with open(self.output_path, 'w', encoding='utf8') as fp:
                 fp.write(subtitle.string)
 
-            time_end = time.time()
-
-            self.log(f"[Success] Output into {os.path.realpath(self.output_path)}")
-            self.log(f"[Success] Make ASS File Succeeded, Used {time_end - self.time_start:.2f}s")
+            self.log(f"[Success] File Exported to {os.path.realpath(self.output_path)} Successfully")
             if self.signal:
                 self.emit(True)
-                self.emit({"done": 1, "time": time.time() - self.time_start})
+                self.emit({"done": 1, "end": True, "time": time.time() - self.time_start})
                 self.emit(2)
         self.VideoCapture.release()

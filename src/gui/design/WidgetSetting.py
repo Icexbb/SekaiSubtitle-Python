@@ -187,25 +187,6 @@ class Ui_Form(object):
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_11)
 
-        self.horizontalLayout_8 = QHBoxLayout()
-        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
-        self.horizontalLayout_8.setContentsMargins(5, 5, 5, 5)
-        self.label_6 = QLabel(self.scrollAreaWidgetContents)
-        self.label_6.setObjectName(u"label_6")
-        self.label_6.setTextFormat(Qt.PlainText)
-
-        self.horizontalLayout_8.addWidget(self.label_6)
-
-        self.SettingRamMaxUse = QLineEdit(self.scrollAreaWidgetContents)
-        self.SettingRamMaxUse.setObjectName(u"SettingRamMaxUse")
-
-        self.horizontalLayout_8.addWidget(self.SettingRamMaxUse)
-
-        self.horizontalLayout_8.setStretch(0, 1)
-        self.horizontalLayout_8.setStretch(1, 3)
-
-        self.verticalLayout_3.addLayout(self.horizontalLayout_8)
-
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout_3.addItem(self.verticalSpacer)
@@ -250,7 +231,6 @@ class Ui_Form(object):
         self.SettingStartImmediateCheck.setText("")
         self.label_8.setText(QCoreApplication.translate("Form", u"\u81ea\u52a8\u8c03\u6574\u7a97\u53e3", None))
         self.SettingStartAdjustWindowCheck.setText("")
-        self.label_6.setText(QCoreApplication.translate("Form", u"\u6700\u5927\u5185\u5b58\u7528\u91cf(MB)", None))
         self.pushButton.setText(QCoreApplication.translate("Form", u"\u5e94\u7528", None))
     # retranslateUi
 

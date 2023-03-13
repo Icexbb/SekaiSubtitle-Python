@@ -23,7 +23,7 @@ from gui.widgets.widget_translate import TranslateWidget
 EXIT_CODE_REBOOT = -11231351
 
 PROGRAM_NAME = "Sekai Subtitle"
-VERSION = "v0.5.1-rc1"
+VERSION = "v0.6.0"
 
 
 class MainUi(FramelessMainWindow, Ui_MainWindow):
@@ -203,10 +203,6 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
     @property
     def font(self):
         return QFont(self.FormSettingWidget.get_config()["font"]).family()
-
-    @property
-    def max_ram(self):
-        return int(self.FormSettingWidget.get_config()["ram"])
 
     @property
     def choose_file_root(self):

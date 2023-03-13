@@ -116,6 +116,14 @@ class Ui_ProgressBarWidget(object):
 
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.GraphLayoutWidget = QWidget(self.MainFrame)
+        self.GraphLayoutWidget.setObjectName(u"GraphLayoutWidget")
+        self.GraphLayoutWidget.setMaximumSize(QSize(200, 16777215))
+        self.GraphLayout = QHBoxLayout(self.GraphLayoutWidget)
+        self.GraphLayout.setObjectName(u"GraphLayout")
+
+        self.horizontalLayout_2.addWidget(self.GraphLayoutWidget)
+
         self.StatusLogList = QListWidget(self.MainFrame)
         self.StatusLogList.setObjectName(u"StatusLogList")
         sizePolicy4 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Minimum)

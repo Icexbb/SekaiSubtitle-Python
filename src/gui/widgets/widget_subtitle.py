@@ -37,14 +37,14 @@ class TaskAcceptWidget(QtWidgets.QWidget, Ui_AccWidget):
 
     def dragEnterEvent(self, event: QtGui.QDragEnterEvent) -> None:
         path = event.mimeData().text()
-        if path.endswith((".mp4", ".mkv", ".wmv", ".avi", ".json", ".asset", ".txt",".yml")):
+        if path.endswith((".mp4", ".mkv", ".wmv", ".avi", ".json", ".asset", ".txt", ".yml")):
             event.accept()
         else:
             event.ignore()
 
     def dropEvent(self, event: QtGui.QDropEvent):
         path = event.mimeData().text().removeprefix('file:///')
-        if path.endswith((".mp4", ".mkv", ".wmv", ".avi", ".json", ".asset", ".txt",".yml")):
+        if path.endswith((".mp4", ".mkv", ".wmv", ".avi", ".json", ".asset", ".txt", ".yml")):
             self.queue.put(path)
 
     def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
@@ -139,6 +139,7 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
             item: ListWidgetItem = self.ProcessingListWidget.item(i)
             for bar in self.bars:
                 if bar.id == item.id:
+                    bar.setFixedSize(bar.size() + add_width)
                     item.setSizeHint(bar.size() + QtCore.QSize(-60, 0) + add_width)
 
     def start_all(self):

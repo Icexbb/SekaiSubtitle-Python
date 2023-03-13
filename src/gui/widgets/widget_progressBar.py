@@ -1,5 +1,7 @@
 import os.path
 
+import numpy as np
+import pyqtgraph as pg
 from PySide6 import QtWidgets, QtCore
 
 from gui.design.WidgetProcessBar import Ui_ProgressBarWidget
@@ -11,6 +13,7 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
 
     def __init__(self, parent, data):
         super().__init__()
+        self.GraphWidget = None
         self.id = f"{hash(self)}"
         self.processing = False
         self.setupUi(self)
@@ -39,17 +42,38 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
         self.timer = QtCore.QTimer(self)
         self.signal.connect(self.parent.ProcessSignalFromChild)
         self.LogShowButton.clicked.connect(self.showLog)
-        self.logShowing = False
-        self.setFixedHeight(100)
+        self.logShowing = True
+        self.time_frame_array = []
+        self.fps_list = []
+        self.setupPlot()
+        self.showLog()
+
+    def setupPlot(self):
+        self.GraphWidget = pg.PlotWidget(self)
+        self.GraphWidget.setBackground('w')
+        self.GraphWidget.enableMouse(False)
+        self.GraphWidget.clearMouse()
+        self.GraphLayout.addWidget(self.GraphWidget)
+
+    def updatePlot(self, limit: int = 0):
+        self.GraphWidget.clear()
+        values = self.fps_list[-max(limit, 1):]
+        values_2 = self.fps_list[-max(limit * 2, 1):]
+        self.GraphWidget.setYRange(max(0, min(values_2) - 20), max(values_2) + 20)
+        x = np.linspace(max(1, len(self.fps_list) - len(values)), len(self.fps_list) + 1, len(values) + 1)
+        pen = pg.mkPen(width=1, color='b')
+        self.GraphWidget.plot(x, values, stepMode="center", pen=pen)
 
     def showLog(self):
         self.logShowing = not self.logShowing
         if self.logShowing:
             self.setFixedHeight(200)
             self.LogShowButton.setText("∧")
+            self.GraphWidget.setHidden(False)
         else:
             self.setFixedHeight(100)
             self.LogShowButton.setText("<")
+            self.GraphWidget.setHidden(True)
         self.signal.emit({"id": self.id, 'data': self.size()})
 
     def toggle_process(self):
@@ -65,7 +89,7 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
             self.pause_process()
 
     def pause_process(self):
-        self.Thread.signal_stop.emit(True)
+        self.Thread.signal_stop.emit()
         self.Thread.signal_data.emit({"type": "stop", "data": None})
         self.signal_process({"type": int, "data": 0})
         self.signal_process({"type": bool, "data": False})
@@ -82,13 +106,10 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
 
     def signal_process(self, msg):
         if msg['type'] == str:
-            pass
-            # self.StatusLog.setText(msg['data'])
             new_item = QtWidgets.QListWidgetItem()
             new_item.setText(msg['data'])
             self.StatusLogList.addItem(new_item)
             self.StatusLogList.scrollToItem(new_item)
-            # self.strings.append(msg['data'] + "\n")
         elif msg['type'] == int:
             data = msg['data']
             if data == 0:
@@ -99,7 +120,6 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
                 self.processing = True
                 self.TaskStatus.setText("处理中")
                 self.ProgressBar.setStyleSheet("")
-
             elif data == 2:
                 self.processing = False
                 self.TaskStatus.setText("已完成")
@@ -116,23 +136,38 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
         elif msg['type'] == bool:
             if msg['data']:
                 self.ProgressBar.setValue(self.ProgressBar.maximum() - 1)
-
             else:
                 self.ProgressBar.setMaximum(0)
                 self.ProgressBar.setValue(0)
         elif msg['type'] == "stop":
-            pass
+            self.fps_list.clear()
+            self.time_frame_array.clear()
         else:
             data = msg['data']
             if s := data.get("total"):
                 self.ProgressBar.setMaximum(self.ProgressBar.maximum() + s)
             if data.get("done"):
                 self.ProgressBar.setValue(self.ProgressBar.value() + 1)
-                time_spend = data.get("time")
                 percent = self.ProgressBar.value() / (self.ProgressBar.maximum() or 1) * 100
-                fps = self.ProgressBar.value() / (time_spend or 1)
-                eta = (self.ProgressBar.maximum() - self.ProgressBar.value()) / (fps or 1)
-                self.PercentLabel.setText(f"FPS: {fps / 2:.1f} ETA: {eta:.1f}s {percent:.1f}%")
+
+                time_spend = data.get("time")
+                self.time_frame_array.append(time_spend)
+
+                compare_frame = max(len(self.time_frame_array) - 10, 0)
+                compare_time = time_spend - self.time_frame_array[compare_frame]
+
+                fps = (len(self.time_frame_array) - compare_frame) / (
+                        time_spend - self.time_frame_array[compare_frame]) if compare_time else 0
+                speed = self.ProgressBar.value() / (time_spend or 1)
+                eta = (self.ProgressBar.maximum() - self.ProgressBar.value()) / (speed or 1)
+                self.fps_list.append(fps)
+
+                if data.get("end"):
+                    self.updatePlot()
+                    self.PercentLabel.setText(f"FPS: {speed:.1f} USE: {time_spend:.1f}s {percent:.1f}%")
+                else:
+                    self.updatePlot(min(1000, int(self.ProgressBar.maximum() / 20)))
+                    self.PercentLabel.setText(f"FPS: {fps:.1f} ETA: {eta:.1f}s {percent:.1f}%")
                 if not self.processing:
                     self.PercentLabel.setText("")
 
