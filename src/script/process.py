@@ -323,8 +323,9 @@ class SekaiJsonVideoProcess:
                 if running_process_count:
                     with futures.ThreadPoolExecutor(running_process_count) as executor:
                         future_tasks = []
-                        se_index_now = min(dialog_index[dialog_processed:] + banner_index[banner_processed:] +
-                                           tag_index[tag_processed_count:])
+                        if not self.dryrun:
+                            se_index_now = min(dialog_index[dialog_processed:] + banner_index[banner_processed:] +
+                                               tag_index[tag_processed_count:])
                         if dialog_process_running:
                             future = executor.submit(self.match_frame_dialog, frame, dialog_pointer,
                                                      dialog_last_center)
