@@ -22,7 +22,7 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
         self.ProgressBar.setMaximum(0)
         self.StartButton.clicked.connect(self.toggle_process)
         self.DeleteButton.clicked.connect(self.delete_process)
-
+        self.typer_interval = self.parent.parent.typer_interval
         self.taskInfo: dict = data
         self.video = self.taskInfo.get("video")
         self.font = self.taskInfo.get("font")
@@ -79,7 +79,7 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
     def toggle_process(self):
         if not self.processing:
             self.Thread = VideoProcessThread(self, self.video, self.json, self.translate, self.font, self.dryrun,
-                                             self.staff)
+                                             self.staff, self.typer_interval)
             self.Thread.signal_data.connect(self.signal_process)
             self.StartButton.setStyleSheet("background-color:rgb(255,255,100);")
             self.StatusLogList.clear()

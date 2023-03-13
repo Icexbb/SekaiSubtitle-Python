@@ -194,23 +194,27 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
 
     @property
     def proxy(self):
-        return self.FormSettingWidget.get_config()["proxy"]
+        return self.FormSettingWidget.get_config("proxy")
 
     @property
     def immediate_start(self):
-        return self.FormSettingWidget.get_config()["start_immediate"]
+        return self.FormSettingWidget.get_config("start_immediate")
 
     @property
     def font(self):
-        return QFont(self.FormSettingWidget.get_config()["font"]).family()
+        return QFont(self.FormSettingWidget.get_config('font')).family()
 
     @property
     def choose_file_root(self):
-        return str(self.FormSettingWidget.get_config()["last_dir"])
+        return str(self.FormSettingWidget.get_config("last_dir"))
 
     @property
     def adjust_window(self):
-        return bool(self.FormSettingWidget.get_config()["adjust_window"])
+        return bool(self.FormSettingWidget.get_config("adjust_window"))
+
+    @property
+    def typer_interval(self):
+        return int(self.FormSettingWidget.get_config("typer_interval"))
 
     @choose_file_root.setter
     def choose_file_root(self, value: str):

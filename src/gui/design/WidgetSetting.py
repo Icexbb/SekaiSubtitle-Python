@@ -24,7 +24,7 @@ class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(418, 348)
+        Form.resize(418, 463)
         Form.setStyleSheet(u"QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:20px;}\n"
 "                QScrollArea{background-color: transparent;}\n"
 "                QWidget#scrollAreaWidgetContents{background-color: transparent;}\n"
@@ -51,7 +51,7 @@ class Ui_Form(object):
         self.scrollArea.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 400, 281))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 400, 396))
         self.verticalLayout_3 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.horizontalLayout_2 = QHBoxLayout()
@@ -220,6 +220,27 @@ class Ui_Form(object):
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_11)
 
+        self.horizontalLayout_9 = QHBoxLayout()
+        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
+        self.horizontalLayout_9.setContentsMargins(5, 5, 5, 5)
+        self.label_7 = QLabel(self.scrollAreaWidgetContents)
+        self.label_7.setObjectName(u"label_7")
+
+        self.horizontalLayout_9.addWidget(self.label_7)
+
+        self.SettingTyperSpin = QSpinBox(self.scrollAreaWidgetContents)
+        self.SettingTyperSpin.setObjectName(u"SettingTyperSpin")
+        self.SettingTyperSpin.setMaximum(1000)
+        self.SettingTyperSpin.setSingleStep(10)
+        self.SettingTyperSpin.setValue(80)
+
+        self.horizontalLayout_9.addWidget(self.SettingTyperSpin)
+
+        self.horizontalLayout_9.setStretch(0, 1)
+        self.horizontalLayout_9.setStretch(1, 3)
+
+        self.verticalLayout_3.addLayout(self.horizontalLayout_9)
+
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout_3.addItem(self.verticalSpacer)
@@ -269,6 +290,7 @@ class Ui_Form(object):
         self.SettingStartImmediateCheck.setText("")
         self.label_8.setText(QCoreApplication.translate("Form", u"\u81ea\u52a8\u8c03\u6574\u7a97\u53e3", None))
         self.SettingStartAdjustWindowCheck.setText("")
+        self.label_7.setText(QCoreApplication.translate("Form", u"\u6253\u5b57\u673a\u95f4\u9694", None))
         self.pushButton.setText(QCoreApplication.translate("Form", u"\u5e94\u7528", None))
     # retranslateUi
 

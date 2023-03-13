@@ -31,7 +31,8 @@ class SekaiJsonVideoProcess:
             queue_in: Queue = Queue(),
             font_custom: str = None,
             use_no_json_file: bool = False,
-            staff: list[dict] = None
+            staff: list[dict] = None,
+            typer_interval: int = 80
     ):
         self.time_start = time.time()
         self.json_data = None
@@ -39,6 +40,7 @@ class SekaiJsonVideoProcess:
         self.signal = signal
         self.dryrun = use_no_json_file
         self.staff = staff or []
+        self.typer_interval = typer_interval
 
         self.video_file = video_file
         if not os.path.exists(self.video_file):
@@ -514,11 +516,13 @@ class SekaiJsonVideoProcess:
         return_count = 0
         for index, char in enumerate(body_list):
             return_count += 1 if char == "\n" else 0
-
-            res.append(
-                rf"{{\alphaFF\t({char_interval * (index * 2 + 1) + return_count * 300},"
-                rf"{char_interval * (index * 2 + 2) + return_count * 300},1,\alpha0)}}"
-                + (char if char != "\n" else r"\N"))
+            if char_interval:
+                res.append(
+                    rf"{{\alphaFF\t({char_interval * (index * 2 + 1) + return_count * 300},"
+                    rf"{char_interval * (index * 2 + 2) + return_count * 300},1,\alpha0)}}"
+                    + (char if char != "\n" else r"\N"))
+            else:
+                res.append(char if char != "\n" else r"\N")
         return "".join(res)
 
     @staticmethod
@@ -545,11 +549,14 @@ class SekaiJsonVideoProcess:
                 if not is_trans_now:
                     add_trans = trans_alpha_string
                     is_trans_now = True
-            res.append(add_trans + n_char)
+            if char_interval:
+                res.append(add_trans + n_char)
+            else:
+                res.append(n_char)
         return "".join(res)
 
-    @staticmethod
     def dialog_make_sequence(
+            self,
             dialog_frames: list[dict], dialog_data: dict | None,
             point_size: int, video_height: int, video_width: int,
             fps: float = 60, last_dialog_frame: dict = None, last_dialog_event: dict = None
@@ -576,7 +583,7 @@ class SekaiJsonVideoProcess:
                 if start_frame['frame'] - last_dialog_frame['frame'] <= 1:
                     start_time = last_dialog_event['End']
             if dialog_data:
-                dialog_body = SekaiJsonVideoProcess.dialog_body_typer(dialog_data["Body"], 50)
+                dialog_body = self.dialog_body_typer(dialog_data["Body"], self.typer_interval)
             else:
                 dialog_body = ""
             event_data = {
@@ -607,8 +614,8 @@ class SekaiJsonVideoProcess:
                        f"{int(frame['point_center'][1] + 1.25 * point_size)}" \
                        r")}"
                 if dialog_data:
-                    dialog_body = SekaiJsonVideoProcess.dialog_body_typer_calculater(
-                        dialog_data["Body"], index, frame_time, 50)
+                    dialog_body = self.dialog_body_typer_calculater(
+                        dialog_data["Body"], index, frame_time, self.typer_interval)
                 else:
                     dialog_body = ""
 

@@ -86,11 +86,12 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         animated = self.SettingAnimatedCheck.isChecked()
         update = self.SettingStartupUpdateCheck.isChecked()
         adjust_window = self.SettingStartAdjustWindowCheck.isChecked()
-
+        typer_interval = self.SettingTyperSpin.value()
         config = {
             "proxy": proxy, "font": font.toString(), "start_immediate": start_immediate, "chibi": chibi,
             "animated": animated, "update": update, "last_dir": self.last_dir,
-            "adjust_window": adjust_window}
+            "adjust_window": adjust_window, "typer_interval": typer_interval
+        }
         save_json(self.config_file, config)
 
     def change_config(self):
@@ -123,6 +124,8 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
             self.SettingStartAdjustWindowCheck.setChecked(config["adjust_window"])
         else:
             self.SettingStartAdjustWindowCheck.setChecked(True)
+        if "typer_interval" in config:
+            self.SettingTyperSpin.setValue(config["typer_interval"])
 
     def get_config(self, config_field=None) -> dict | str:
         config = read_json(self.config_file)
