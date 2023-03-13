@@ -108,6 +108,27 @@ class Ui_Form(object):
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_2)
 
+        self.horizontalLayout_10 = QHBoxLayout()
+        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
+        self.horizontalLayout_10.setContentsMargins(5, 5, 5, 5)
+        self.label_9 = QLabel(self.scrollAreaWidgetContents)
+        self.label_9.setObjectName(u"label_9")
+
+        self.horizontalLayout_10.addWidget(self.label_9)
+
+        self.SettingTimeoutSpin = QSpinBox(self.scrollAreaWidgetContents)
+        self.SettingTimeoutSpin.setObjectName(u"SettingTimeoutSpin")
+        self.SettingTimeoutSpin.setMaximum(60)
+        self.SettingTimeoutSpin.setSingleStep(1)
+        self.SettingTimeoutSpin.setValue(15)
+
+        self.horizontalLayout_10.addWidget(self.SettingTimeoutSpin)
+
+        self.horizontalLayout_10.setStretch(0, 1)
+        self.horizontalLayout_10.setStretch(1, 3)
+
+        self.verticalLayout_3.addLayout(self.horizontalLayout_10)
+
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(5, 5, 5, 5)
@@ -281,6 +302,7 @@ class Ui_Form(object):
         self.SettingProxyTypeCombo.setItemText(2, QCoreApplication.translate("Form", u"socks5://", None))
 
         self.label_6.setText(QCoreApplication.translate("Form", u":", None))
+        self.label_9.setText(QCoreApplication.translate("Form", u"\u4e0b\u8f7d\u8d85\u65f6(s)", None))
         self.label.setText(QCoreApplication.translate("Form", u"\u81ea\u5b9a\u4e49\u5b57\u4f53", None))
         self.label_4.setText(QCoreApplication.translate("Form", u"\u4e3b\u754c\u9762\u5c0f\u4eba", None))
         self.SettingAnimatedCheck.setText(QCoreApplication.translate("Form", u"\u4f7f\u7528\u52a8\u753b", None))

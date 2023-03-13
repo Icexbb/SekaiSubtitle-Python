@@ -23,7 +23,7 @@ from gui.widgets.widget_translate import TranslateWidget
 EXIT_CODE_REBOOT = -11231351
 
 PROGRAM_NAME = "Sekai Subtitle"
-VERSION = "v0.6.0"
+VERSION = "v0.6.5"
 
 
 class MainUi(FramelessMainWindow, Ui_MainWindow):
@@ -215,6 +215,10 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
     @property
     def typer_interval(self):
         return int(self.FormSettingWidget.get_config("typer_interval"))
+
+    @property
+    def download_timeout(self):
+        return int(self.FormSettingWidget.get_config("download_timeout"))
 
     @choose_file_root.setter
     def choose_file_root(self, value: str):

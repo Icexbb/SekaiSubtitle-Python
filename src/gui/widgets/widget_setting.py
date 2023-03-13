@@ -29,6 +29,7 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         self.SettingAnimatedCheck.setChecked(False)
         self.SettingAnimatedCheck.setEnabled(False)
         self.save_config()
+        self.setProxyState()
 
     @property
     def last_dir(self):
@@ -55,19 +56,20 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
 
     @proxy.setter
     def proxy(self, value):
-        s = re.match(r'(?P<type>socks5:\/\/|http:\/\/)'
-                     r'(?P<host>(([a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?)|'
-                     r'((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]\d)|\d)(\.((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]\d)|\d)){3}))'
-                     r':(?P<port>\d{1,5})', value)
-        if s:
-            p_port = int(s.group("port"))
-            p_host = s.group("host")
-            p_type = s.group('type')
-            self.SettingProxyEdit.setText(p_host)
-            self.SettingProxyHostSpin.setValue(p_port)
-            self.SettingProxyTypeCombo.setCurrentText(p_type)
-        else:
-            raise ValueError("Proxy Not Match Pattern")
+        if value:
+            s = re.match(r'(?P<type>socks5:\/\/|http:\/\/)'
+                         r'(?P<host>(([a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?)|'
+                         r'((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]\d)|\d)(\.((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]\d)|\d)){3}))'
+                         r':(?P<port>\d{1,5})', value)
+            if s:
+                p_port = int(s.group("port"))
+                p_host = s.group("host")
+                p_type = s.group('type')
+                self.SettingProxyEdit.setText(p_host)
+                self.SettingProxyHostSpin.setValue(p_port)
+                self.SettingProxyTypeCombo.setCurrentText(p_type)
+            else:
+                raise ValueError("Proxy Not Match Pattern")
 
     def load_chibi(self):
         icon_path = "asset/chibi"
@@ -87,10 +89,11 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         update = self.SettingStartupUpdateCheck.isChecked()
         adjust_window = self.SettingStartAdjustWindowCheck.isChecked()
         typer_interval = self.SettingTyperSpin.value()
+        download_timeout = self.SettingTimeoutSpin.value()
         config = {
             "proxy": proxy, "font": font.toString(), "start_immediate": start_immediate, "chibi": chibi,
             "animated": animated, "update": update, "last_dir": self.last_dir,
-            "adjust_window": adjust_window, "typer_interval": typer_interval
+            "adjust_window": adjust_window, "typer_interval": typer_interval, "download_timeout": download_timeout
         }
         save_json(self.config_file, config)
 
@@ -126,6 +129,10 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
             self.SettingStartAdjustWindowCheck.setChecked(True)
         if "typer_interval" in config:
             self.SettingTyperSpin.setValue(config["typer_interval"])
+        if "download_timeout" in config:
+            self.SettingTimeoutSpin.setValue(config.get("download_timeout"))
+        else:
+            self.SettingTimeoutSpin.setValue(15)
 
     def get_config(self, config_field=None) -> dict | str:
         config = read_json(self.config_file)

@@ -4,25 +4,26 @@ import urllib.parse
 from urllib import parse
 
 from PySide6 import QtNetwork, QtCore, QtWidgets
-from PySide6.QtCore import SIGNAL
+from PySide6.QtCore import SIGNAL, Signal
 
 from gui.design.WidgetDataDownload import Ui_DownloadWidget
 from script.data import chara_name, areaDict, characterDict
 from script.tools import save_json, read_json
 
 
-class NetworkAccessManager(QtNetwork.QNetworkAccessManager):
-    def __init__(self, proxy_addr):
+class DownloadThread(QtCore.QThread):
+    signal_success = Signal()
+    signal_timeout = Signal()
+
+    def __init__(self, url, timeout):
         super().__init__()
-        self.proxy_addr = proxy_addr
-        if self.proxy_addr:
-            proxy_parse = parse.urlparse(self.proxy_addr)
-            if proxy_parse.scheme in ["http", "https"]:
-                proxy_type = QtNetwork.QNetworkProxy.ProxyType.HttpProxy
-            else:
-                proxy_type = QtNetwork.QNetworkProxy.ProxyType.Socks5Proxy
-            proxy = QtNetwork.QNetworkProxy(proxy_type, proxy_parse.hostname, proxy_parse.port)
-            self.setProxy(proxy)
+        self.url = url
+        self.timeout = timeout
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(lambda x: print(x))
+
+    def run(self) -> None:
+        pass
 
 
 class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
@@ -31,7 +32,8 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
         self.receive_data = None
         self.downloadState = None
         self.setupUi(self)
-        self.parent = parent
+        from gui.gui_main import MainUi
+        self.parent: MainUi = parent
         self.root = os.getcwd()
 
         self.download_url = None
@@ -48,11 +50,19 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
         self.msgbox.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
         self.change_source()
         self.tree_updater = QtNetwork.QNetworkAccessManager()
+        self.tree_updater.setTransferTimeout(self.parent.download_timeout * 1000)
         self.connect(self.tree_updater, SIGNAL("finished(QNetworkReply*)"), self.received_list_part)
+        # self.connect(self.tree_updater, SIGNAL("NetworkError(QNetworkReply*)"), self.error_handle)
         self.downloader = QtNetwork.QNetworkAccessManager()
+        self.downloader.setTransferTimeout(self.parent.download_timeout * 1000)
         self.connect(self.downloader, SIGNAL("finished(QNetworkReply*)"), self.received_acquired_data)
+
         source = self.DataSourceBox.currentIndex()
         self.update_tree("pjsekai" if source else "best")
+        self.d = DownloadThread(None, 5)
+        if self.nam_proxy:
+            self.tree_updater.setProxy(self.nam_proxy)
+            self.downloader.setProxy(self.nam_proxy)
 
     @property
     def proxy(self) -> str:
@@ -104,10 +114,6 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
                 do_request(url)
 
         def do_request(url):
-            if p := self.nam_proxy:
-                self.tree_updater.setProxy(p)
-            else:
-                self.tree_updater.setProxy()
             self.tree_updater.get(QtNetwork.QNetworkRequest(QtCore.QUrl(url)))
 
         self.SavePlaceLabel.setText("获取中")
@@ -140,10 +146,11 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
                 if "data" in data:
                     data = data['data']
                 save_json(filepath, data)
-                self.SavePlaceLabel.setText(f"Data List Part Saved\n{filepath}")
+                self.SavePlaceLabel.setText(f"列表信息已保存\n路径：{filepath}")
                 self.update_tree(source_type)
             else:
-                self.SavePlaceLabel.setText(f"Error occured When Acquiring {file}: {er} \n{reply.errorString()}")
+                self.SavePlaceLabel.setText(
+                    f"在下载{file}时发生了错误: {er} \n{reply.errorString()} 请尝试修改代理或超时时间")
         except json.decoder.JSONDecodeError:
             pass
         finally:
@@ -174,9 +181,10 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
                 if "data" in data:
                     data = data['data']
                 save_json(filepath, data)
-                self.SavePlaceLabel.setText(f"Data Saved\nPath: {filepath}")
+                self.SavePlaceLabel.setText(f"文件已保存\n路径: {filepath}")
             else:
-                self.SavePlaceLabel.setText(f"Error occured When Acquiring {file}: {er} \n{reply.errorString()}")
+                self.SavePlaceLabel.setText(
+                    f"在下载{file}时发生了错误: {er} \n{reply.errorString()} 请尝试修改代理或超时时间")
         except json.decoder.JSONDecodeError:
             pass
         finally:
@@ -320,8 +328,8 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
 
         if len(tree.keys()) == 5:
             self.SavePlaceLabel.clear()
-        self.change_source()
         save_json(os.path.join(root, "tree.json"), tree)
+        self.change_source()
 
     def download_data(self):
         self.DownloadButton.setEnabled(False)
@@ -339,10 +347,6 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
         self.DownloadButton.setEnabled(False)
 
         def do_request(req_url):
-            if p := self.nam_proxy:
-                self.downloader.setProxy(p)
-            else:
-                self.downloader.setProxy()
             self.downloader.get(QtNetwork.QNetworkRequest(QtCore.QUrl(req_url)))
 
         do_request(url)
