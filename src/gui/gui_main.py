@@ -218,6 +218,8 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
 
     def restart(self):
         # qDebug("Performing application reboot...")
+        self.FormProcessWidget.stop_all()
+        self.FormProcessWidget.clear_all()
         self.close()
         QtWidgets.QApplication.exit(EXIT_CODE_REBOOT)
 
