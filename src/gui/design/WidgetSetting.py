@@ -18,7 +18,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFontComboBox,
     QFrame, QGridLayout, QHBoxLayout, QLabel,
     QLineEdit, QPushButton, QScrollArea, QSizePolicy,
-    QSpacerItem, QVBoxLayout, QWidget)
+    QSpacerItem, QSpinBox, QVBoxLayout, QWidget)
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -62,10 +62,46 @@ class Ui_Form(object):
 
         self.horizontalLayout_2.addWidget(self.label_2)
 
+        self.horizontalLayout_8 = QHBoxLayout()
+        self.horizontalLayout_8.setSpacing(2)
+        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
+        self.SettingProxyTypeCombo = QComboBox(self.scrollAreaWidgetContents)
+        self.SettingProxyTypeCombo.addItem("")
+        self.SettingProxyTypeCombo.addItem("")
+        self.SettingProxyTypeCombo.addItem("")
+        self.SettingProxyTypeCombo.setObjectName(u"SettingProxyTypeCombo")
+        sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.SettingProxyTypeCombo.sizePolicy().hasHeightForWidth())
+        self.SettingProxyTypeCombo.setSizePolicy(sizePolicy)
+        self.SettingProxyTypeCombo.setMinimumSize(QSize(75, 0))
+        self.SettingProxyTypeCombo.setMaximumSize(QSize(75, 16777215))
+
+        self.horizontalLayout_8.addWidget(self.SettingProxyTypeCombo)
+
         self.SettingProxyEdit = QLineEdit(self.scrollAreaWidgetContents)
         self.SettingProxyEdit.setObjectName(u"SettingProxyEdit")
 
-        self.horizontalLayout_2.addWidget(self.SettingProxyEdit)
+        self.horizontalLayout_8.addWidget(self.SettingProxyEdit)
+
+        self.label_6 = QLabel(self.scrollAreaWidgetContents)
+        self.label_6.setObjectName(u"label_6")
+
+        self.horizontalLayout_8.addWidget(self.label_6)
+
+        self.SettingProxyHostSpin = QSpinBox(self.scrollAreaWidgetContents)
+        self.SettingProxyHostSpin.setObjectName(u"SettingProxyHostSpin")
+        self.SettingProxyHostSpin.setMinimumSize(QSize(60, 0))
+        self.SettingProxyHostSpin.setMaximumSize(QSize(60, 16777215))
+        self.SettingProxyHostSpin.setMinimum(1)
+        self.SettingProxyHostSpin.setMaximum(65535)
+        self.SettingProxyHostSpin.setValue(8080)
+
+        self.horizontalLayout_8.addWidget(self.SettingProxyHostSpin)
+
+
+        self.horizontalLayout_2.addLayout(self.horizontalLayout_8)
 
         self.horizontalLayout_2.setStretch(0, 1)
         self.horizontalLayout_2.setStretch(1, 3)
@@ -113,9 +149,6 @@ class Ui_Form(object):
 
         self.SettingAnimatedCheck = QCheckBox(self.scrollAreaWidgetContents)
         self.SettingAnimatedCheck.setObjectName(u"SettingAnimatedCheck")
-        sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.SettingAnimatedCheck.sizePolicy().hasHeightForWidth())
         self.SettingAnimatedCheck.setSizePolicy(sizePolicy)
 
@@ -222,6 +255,11 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
         self.label_2.setText(QCoreApplication.translate("Form", u"\u4e0b\u8f7d\u4ee3\u7406", None))
+        self.SettingProxyTypeCombo.setItemText(0, QCoreApplication.translate("Form", u"\u65e0", None))
+        self.SettingProxyTypeCombo.setItemText(1, QCoreApplication.translate("Form", u"http://", None))
+        self.SettingProxyTypeCombo.setItemText(2, QCoreApplication.translate("Form", u"socks5://", None))
+
+        self.label_6.setText(QCoreApplication.translate("Form", u":", None))
         self.label.setText(QCoreApplication.translate("Form", u"\u81ea\u5b9a\u4e49\u5b57\u4f53", None))
         self.label_4.setText(QCoreApplication.translate("Form", u"\u4e3b\u754c\u9762\u5c0f\u4eba", None))
         self.SettingAnimatedCheck.setText(QCoreApplication.translate("Form", u"\u4f7f\u7528\u52a8\u753b", None))

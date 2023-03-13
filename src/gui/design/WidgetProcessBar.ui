@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -32,11 +32,9 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QProgressBar{height : 10px; border: 2px solid grey; border-radius: 5px;
-                background-color: #FFFFFF;}
+   <string notr="true">QProgressBar{height : 10px; border: 2px solid grey; border-radius: 5px;background-color: #FFFFFF;}
                 QProgressBar::chunk { background-color: #007FFF; width: 10px;}
-                QFrame#MainFrame{ background-color:rgb(248, 248, 248);border-color: rgb(204, 204, 204);border-size:
-                2px;border-radius:20px;}
+                QFrame#MainFrame{ background-color:rgb(255, 255, 255);border-radius:15px;border: 3px solid rgb(230, 255, 255);}
                 QPushButton#StartButton{background-color:rgb(100,255,100);border: 2px solid grey; border-radius: 10px;}
                 QPushButton#DeleteButton{background-color:rgb(255,100,100);border: 2px solid grey; border-radius: 10px;}
                 QPushButton#LogShowButton{border: 2px solid grey; border-radius: 10px;}
@@ -46,27 +44,33 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="topMargin">
-    <number>5</number>
+    <number>2</number>
    </property>
    <property name="rightMargin">
-    <number>5</number>
+    <number>0</number>
    </property>
    <property name="bottomMargin">
-    <number>5</number>
+    <number>2</number>
+   </property>
+   <property name="spacing">
+    <number>0</number>
    </property>
    <item row="0" column="0">
     <widget class="QFrame" name="MainFrame">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
      <property name="styleSheet">
       <string notr="true"/>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
@@ -186,7 +190,20 @@
             <height>16777215</height>
            </size>
           </property>
-          <layout class="QHBoxLayout" name="GraphLayout"/>
+          <layout class="QHBoxLayout" name="GraphLayout">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+          </layout>
          </widget>
         </item>
         <item>

@@ -25,18 +25,16 @@ class Ui_ProgressBarWidget(object):
         if not ProgressBarWidget.objectName():
             ProgressBarWidget.setObjectName(u"ProgressBarWidget")
         ProgressBarWidget.resize(474, 200)
-        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(ProgressBarWidget.sizePolicy().hasHeightForWidth())
         ProgressBarWidget.setSizePolicy(sizePolicy)
         ProgressBarWidget.setMinimumSize(QSize(0, 100))
         ProgressBarWidget.setMaximumSize(QSize(16777215, 200))
-        ProgressBarWidget.setStyleSheet(u"QProgressBar{height : 10px; border: 2px solid grey; border-radius: 5px;\n"
-"                background-color: #FFFFFF;}\n"
+        ProgressBarWidget.setStyleSheet(u"QProgressBar{height : 10px; border: 2px solid grey; border-radius: 5px;background-color: #FFFFFF;}\n"
 "                QProgressBar::chunk { background-color: #007FFF; width: 10px;}\n"
-"                QFrame#MainFrame{ background-color:rgb(248, 248, 248);border-color: rgb(204, 204, 204);border-size:\n"
-"                2px;border-radius:20px;}\n"
+"                QFrame#MainFrame{ background-color:rgb(255, 255, 255);border-radius:15px;border: 3px solid rgb(230, 255, 255);}\n"
 "                QPushButton#StartButton{background-color:rgb(100,255,100);border: 2px solid grey; border-radius: 10px;}\n"
 "                QPushButton#DeleteButton{background-color:rgb(255,100,100);border: 2px solid grey; border-radius: 10px;}\n"
 "                QPushButton#LogShowButton{border: 2px solid grey; border-radius: 10px;}\n"
@@ -44,16 +42,18 @@ class Ui_ProgressBarWidget(object):
 "                QListWidget::item{background-color: rgba(255, 255, 255, 0);border: none;outline:0px;}\n"
 "            ")
         self.gridLayout = QGridLayout(ProgressBarWidget)
+        self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.gridLayout.setContentsMargins(5, 5, 5, 5)
+        self.gridLayout.setContentsMargins(0, 2, 0, 2)
         self.MainFrame = QFrame(ProgressBarWidget)
         self.MainFrame.setObjectName(u"MainFrame")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.MainFrame.sizePolicy().hasHeightForWidth())
         self.MainFrame.setSizePolicy(sizePolicy1)
         self.MainFrame.setStyleSheet(u"")
+        self.MainFrame.setFrameShadow(QFrame.Raised)
         self.verticalLayout = QVBoxLayout(self.MainFrame)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.horizontalLayout = QHBoxLayout()
@@ -121,6 +121,7 @@ class Ui_ProgressBarWidget(object):
         self.GraphLayoutWidget.setMaximumSize(QSize(200, 16777215))
         self.GraphLayout = QHBoxLayout(self.GraphLayoutWidget)
         self.GraphLayout.setObjectName(u"GraphLayout")
+        self.GraphLayout.setContentsMargins(0, 0, 0, 0)
 
         self.horizontalLayout_2.addWidget(self.GraphLayoutWidget)
 

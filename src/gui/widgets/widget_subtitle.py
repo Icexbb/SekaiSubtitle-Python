@@ -105,7 +105,7 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
         bar = ProgressBar(self, data)
         item = ListWidgetItem()
         item.id = bar.id
-        item.setSizeHint(bar.size() + QtCore.QSize(-60, 0))
+        item.setSizeHint(bar.size())
         self.ProcessingListWidget.addItem(item)
         self.ProcessingListWidget.setItemWidget(item, bar)
         self.bars.append(bar)
@@ -128,19 +128,21 @@ class ProcessWidget(QtWidgets.QWidget, Ui_ProcessWidget):
             if bar.id == child_id:
                 if child_data == 0:
                     self.bars.remove(bar)
-                else:
-                    bar.setFixedSize(child_data)
+                # else:
+                # self.setFixedHeight(child_data)
+                # bar.setFixedSize(child_data)
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
         count = self.ProcessingListWidget.count()
-        add_width = event.size() - event.oldSize()
-        add_width = QtCore.QSize(add_width.width(), 0)
+        width = self.ProcessingListWidget.size().width()
         for i in range(count):
             item: ListWidgetItem = self.ProcessingListWidget.item(i)
             for bar in self.bars:
                 if bar.id == item.id:
-                    bar.setFixedSize(bar.size() + add_width)
-                    item.setSizeHint(bar.size() + QtCore.QSize(-60, 0) + add_width)
+                    height = bar.size().height()
+                    size = QtCore.QSize(width, height)
+                    item.setSizeHint(size)
+                    bar.resize(size)
 
     def start_all(self):
         for bar in self.bars:

@@ -61,7 +61,8 @@ class Ui_ProcessWidget(object):
         self.ProcessingListWidget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.ProcessingListWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.ProcessingListWidget.setSelectionMode(QAbstractItemView.NoSelection)
-        self.ProcessingListWidget.setLayoutMode(QListView.Batched)
+        self.ProcessingListWidget.setResizeMode(QListView.Adjust)
+        self.ProcessingListWidget.setLayoutMode(QListView.SinglePass)
 
         self.verticalLayout.addWidget(self.ProcessingListWidget)
 
