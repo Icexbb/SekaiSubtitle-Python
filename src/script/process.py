@@ -282,6 +282,7 @@ class SekaiJsonVideoProcess:
         dialog_const_point_center = None
         dialog_processed = 0
         dialog_process_running = True
+        dialog_is_mask_start = False
 
         self.emit({"total": self.VideoCapture.get(7)})
 
@@ -353,6 +354,11 @@ class SekaiJsonVideoProcess:
                                 if dialog_status in [1, 2]:
                                     dialog_processing_frames.append(
                                         {"frame": now_frame_count, "point_center": dialog_point_center})
+                                if dialog_status == 1:
+                                    if last_status == 0:
+                                        dialog_is_mask_start = True
+                                    elif last_status == 2:
+                                        dialog_is_mask_start = False
 
                                 if dialog_status == 2 and not dialog_const_point_center:
                                     dialog_const_point_center = dialog_point_center
@@ -362,15 +368,16 @@ class SekaiJsonVideoProcess:
                                     if not self.dryrun and dialog_data_processing:
                                         events = self.dialog_make_sequence(
                                             dialog_processing_frames, dialog_data_processing,
-                                            int(dialog_pointer.shape[0]),
-                                            height, width, video_fps, dialog_last_end_frame, dialog_last_end_event)
+                                            int(dialog_pointer.shape[0]), height, width, video_fps,
+                                            dialog_last_end_frame, dialog_last_end_event, dialog_is_mask_start)
                                         self.log(
                                             f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events, "
                                             f"Remains {dialog_total_count - dialog_processed}/{dialog_total_count}")
                                     else:
                                         events = self.dialog_make_sequence(
                                             dialog_processing_frames, None, int(dialog_pointer.shape[0]),
-                                            height, width, video_fps, dialog_last_end_frame, dialog_last_end_event)
+                                            height, width, video_fps,
+                                            dialog_last_end_frame, dialog_last_end_event, dialog_is_mask_start)
                                         if self.dryrun:
                                             self.log(
                                                 f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events")
@@ -387,6 +394,7 @@ class SekaiJsonVideoProcess:
                                     dialogs_events += events
                                     dialog_processing_frames = []
                                     dialog_data_processing = None
+                                    dialog_is_mask_start = None
 
                                     if dialog_processed == dialog_total_count and not self.dryrun:
                                         dialog_process_running = False
@@ -559,7 +567,8 @@ class SekaiJsonVideoProcess:
             self,
             dialog_frames: list[dict], dialog_data: dict | None,
             point_size: int, video_height: int, video_width: int,
-            fps: float = 60, last_dialog_frame: dict = None, last_dialog_event: dict = None
+            fps: float = 60, last_dialog_frame: dict = None, last_dialog_event: dict = None,
+            dialog_is_mask_start=False
     ):
         frame_time = timedelta(seconds=1 / fps)
         start_frame = dialog_frames[0]
@@ -579,9 +588,7 @@ class SekaiJsonVideoProcess:
 
         if not jitter:
             start_time = tools.timedelta_to_string(frame_time * start_frame['frame'])
-            if last_dialog_frame and last_dialog_event:
-                if start_frame['frame'] - last_dialog_frame['frame'] <= 1:
-                    start_time = last_dialog_event['End']
+
             if dialog_data:
                 dialog_body = self.dialog_body_typer(dialog_data["Body"], self.typer_interval)
             else:
@@ -597,9 +604,18 @@ class SekaiJsonVideoProcess:
                 "Text": dialog_body
             }
             mask_data = copy.deepcopy(event_data)
-
-            mask_data["Text"] = reference.get_dialog_mask(
-                reference.get_frame_data((video_width, video_height), dialog_frames[0]['point_center']), None)
+            prefix = ""
+            if last_dialog_frame and last_dialog_event:
+                if start_frame['frame'] - last_dialog_frame['frame'] <= 5:
+                    start_time = last_dialog_event['End']
+            if dialog_is_mask_start:
+                start_time = tools.timedelta_to_string(frame_time * max(0, start_frame['frame'] - 6))
+                prefix = r"{\fad(100,0)}"
+            mask_data["Start"] = start_time
+            mask_data["Text"] = \
+                prefix + \
+                reference.get_dialog_mask(reference.get_frame_data((video_width, video_height),
+                                                                   dialog_frames[0]['point_center']), None)
             mask_data["Style"] = 'screen'
             results.append(mask_data)
             results.append(event_data)
