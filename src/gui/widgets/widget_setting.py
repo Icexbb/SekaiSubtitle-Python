@@ -1,7 +1,8 @@
 import os
+import re
 import sys
 
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtGui, QtCore
 from PySide6.QtGui import QFont
 
 from gui.design.WidgetSetting import Ui_Form
@@ -18,9 +19,12 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         self.root = os.path.join(os.path.expanduser('~'), "SekaiSubtitle", "setting")
         os.makedirs(self.root, exist_ok=True)
         self.config_file = os.path.join(self.root, "config.json")
-
+        self.SettingProxyEdit.setValidator(
+            QtGui.QRegularExpressionValidator(QtCore.QRegularExpression(
+                r"([a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?)|"
+                r"((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]\d)|\d)(\.((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]\d)|\d)){3}")))
+        self.SettingProxyTypeCombo.currentTextChanged.connect(self.setProxyState)
         self._last_dir = None
-
         self.load_config()
         self.SettingAnimatedCheck.setChecked(False)
         self.SettingAnimatedCheck.setEnabled(False)
@@ -35,6 +39,36 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         self._last_dir = value
         self.save_config()
 
+    def setProxyState(self):
+        self.SettingProxyHostSpin.setEnabled(self.SettingProxyTypeCombo.currentIndex())
+        self.SettingProxyEdit.setEnabled(self.SettingProxyTypeCombo.currentIndex())
+
+    @property
+    def proxy(self):
+        if self.SettingProxyTypeCombo.currentIndex() == 0:
+            return None
+        p_type = self.SettingProxyTypeCombo.currentText()
+        p_host = self.SettingProxyEdit.text()
+        p_port = self.SettingProxyHostSpin.value()
+        proxy = f"{p_type}{p_host}:{p_port}"
+        return proxy
+
+    @proxy.setter
+    def proxy(self, value):
+        s = re.match(r'(?P<type>socks5:\/\/|http:\/\/)'
+                     r'(?P<host>(([a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?)|'
+                     r'((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]\d)|\d)(\.((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]\d)|\d)){3}))'
+                     r':(?P<port>\d{1,5})', value)
+        if s:
+            p_port = int(s.group("port"))
+            p_host = s.group("host")
+            p_type = s.group('type')
+            self.SettingProxyEdit.setText(p_host)
+            self.SettingProxyHostSpin.setValue(p_port)
+            self.SettingProxyTypeCombo.setCurrentText(p_type)
+        else:
+            raise ValueError("Proxy Not Match Pattern")
+
     def load_chibi(self):
         icon_path = "asset/chibi"
         if getattr(sys, 'frozen', False):
@@ -45,7 +79,7 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
             self.SettingChibiSelect.addItem(chibi)
 
     def save_config(self):
-        proxy = self.SettingProxyEdit.text()
+        proxy = self.proxy
         font: QFont = self.SettingFontComboBox.currentFont()
         start_immediate = self.SettingStartImmediateCheck.isChecked()
         chibi = self.SettingChibiSelect.currentText()
@@ -66,7 +100,7 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
     def load_config(self):
         config = read_json(self.config_file)
         if "proxy" in config:
-            self.SettingProxyEdit.setText(config["proxy"])
+            self.proxy = config["proxy"]
         if "font" in config:
             self.SettingFontComboBox.setFont(config["font"])
         if "start_immediate" in config:

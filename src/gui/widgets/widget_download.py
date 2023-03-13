@@ -17,8 +17,7 @@ class NetworkAccessManager(QtNetwork.QNetworkAccessManager):
         self.proxy_addr = proxy_addr
         if self.proxy_addr:
             proxy_parse = parse.urlparse(self.proxy_addr)
-
-            if proxy_parse.scheme == "http":
+            if proxy_parse.scheme in ["http", "https"]:
                 proxy_type = QtNetwork.QNetworkProxy.ProxyType.HttpProxy
             else:
                 proxy_type = QtNetwork.QNetworkProxy.ProxyType.Socks5Proxy
@@ -32,7 +31,7 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
         self.receive_data = None
         self.downloadState = None
         self.setupUi(self)
-        self.parent=parent
+        self.parent = parent
         self.root = os.getcwd()
 
         self.download_url = None
@@ -241,7 +240,7 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
             tree['活动剧情'] = {}
             for item in data:
                 try:
-                    ev_name = f"{item['eventId']}:{events[item['eventId']-1]['name']}"
+                    ev_name = f"{item['eventId']}:{events[item['eventId'] - 1]['name']}"
                 except IndexError:
                     ev_name = f"Event{item['eventId']}"
                 ev_ep = {}
