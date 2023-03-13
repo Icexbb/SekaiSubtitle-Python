@@ -113,7 +113,13 @@ class NewTaskDialog(FramelessDialog, Dialog):
         self.VideoSelector.select_signal.connect(self.fileAutoSelect)
 
     def add_staff(self, file=None):
-        dialog = NewStaffDialog(self)
+        preload_data = {}
+        if self.TranslateSelector.fileSelected:
+            name = self.TranslateSelector.FileLabel.text()
+            # if name.startswith(("【合意】", "【校对】", "【翻译】")):
+            name = name.replace("【合意】", "").replace("【校对】", "").replace("【翻译】", "")
+            preload_data["prefix"] = f"字幕制作 by PJS字幕组\n{name}"
+        dialog = NewStaffDialog(self, preload_data)
         if file and os.path.exists(file):
             if file.endswith(".json"):
                 dialog.load(file)

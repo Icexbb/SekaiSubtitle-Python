@@ -15,13 +15,13 @@ from script.tools import read_json, timedelta_to_string
 class NewStaffDialog(FramelessDialog, Ui_NewStaffDialog):
     signal = Signal(dict)
 
-    def __init__(self, parent):
+    def __init__(self, parent, preload_data: dict = None):
         super().__init__()
         self.setupUi(self)
         self.parent = parent
         self.setWindowFlag(QtCore.Qt.WindowType.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
-
+        self.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.TitleBar = TitleBar(self)
 
         self.TitleBar.WindowMaxButton.setHidden(True)
@@ -33,6 +33,46 @@ class NewStaffDialog(FramelessDialog, Ui_NewStaffDialog):
         self.ButtonSubmit.clicked.connect(lambda: {self.signal.emit(self.subtitle_data), self.close()})
         self.ButtonExport.clicked.connect(lambda: self.save())
         self.ButtonImport.clicked.connect(lambda: self.load())
+        if preload_data:
+            self.preload(preload_data)
+
+    def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
+        if event.matches(QtGui.QKeySequence.StandardKey.Paste):
+            pasted = QtWidgets.QApplication.clipboard().text().strip().split("\t")
+            data = {}
+            if len(pasted) in [4, 5, 6]:
+                data = {"translator": pasted[0], "translate_proof": pasted[1], "subtitle_proof": pasted[-1]}
+            elif len(pasted) in [3, 2]:
+                data = {"translator": pasted[0], "translate_proof": pasted[1]}
+            if len(pasted) == 7:
+                data = {"recorder": pasted[0], "translator": pasted[1], "translate_proof": pasted[2],
+                        "subtitle_proof": pasted[-1]}
+            self.preload(data)
+        FramelessDialog.keyPressEvent(self, event)
+
+    def preload(self, data):
+        if s := data.get("recorder"):
+            self.EditRecord.setText(s)
+        if s := data.get("translator"):
+            self.EditTranslator.setText(s)
+        if s := data.get("translate_proof"):
+            self.EditTranslateProof.setText(s)
+        if s := data.get("subtitle_maker"):
+            self.EditSubMaker.setText(s)
+        if s := data.get("subtitle_proof"):
+            self.EditSubProof.setText(s)
+        if s := data.get("prefix"):
+            self.EditPrefix.setPlainText(s)
+        if s := data.get("subfix"):
+            self.EditSubfix.setPlainText(s)
+        if data.get("position") in ['1', '3', '7', '9']:
+            self.set_position_radio(int(data.get("position")))
+        else:
+            self.set_position_radio(1)
+        if s := data.get("duration"):
+            self.EditDuration.setText(str(s))
+        else:
+            self.EditDuration.setText("5")
 
     def set_position_radio(self, value):
         if value == 9:
@@ -106,16 +146,7 @@ class NewStaffDialog(FramelessDialog, Ui_NewStaffDialog):
         if file_name_choose and os.path.exists(file_name_choose):
             self.parent.parent.choose_file_root = os.path.split(file_name_choose)[0]
             data = read_json(file_name_choose)
-            self.EditRecord.setText(data.get("recorder") or "")
-            self.EditTranslator.setText(data.get("translator") or ""),
-            self.EditTranslateProof.setText(data.get("translate_proof") or ""),
-            self.EditSubMaker.setText(data.get("subtitle_maker") or ""),
-            self.EditSubProof.setText(data.get("subtitle_proof") or ""),
-            self.EditPrefix.setPlainText(data.get("prefix") or ""),
-            self.EditSubfix.setPlainText(data.get("subfix") or ""),
-            self.set_position_radio(
-                int(data.get("position")) if data.get("position") in ['1', '3', '7', '9'] else 1)
-            self.EditDuration.setText(str(data.get("duration") or "0"))
+            self.preload(data)
 
     @property
     def subtitle_body(self):
@@ -127,11 +158,11 @@ class NewStaffDialog(FramelessDialog, Ui_NewStaffDialog):
         if s := (self.data.get("translator")).strip():
             string += f"翻译: {s}\n"
         if s := (self.data.get("translate_proof")).strip():
-            string += f"校对: {s}\n"
+            string += f"翻校: {s}\n"
         if s := (self.data.get("subtitle_maker")).strip():
             string += f"时轴: {s}\n"
         if s := (self.data.get("subtitle_proof")).strip():
-            string += f"轴校/压制: {s}\n"
+            string += f"轴校&压制: {s}\n"
         if s := (self.data.get("subfix")).strip():
             string += f"{s}\n"
         string = string.strip().replace("\n", r"\N")
