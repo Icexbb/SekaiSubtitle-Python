@@ -33,6 +33,7 @@ class NewStaffDialog(FramelessDialog, Ui_NewStaffDialog):
         self.ButtonSubmit.clicked.connect(lambda: {self.signal.emit(self.subtitle_data), self.close()})
         self.ButtonExport.clicked.connect(lambda: self.save())
         self.ButtonImport.clicked.connect(lambda: self.load())
+        self.EditSubMaker.setText("SEKAI的轴姬")
         if preload_data:
             self.preload(preload_data)
 
@@ -154,15 +155,15 @@ class NewStaffDialog(FramelessDialog, Ui_NewStaffDialog):
         if s := (self.data.get("prefix")).strip():
             string += f"{s}\n"
         if s := (self.data.get("recorder")).strip():
-            string += f"录制: {s}\n"
+            string += f"录制：{s}\n"
         if s := (self.data.get("translator")).strip():
-            string += f"翻译: {s}\n"
+            string += f"翻译：{s}\n"
         if s := (self.data.get("translate_proof")).strip():
-            string += f"翻校: {s}\n"
+            string += f"翻校：{s}\n"
         if s := (self.data.get("subtitle_maker")).strip():
-            string += f"时轴: {s}\n"
+            string += f"时轴：{s}\n"
         if s := (self.data.get("subtitle_proof")).strip():
-            string += f"轴校&压制: {s}\n"
+            string += f"轴校&压制：{s}\n"
         if s := (self.data.get("subfix")).strip():
             string += f"{s}\n"
         string = string.strip().replace("\n", r"\N")

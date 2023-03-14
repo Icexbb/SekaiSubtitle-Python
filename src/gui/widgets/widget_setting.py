@@ -103,10 +103,13 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
 
     def load_config(self):
         config = read_json(self.config_file)
-        if "proxy" in config:
-            self.proxy = config["proxy"]
+        try:
+            if "proxy" in config:
+                self.proxy = config["proxy"]
+        except ValueError:
+            QtWidgets.QMessageBox.warning(self,"Sekai Subtitle","代理格式错误 请重新设置！",QtWidgets.QMessageBox.StandardButton.Yes,QtWidgets.QMessageBox.StandardButton.Yes)
         if "font" in config:
-            self.SettingFontComboBox.setFont(config["font"])
+            self.SettingFontComboBox.setCurrentFont(QFont(config["font"]))
         if "start_immediate" in config:
             self.SettingStartImmediateCheck.setChecked(config['start_immediate'])
         if "chibi" in config:

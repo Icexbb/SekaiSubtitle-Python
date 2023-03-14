@@ -509,8 +509,7 @@ class SekaiJsonVideoProcess:
                 if item["MarginL"] == 325:
                     item["MarginL"] = int(point_center[0] - 0.5 * point_size)
                     item["MarginV"] = int(point_center[1] + 1.25 * point_size)
-            if self.font:
-                item["Font"] = self.font
+            item["Fontname"] = self.font
             res.append(item)
         return res
 

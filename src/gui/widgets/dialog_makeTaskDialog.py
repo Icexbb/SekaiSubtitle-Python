@@ -116,8 +116,9 @@ class NewTaskDialog(FramelessDialog, Dialog):
         preload_data = {}
         if self.TranslateSelector.fileSelected:
             name = self.TranslateSelector.FileLabel.text()
-            # if name.startswith(("【合意】", "【校对】", "【翻译】")):
-            name = name.replace("【合意】", "").replace("【校对】", "").replace("【翻译】", "")
+            name = name.lower() \
+                .removeprefix("【合意】").replace("【校对】").replace("【翻译】") \
+                .removesuffix(".txt").removesuffix(".yml")
             preload_data["prefix"] = f"字幕制作 by PJS字幕组\n{name}"
         dialog = NewStaffDialog(self, preload_data)
         if file and os.path.exists(file):
