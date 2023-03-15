@@ -1,202 +1,206 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
-    <class>NewSubProcessDialog</class>
-    <widget class="QDialog" name="NewSubProcessDialog">
-        <property name="geometry">
-            <rect>
-                <x>0</x>
-                <y>0</y>
-                <width>500</width>
-                <height>300</height>
-            </rect>
-        </property>
-        <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-            </sizepolicy>
-        </property>
-        <property name="minimumSize">
-            <size>
-                <width>500</width>
-                <height>300</height>
-            </size>
-        </property>
-        <property name="maximumSize">
-            <size>
-                <width>500</width>
-                <height>300</height>
-            </size>
-        </property>
-        <property name="windowTitle">
-            <string>Dialog</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout">
-            <property name="leftMargin">
-                <number>0</number>
-            </property>
-            <property name="topMargin">
-                <number>0</number>
-            </property>
-            <property name="rightMargin">
-                <number>0</number>
-            </property>
-            <property name="bottomMargin">
-                <number>0</number>
-            </property>
-            <property name="spacing">
-                <number>0</number>
-            </property>
-            <item row="0" column="0">
-                <widget class="QFrame" name="MainFrame">
-                    <property name="enabled">
-                        <bool>true</bool>
-                    </property>
-                    <property name="styleSheet">
-                        <string notr="true">QFrame#MainFrame{background-color: rgb(255, 255, 255);border-color: rgb(204,
+ <class>NewSubProcessDialog</class>
+ <widget class="QDialog" name="NewSubProcessDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>500</width>
+    <height>350</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>500</width>
+    <height>350</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>500</width>
+    <height>350</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <item row="0" column="0">
+    <widget class="QFrame" name="MainFrame">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QFrame#MainFrame{background-color: rgb(255, 255, 255);border-color: rgb(204,
                             204, 204);border-size: 2px;border-radius:20px;}
                             QLabel{font: 12pt &quot;Microsoft YaHei UI&quot;;}
                             QGroupBox{background-color: rgba(204, 204, 204,50);border-color: rgb(204, 204,
                             204);border-size: 1px;border-radius:20px;}
                         </string>
-                    </property>
-                    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1">
-                        <property name="topMargin">
-                            <number>35</number>
-                        </property>
-                        <item>
-                            <widget class="QFrame" name="SelectBox">
-                                <property name="sizePolicy">
-                                    <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <layout class="QVBoxLayout" name="SelectBoxLayout"/>
-                            </widget>
-                        </item>
-                        <item>
-                            <spacer name="verticalSpacer">
-                                <property name="orientation">
-                                    <enum>Qt::Vertical</enum>
-                                </property>
-                                <property name="sizeHint" stdset="0">
-                                    <size>
-                                        <width>20</width>
-                                        <height>40</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                        </item>
-                        <item>
-                            <widget class="QFrame" name="EmitFrame">
-                                <property name="sizePolicy">
-                                    <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="frameShape">
-                                    <enum>QFrame::StyledPanel</enum>
-                                </property>
-                                <property name="frameShadow">
-                                    <enum>QFrame::Raised</enum>
-                                </property>
-                                <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,1,1">
-                                    <property name="topMargin">
-                                        <number>0</number>
-                                    </property>
-                                    <property name="rightMargin">
-                                        <number>0</number>
-                                    </property>
-                                    <property name="bottomMargin">
-                                        <number>0</number>
-                                    </property>
-                                    <item>
-                                        <widget class="QWidget" name="widget_4" native="true">
-                                            <layout class="QHBoxLayout" name="horizontalLayout_6">
-                                                <item>
-                                                    <widget class="QPushButton" name="StaffAddButton">
-                                                        <property name="sizePolicy">
-                                                            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                                                                <horstretch>0</horstretch>
-                                                                <verstretch>0</verstretch>
-                                                            </sizepolicy>
-                                                        </property>
-                                                        <property name="text">
-                                                            <string>添加Staff行</string>
-                                                        </property>
-                                                    </widget>
-                                                </item>
-                                                <item>
-                                                    <spacer name="horizontalSpacer_2">
-                                                        <property name="orientation">
-                                                            <enum>Qt::Horizontal</enum>
-                                                        </property>
-                                                        <property name="sizeHint" stdset="0">
-                                                            <size>
-                                                                <width>40</width>
-                                                                <height>20</height>
-                                                            </size>
-                                                        </property>
-                                                    </spacer>
-                                                </item>
-                                            </layout>
-                                        </widget>
-                                    </item>
-                                    <item>
-                                        <widget class="QWidget" name="widget" native="true">
-                                            <layout class="QHBoxLayout" name="horizontalLayout">
-                                                <item>
-                                                    <widget class="QPushButton" name="EmitButton">
-                                                        <property name="sizePolicy">
-                                                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                                                                <horstretch>0</horstretch>
-                                                                <verstretch>0</verstretch>
-                                                            </sizepolicy>
-                                                        </property>
-                                                        <property name="text">
-                                                            <string>开始</string>
-                                                        </property>
-                                                    </widget>
-                                                </item>
-                                            </layout>
-                                        </widget>
-                                    </item>
-                                    <item>
-                                        <widget class="QWidget" name="widget_3" native="true">
-                                            <layout class="QHBoxLayout" name="horizontalLayout_3">
-                                                <item>
-                                                    <spacer name="horizontalSpacer">
-                                                        <property name="orientation">
-                                                            <enum>Qt::Horizontal</enum>
-                                                        </property>
-                                                        <property name="sizeHint" stdset="0">
-                                                            <size>
-                                                                <width>40</width>
-                                                                <height>20</height>
-                                                            </size>
-                                                        </property>
-                                                    </spacer>
-                                                </item>
-                                                <item>
-                                                    <widget class="QCheckBox" name="DryRunCheck">
-                                                        <property name="text">
-                                                            <string>仅使用视频</string>
-                                                        </property>
-                                                    </widget>
-                                                </item>
-                                            </layout>
-                                        </widget>
-                                    </item>
-                                </layout>
-                            </widget>
-                        </item>
-                    </layout>
-                </widget>
-            </item>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1">
+      <property name="topMargin">
+       <number>35</number>
+      </property>
+      <item>
+       <widget class="QFrame" name="SelectBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <layout class="QVBoxLayout" name="SelectBoxLayout">
+         <property name="spacing">
+          <number>2</number>
+         </property>
         </layout>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QFrame" name="EmitFrame">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,1,1">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QWidget" name="widget_4" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QPushButton" name="StaffAddButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>添加Staff行</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QWidget" name="widget" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QPushButton" name="EmitButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>开始</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QWidget" name="widget_3" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="DryRunCheck">
+              <property name="text">
+               <string>仅使用视频</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
     </widget>
-    <resources/>
-    <connections/>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
 </ui>

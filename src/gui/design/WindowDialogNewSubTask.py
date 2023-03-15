@@ -23,14 +23,14 @@ class Ui_NewSubProcessDialog(object):
     def setupUi(self, NewSubProcessDialog):
         if not NewSubProcessDialog.objectName():
             NewSubProcessDialog.setObjectName(u"NewSubProcessDialog")
-        NewSubProcessDialog.resize(500, 300)
+        NewSubProcessDialog.resize(500, 350)
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(NewSubProcessDialog.sizePolicy().hasHeightForWidth())
         NewSubProcessDialog.setSizePolicy(sizePolicy)
-        NewSubProcessDialog.setMinimumSize(QSize(500, 300))
-        NewSubProcessDialog.setMaximumSize(QSize(500, 300))
+        NewSubProcessDialog.setMinimumSize(QSize(500, 350))
+        NewSubProcessDialog.setMaximumSize(QSize(500, 350))
         self.gridLayout = QGridLayout(NewSubProcessDialog)
         self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(u"gridLayout")
@@ -55,6 +55,7 @@ class Ui_NewSubProcessDialog(object):
         sizePolicy1.setHeightForWidth(self.SelectBox.sizePolicy().hasHeightForWidth())
         self.SelectBox.setSizePolicy(sizePolicy1)
         self.SelectBoxLayout = QVBoxLayout(self.SelectBox)
+        self.SelectBoxLayout.setSpacing(2)
         self.SelectBoxLayout.setObjectName(u"SelectBoxLayout")
 
         self.verticalLayout.addWidget(self.SelectBox)

@@ -5,9 +5,42 @@ from PySide6.QtCore import Signal
 from qframelesswindow import FramelessDialog
 
 from gui.design.WidgetNewTaskSelector import Ui_SelectWidget as Selector
+from gui.design.WidgetSubtitleTimebar import Ui_Form as TimeSelector
 from gui.design.WindowDialogNewSubTask import Ui_NewSubProcessDialog as Dialog
 from gui.widgets.dialog_makeStaffInfo import NewStaffDialog
 from gui.widgets.widget_titlebar import TitleBar
+
+
+class SubtitleTimeSelector(QtWidgets.QWidget, TimeSelector):
+    def __init__(self, parent):
+        super().__init__()
+        self.setupUi(self)
+        self.parent = parent
+        self._vtime = None
+        self.RightSpin.valueChanged.connect(self.repaint_timeline)
+        self.LeftSpin.valueChanged.connect(self.repaint_timeline)
+
+    def repaint_timeline(self):
+        total_length = self.widget.width() - 10
+        left_per = self.LeftSpin.value() / self.video_time
+        right_per = 1 - self.RightSpin.value() / self.video_time
+        self.LeftSpin.setMaximum(self.RightSpin.value())
+        self.RightSpin.setMinimum(self.LeftSpin.value())
+        self.VRight.setFixedWidth(int(max(5, right_per * total_length + 5)))
+        self.VLeft.setFixedWidth(int(max(5, left_per * total_length + 5)))
+        remain_time = self.RightSpin.value() - self.LeftSpin.value()
+        self.TimeLabel.setText(f"{remain_time:.2f}s")
+
+    @property
+    def video_time(self):
+        return self._vtime
+
+    @video_time.setter
+    def video_time(self, value):
+        self._vtime = value
+        self.LeftSpin.setMaximum(self.video_time)
+        self.RightSpin.setMaximum(self.video_time)
+        self.RightSpin.setValue(self.video_time)
 
 
 class FileSelector(QtWidgets.QWidget, Selector):
@@ -100,24 +133,51 @@ class NewTaskDialog(FramelessDialog, Dialog):
         self.VideoSelector = FileSelector(self, "视频", ['*.mp4', '*.avi', '*.wmv', "*.mkv"])
         self.JsonSelector = FileSelector(self, "数据", ['*.json', ".asset"])
         self.TranslateSelector = FileSelector(self, "翻译", ['*.txt', "*.yml"])
+        self.VideoTimeSelector = SubtitleTimeSelector(self)
 
         self.setAcceptDrops(True)
         self.SelectBoxLayout.addWidget(self.VideoSelector)
         self.SelectBoxLayout.addWidget(self.JsonSelector)
         self.SelectBoxLayout.addWidget(self.TranslateSelector)
+        self.SelectBoxLayout.addWidget(self.VideoTimeSelector)
+        self.VideoTimeSelector.setEnabled(False)
         self.EmitButton.clicked.connect(self.emitTask)
         self.staff_line = []
         self.StaffAddButton.clicked.connect(lambda: self.add_staff())
 
         self.DryRunCheck.stateChanged.connect(self.dryrun_stage_changed)
         self.VideoSelector.select_signal.connect(self.fileAutoSelect)
+        self.VideoSelector.select_signal.connect(self.setVideoTime)
+        self.setVideoTime()
+
+    def setVideoTime(self):
+        if self.dryrun:
+            self.VideoTimeSelector.setEnabled(False)
+        else:
+            self.VideoTimeSelector.setEnabled(True)
+
+        if self.VideoSelector.fileSelected:
+            if isinstance(self.VideoSelector.fileSelected,
+                          list) and len(self.VideoSelector.fileSelected) == 1:
+                f = self.VideoSelector.fileSelected[0]
+            elif isinstance(self.VideoSelector.fileSelected, str):
+                f = self.VideoSelector.fileSelected
+            else:
+                return
+            import cv2
+            v = cv2.VideoCapture(f)
+            video_time = (1 / v.get(cv2.CAP_PROP_FPS)) * v.get(cv2.CAP_PROP_FRAME_COUNT)
+            self.VideoTimeSelector.video_time = video_time
+        else:
+            self.VideoTimeSelector.setEnabled(False)
+        self.VideoTimeSelector.setEnabled(False)
 
     def add_staff(self, file=None):
         preload_data = {}
         if self.TranslateSelector.fileSelected:
             name = self.TranslateSelector.FileLabel.text()
             name = name.lower() \
-                .removeprefix("【合意】").replace("【校对】").replace("【翻译】") \
+                .removeprefix("【合意】").removeprefix("【校对】").removeprefix("【翻译】") \
                 .removesuffix(".txt").removesuffix(".yml")
             preload_data["prefix"] = f"字幕制作 by PJS字幕组\n{name}"
         dialog = NewStaffDialog(self, preload_data)
