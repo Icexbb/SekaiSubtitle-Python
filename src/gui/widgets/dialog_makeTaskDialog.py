@@ -170,7 +170,7 @@ class NewTaskDialog(FramelessDialog, Dialog):
             self.VideoTimeSelector.video_time = video_time
         else:
             self.VideoTimeSelector.setEnabled(False)
-        self.VideoTimeSelector.setEnabled(False)
+        self.VideoTimeSelector.setHidden(True)
 
     def add_staff(self, file=None):
         preload_data = {}
