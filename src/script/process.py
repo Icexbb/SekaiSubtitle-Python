@@ -46,7 +46,6 @@ class SekaiJsonVideoProcess:
         self.staff = data.get("staff") or []
         self.typer_interval = data.get("typer_interval")
         self.duration = data.get("duration")
-        print(data)
         self.output_path = os.path.realpath(os.path.splitext(self.video_file)[0] + ".ass")
         self.signal = signal
         if self.duration:
