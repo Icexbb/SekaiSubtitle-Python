@@ -163,6 +163,8 @@ class NewTaskDialog(FramelessDialog, Dialog):
         self.EmitButton.clicked.connect(self.emitTask)
         self.staff_line = []
         self.StaffAddButton.clicked.connect(lambda: self.add_staff())
+        self.StaffAddButton.setFocusPolicy(QtGui.Qt.FocusPolicy.NoFocus)
+        self.EmitButton.setFocusPolicy(QtGui.Qt.FocusPolicy.StrongFocus)
 
         self.DryRunCheck.stateChanged.connect(self.dryrun_stage_changed)
         self.VideoSelector.select_signal.connect(self.fileAutoSelect)

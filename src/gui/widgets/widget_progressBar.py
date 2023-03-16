@@ -32,8 +32,8 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
             "font": self.taskInfo.get("font"),
             "dryrun": bool(self.taskInfo.get("dryrun")),
             "staff": self.taskInfo.get("staff"),
-            "type_interval": self.parent.parent.typer_interval,
-            "duration": self.taskInfo.get("duration")
+            "typer_interval": self.parent.parent.typer_interval,
+            "duration": self.taskInfo.get("duration"),
         }
 
         self.TaskNameString = os.path.splitext(os.path.split(self.process_data.get("video"))[-1])[0]
@@ -52,15 +52,24 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
         self.GraphWidget = pg.PlotWidget(self)
         self.GraphWidget.setBackground('w')
         self.GraphWidget.enableMouse(False)
-        self.GraphWidget.clearMouse()
+        self.GraphWidget.mousePressEvent = lambda ev: None
+        self.GraphWidget.mouseMoveEvent = lambda ev: None
+        self.GraphWidget.mouseReleaseEvent = lambda ev: None
         self.GraphLayout.addWidget(self.GraphWidget)
 
     def updatePlot(self, limit: int = 0):
         self.GraphWidget.clear()
-        values = self.fps_list[-max(limit, 1):]
-        values_2 = self.fps_list[-max(limit * 2, 1):]
-        self.GraphWidget.setYRange(max(0, min(values_2) - 20), max(values_2) + 20)
-        x = np.linspace(max(1, len(self.fps_list) - len(values)), len(self.fps_list) + 1, len(values) + 1)
+        if limit:
+            values = self.fps_list[-max(limit, 1):]
+            values_2 = self.fps_list[-max(limit * 2, 1):]
+            self.GraphWidget.setYRange(max(0, min(values_2) - 20), max(values_2) + 20)
+            x = np.linspace(max(1, len(self.fps_list) - len(values)), len(self.fps_list) + 1, len(values) + 1)
+
+        else:
+            values = self.fps_list[1:]
+            self.GraphWidget.setYRange(max(0, min(values) - 20), max(values) + 20)
+            x = np.linspace(0, len(self.fps_list), len(values) + 1)
+
         pen = pg.mkPen(width=1, color='b')
         self.GraphWidget.plot(x, values, stepMode="center", pen=pen)
 
@@ -82,6 +91,8 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
             self.Thread.signal_data.connect(self.signal_process)
             self.StartButton.setStyleSheet("background-color:rgb(255,255,100);")
             self.StatusLogList.clear()
+            self.fps_list.clear()
+            self.time_frame_array.clear()
             self.Thread.start()
             self.processing = True
         else:
@@ -139,8 +150,7 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
                 self.ProgressBar.setMaximum(0)
                 self.ProgressBar.setValue(0)
         elif msg['type'] == "stop":
-            self.fps_list.clear()
-            self.time_frame_array.clear()
+            pass
         else:
             data = msg['data']
             if s := data.get("total"):

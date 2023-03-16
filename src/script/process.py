@@ -22,17 +22,8 @@ class SekaiJsonVideoProcess:
     def __init__(
             self,
             data: dict,
-            # video_file: str,
-            # json_file: str = None,
-            # translate_file: str = None,
-            # output_file: str = None,
             signal: QtCore.Signal(dict) = None,
-            # overwrite: bool = False,
             queue_in: Queue = Queue(),
-            # font_custom: str = None,
-            # use_no_json_file: bool = False,
-            # staff: list[dict] = None,
-            # typer_interval: int = 80
     ):
         self.time_start = time.time()
         self.json_data = None
@@ -538,16 +529,17 @@ class SekaiJsonVideoProcess:
             body.replace(c, "\n")
         body_list = list(body)
         res = []
-        return_count = 0
+        last_end = 0
         for index, char in enumerate(body_list):
-            return_count += 1 if char == "\n" else 0
             if char_interval:
-                res.append(
-                    rf"{{\alphaFF\t({char_interval * (index * 2 + 1) + return_count * 300},"
-                    rf"{char_interval * (index * 2 + 2) + return_count * 300},1,\alpha0)}}"
-                    + (char if char != "\n" else r"\N"))
+                start = last_end
+                end = start + char_interval + (300 if char == "\n" else 0)
+                r = rf"{{\alphaFF\t({start},{end},1,\alpha0)}}" + (char if char != "\n" else r"\N")
+                res.append(r)
+                last_end = end
             else:
                 res.append(char if char != "\n" else r"\N")
+
         return "".join(res)
 
     @staticmethod
