@@ -1,3 +1,4 @@
+import datetime
 import os
 
 from PySide6 import QtCore, QtWidgets, QtGui
@@ -9,6 +10,7 @@ from gui.design.WidgetSubtitleTimebar import Ui_Form as TimeSelector
 from gui.design.WindowDialogNewSubTask import Ui_NewSubProcessDialog as Dialog
 from gui.widgets.dialog_makeStaffInfo import NewStaffDialog
 from gui.widgets.widget_titlebar import TitleBar
+from script.tools import timedelta_to_string
 
 
 class SubtitleTimeSelector(QtWidgets.QWidget, TimeSelector):
@@ -19,28 +21,45 @@ class SubtitleTimeSelector(QtWidgets.QWidget, TimeSelector):
         self._vtime = None
         self.RightSpin.valueChanged.connect(self.repaint_timeline)
         self.LeftSpin.valueChanged.connect(self.repaint_timeline)
+        self.LLabel.setText("")
+        self.RLabel.setText("")
+        self.CLabel.setText("")
+        self.video_fps = 60
 
     def repaint_timeline(self):
         total_length = self.widget.width() - 10
-        left_per = self.LeftSpin.value() / self.video_time
-        right_per = 1 - self.RightSpin.value() / self.video_time
+        left_per = self.LeftSpin.value() / self.video_frames
+        right_per = 1 - self.RightSpin.value() / self.video_frames
         self.LeftSpin.setMaximum(self.RightSpin.value())
         self.RightSpin.setMinimum(self.LeftSpin.value())
+
+        self.LLabel.setText(
+            timedelta_to_string(datetime.timedelta(seconds=(1 / self.video_fps) * self.LeftSpin.value())))
+        self.RLabel.setText(
+            timedelta_to_string(datetime.timedelta(seconds=(1 / self.video_fps) * self.RightSpin.value())))
+        self.CLabel.setText(
+            timedelta_to_string(
+                datetime.timedelta(seconds=(1 / self.video_fps) * (self.RightSpin.value() - self.LeftSpin.value())))
+        )
         self.VRight.setFixedWidth(int(max(5, right_per * total_length + 5)))
         self.VLeft.setFixedWidth(int(max(5, left_per * total_length + 5)))
-        remain_time = self.RightSpin.value() - self.LeftSpin.value()
-        self.TimeLabel.setText(f"{remain_time:.2f}s")
 
     @property
-    def video_time(self):
+    def video_frames(self):
         return self._vtime
 
-    @video_time.setter
-    def video_time(self, value):
+    @video_frames.setter
+    def video_frames(self, value: int):
         self._vtime = value
-        self.LeftSpin.setMaximum(self.video_time)
-        self.RightSpin.setMaximum(self.video_time)
-        self.RightSpin.setValue(self.video_time)
+        self.LeftSpin.setMaximum(self.video_frames)
+        self.RightSpin.setMaximum(self.video_frames)
+        self.RightSpin.setValue(self.video_frames)
+
+    @property
+    def duration(self):
+        if self.LeftSpin.value() == 0 and self.RightSpin.value() == self.RightSpin.maximum():
+            return None
+        return [self.LeftSpin.value(), self.RightSpin.value()]
 
 
 class FileSelector(QtWidgets.QWidget, Selector):
@@ -166,11 +185,13 @@ class NewTaskDialog(FramelessDialog, Dialog):
                 return
             import cv2
             v = cv2.VideoCapture(f)
-            video_time = (1 / v.get(cv2.CAP_PROP_FPS)) * v.get(cv2.CAP_PROP_FRAME_COUNT)
-            self.VideoTimeSelector.video_time = video_time
+            video_frames = v.get(cv2.CAP_PROP_FRAME_COUNT)
+            video_fps = v.get(cv2.CAP_PROP_FPS)
+            self.VideoTimeSelector.video_frames = video_frames
+            self.VideoTimeSelector.video_fps = video_fps
         else:
             self.VideoTimeSelector.setEnabled(False)
-        self.VideoTimeSelector.setHidden(True)
+        # self.VideoTimeSelector.setHidden(True)
 
     def add_staff(self, file=None):
         preload_data = {}
@@ -242,6 +263,8 @@ class NewTaskDialog(FramelessDialog, Dialog):
                 video_files = [video_files]
             for video_file in video_files:
                 data = {"video": video_file, "dryrun": True, "font": self.parent.font, "staff": self.staff_line}
+                if len(video_files) == 1:
+                    data["duration"] = self.VideoTimeSelector.duration
                 self.signal.emit(data)
             if not video_files:
                 QtWidgets.QMessageBox.warning(
@@ -253,7 +276,8 @@ class NewTaskDialog(FramelessDialog, Dialog):
         else:
             data = {
                 "video": video_files, "json": json_file, "translate": translate_file,
-                "font": self.parent.font, "staff": self.staff_line}
+                "font": self.parent.font, "staff": self.staff_line,
+                "duration": self.VideoTimeSelector.duration}
             if video_files and json_file:
                 self.signal.emit(data)
                 self.close()

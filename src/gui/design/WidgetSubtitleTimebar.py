@@ -15,14 +15,15 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QDoubleSpinBox, QGridLayout, QHBoxLayout,
-    QLabel, QSizePolicy, QWidget)
+from PySide6.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
+    QSizePolicy, QSpacerItem, QSpinBox, QVBoxLayout,
+    QWidget)
 
 class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(464, 43)
+        Form.resize(464, 57)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -37,17 +38,52 @@ class Ui_Form(object):
 "")
         self.gridLayout = QGridLayout(Form)
         self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setContentsMargins(9, 3, -1, 3)
         self.MW = QWidget(Form)
         self.MW.setObjectName(u"MW")
         self.horizontalLayout_2 = QHBoxLayout(self.MW)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.LeftSpin = QDoubleSpinBox(self.MW)
+        self.LeftSpin = QSpinBox(self.MW)
         self.LeftSpin.setObjectName(u"LeftSpin")
-        self.LeftSpin.setMinimumSize(QSize(100, 0))
-        self.LeftSpin.setMaximumSize(QSize(100, 16777215))
+        self.LeftSpin.setMinimumSize(QSize(70, 0))
+        self.LeftSpin.setMaximumSize(QSize(70, 16777215))
 
         self.horizontalLayout_2.addWidget(self.LeftSpin)
+
+        self.verticalLayout = QVBoxLayout()
+        self.verticalLayout.setSpacing(2)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setContentsMargins(0, -1, -1, -1)
+        self.horizontalLayout_4 = QHBoxLayout()
+        self.horizontalLayout_4.setSpacing(0)
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
+        self.LLabel = QLabel(self.MW)
+        self.LLabel.setObjectName(u"LLabel")
+
+        self.horizontalLayout_4.addWidget(self.LLabel)
+
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_4.addItem(self.horizontalSpacer_2)
+
+        self.CLabel = QLabel(self.MW)
+        self.CLabel.setObjectName(u"CLabel")
+
+        self.horizontalLayout_4.addWidget(self.CLabel)
+
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_4.addItem(self.horizontalSpacer)
+
+        self.RLabel = QLabel(self.MW)
+        self.RLabel.setObjectName(u"RLabel")
+
+        self.horizontalLayout_4.addWidget(self.RLabel)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_4)
 
         self.widget = QWidget(self.MW)
         self.widget.setObjectName(u"widget")
@@ -63,8 +99,8 @@ class Ui_Form(object):
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.VLeft.sizePolicy().hasHeightForWidth())
         self.VLeft.setSizePolicy(sizePolicy1)
-        self.VLeft.setMinimumSize(QSize(5, 25))
-        self.VLeft.setMaximumSize(QSize(16777215, 25))
+        self.VLeft.setMinimumSize(QSize(5, 15))
+        self.VLeft.setMaximumSize(QSize(16777215, 15))
 
         self.horizontalLayout.addWidget(self.VLeft)
 
@@ -76,26 +112,11 @@ class Ui_Form(object):
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.VCurrent.sizePolicy().hasHeightForWidth())
         self.VCurrent.setSizePolicy(sizePolicy2)
-        self.VCurrent.setMinimumSize(QSize(0, 25))
-        self.VCurrent.setMaximumSize(QSize(16777215, 25))
+        self.VCurrent.setMinimumSize(QSize(0, 15))
+        self.VCurrent.setMaximumSize(QSize(16777215, 15))
         self.horizontalLayout_3 = QHBoxLayout(self.VCurrent)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.TimeLabel = QLabel(self.VCurrent)
-        self.TimeLabel.setObjectName(u"TimeLabel")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.TimeLabel.sizePolicy().hasHeightForWidth())
-        self.TimeLabel.setSizePolicy(sizePolicy3)
-        font = QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        self.TimeLabel.setFont(font)
-        self.TimeLabel.setAlignment(Qt.AlignCenter)
-
-        self.horizontalLayout_3.addWidget(self.TimeLabel)
-
 
         self.horizontalLayout.addWidget(self.VCurrent)
 
@@ -104,18 +125,21 @@ class Ui_Form(object):
         self.VRight.setEnabled(False)
         sizePolicy1.setHeightForWidth(self.VRight.sizePolicy().hasHeightForWidth())
         self.VRight.setSizePolicy(sizePolicy1)
-        self.VRight.setMinimumSize(QSize(5, 25))
-        self.VRight.setMaximumSize(QSize(16777215, 25))
+        self.VRight.setMinimumSize(QSize(5, 15))
+        self.VRight.setMaximumSize(QSize(16777215, 15))
 
         self.horizontalLayout.addWidget(self.VRight)
 
 
-        self.horizontalLayout_2.addWidget(self.widget)
+        self.verticalLayout.addWidget(self.widget)
 
-        self.RightSpin = QDoubleSpinBox(self.MW)
+
+        self.horizontalLayout_2.addLayout(self.verticalLayout)
+
+        self.RightSpin = QSpinBox(self.MW)
         self.RightSpin.setObjectName(u"RightSpin")
-        self.RightSpin.setMinimumSize(QSize(100, 0))
-        self.RightSpin.setMaximumSize(QSize(100, 16777215))
+        self.RightSpin.setMinimumSize(QSize(70, 0))
+        self.RightSpin.setMaximumSize(QSize(70, 16777215))
 
         self.horizontalLayout_2.addWidget(self.RightSpin)
 
@@ -130,6 +154,8 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
-        self.TimeLabel.setText(QCoreApplication.translate("Form", u"TextLabel", None))
+        self.LLabel.setText(QCoreApplication.translate("Form", u"TextLabel", None))
+        self.CLabel.setText(QCoreApplication.translate("Form", u"TextLabel", None))
+        self.RLabel.setText(QCoreApplication.translate("Form", u"TextLabel", None))
     # retranslateUi
 

@@ -50,6 +50,19 @@ def timedelta_to_string(time: datetime.timedelta):
     return f"{h}:{m}:{s}.{ms}"
 
 
+def timedelta_to_string_short(time: datetime.timedelta):
+    ms = f"{time.microseconds // 10000:02d}"
+    s = f"{time.seconds % 60:02d}"
+    m = f"{time.seconds % 3600 // 60:02d}"
+    h = f"{time.seconds // 3600:01d}"
+    if int(h):
+        return f"{h}:{m}:{s}.{ms}"
+    elif int(m):
+        return f"{m}:{s}.{ms}"
+    else:
+        return f"{s}.{ms}"
+
+
 def check_distance(array_1: list | tuple, array_2: list | tuple):
     """
     获得两个向量的距离

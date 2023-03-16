@@ -22,21 +22,21 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
         self.ProgressBar.setMaximum(0)
         self.StartButton.clicked.connect(self.toggle_process)
         self.DeleteButton.clicked.connect(self.delete_process)
-        self.typer_interval = self.parent.parent.typer_interval
         self.taskInfo: dict = data
-        self.video = self.taskInfo.get("video")
-        self.font = self.taskInfo.get("font")
-
-        if self.taskInfo.get("dryrun"):
-            self.dryrun = True
-        else:
-            self.dryrun = False
-        self.json = self.taskInfo.get("json")
-        self.translate = self.taskInfo.get("translate")
         self.Thread: VideoProcessThread = None
-        self.staff = self.taskInfo.get("staff")
+        self.process_data = {
+            "video": self.taskInfo.get("video"),
+            "json": self.taskInfo.get("json"),
+            "translate": self.taskInfo.get("translate"),
+            "overwrite": True,
+            "font": self.taskInfo.get("font"),
+            "dryrun": bool(self.taskInfo.get("dryrun")),
+            "staff": self.taskInfo.get("staff"),
+            "type_interval": self.parent.parent.typer_interval,
+            "duration": self.taskInfo.get("duration")
+        }
 
-        self.TaskNameString = os.path.splitext(os.path.split(self.video)[-1])[0]
+        self.TaskNameString = os.path.splitext(os.path.split(self.process_data.get("video"))[-1])[0]
         self.TaskName.setText(self.TaskNameString)
         self.TaskName.repaint()
         self.timer = QtCore.QTimer(self)
@@ -78,8 +78,7 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
 
     def toggle_process(self):
         if not self.processing:
-            self.Thread = VideoProcessThread(self, self.video, self.json, self.translate, self.font, self.dryrun,
-                                             self.staff, self.typer_interval)
+            self.Thread = VideoProcessThread(self, self.process_data)
             self.Thread.signal_data.connect(self.signal_process)
             self.StartButton.setStyleSheet("background-color:rgb(255,255,100);")
             self.StatusLogList.clear()

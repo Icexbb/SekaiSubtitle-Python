@@ -19,34 +19,43 @@ from script.subtitle import Subtitle
 
 
 class SekaiJsonVideoProcess:
-
     def __init__(
             self,
-            video_file: str,
-            json_file: str = None,
-            translate_file: str = None,
-            output_file: str = None,
+            data: dict,
+            # video_file: str,
+            # json_file: str = None,
+            # translate_file: str = None,
+            # output_file: str = None,
             signal: QtCore.Signal(dict) = None,
-            overwrite: bool = False,
+            # overwrite: bool = False,
             queue_in: Queue = Queue(),
-            font_custom: str = None,
-            use_no_json_file: bool = False,
-            staff: list[dict] = None,
-            typer_interval: int = 80
+            # font_custom: str = None,
+            # use_no_json_file: bool = False,
+            # staff: list[dict] = None,
+            # typer_interval: int = 80
     ):
         self.time_start = time.time()
         self.json_data = None
-        self.font = font_custom
-        self.signal = signal
-        self.dryrun = use_no_json_file
-        self.staff = staff or []
-        self.typer_interval = typer_interval
+        self.video_file = data.get("video")
+        self.json_file = data.get("json")
+        self.translate_file = data.get("translate")
 
-        self.video_file = video_file
+        self.overwrite = data.get("overwrite")
+        self.font = data.get("font")
+        self.dryrun = data.get("dryrun")
+        self.staff = data.get("staff") or []
+        self.typer_interval = data.get("typer_interval")
+        self.duration = data.get("duration")
+        print(data)
+        self.output_path = os.path.realpath(os.path.splitext(self.video_file)[0] + ".ass")
+        self.signal = signal
+        if self.duration:
+            self.log(f"[Initial] Video Process Duration {self.duration[0]} to {self.duration[-1]}")
+
         if not os.path.exists(self.video_file):
             raise FileNotFoundError
 
-        self.json_file: str | list = json_file
+        # self.json_file: str | list = json_file
         if not self.dryrun:
             if not self.json_file:
                 predict_path = os.path.splitext(self.video_file)[0] + ".json"
@@ -64,7 +73,7 @@ class SekaiJsonVideoProcess:
                 if len(self.json_file) == 1:
                     self.json_file: str = self.json_file[0]
 
-        self.translate_file: str = translate_file
+        # self.translate_file: str = translate_file
         if self.json_file and not isinstance(self.json_file, list):
             if not self.translate_file:
                 predict_path = os.path.splitext(self.video_file)[0] + ".txt"
@@ -75,8 +84,8 @@ class SekaiJsonVideoProcess:
                 self.log(f"[Initial] 翻译文件 {self.translate_file} 不存在")
                 raise FileNotFoundError("Translate File Not Found")
 
-        self.overwrite = overwrite
-        self.output_path = output_file
+        # self.overwrite = overwrite
+        # self.output_path = output_file
 
         if not self.output_path:
             predict_path = os.path.splitext(self.video_file)[0] + ".ass"
@@ -236,6 +245,7 @@ class SekaiJsonVideoProcess:
         vc = cv2.VideoCapture(self.video_file)
         video_fps = vc.get(5)
         height, width = (vc.get(4), vc.get(3))
+
         dialog_last_center = None
         last_status = 0
         dialog_pointer = match.get_resized_dialog_pointer(height, width)
@@ -283,8 +293,12 @@ class SekaiJsonVideoProcess:
         dialog_processed = 0
         dialog_process_running = True
         dialog_is_mask_start = False
-
-        self.emit({"total": self.VideoCapture.get(7)})
+        if not self.duration:
+            total_frame_count = self.VideoCapture.get(7)
+        else:
+            total_frame_count = self.duration[-1] - self.duration[0]
+            vc.set(cv2.CAP_PROP_POS_FRAMES, self.duration[0])
+        self.emit({"total": total_frame_count})
 
         se_count = 0
         banner_index = []
@@ -428,7 +442,8 @@ class SekaiJsonVideoProcess:
                                                                                 banner_mask,
                                                                                 video_fps)
                                         self.log(
-                                            f"[Processing] Area Banner {banner_processed}: Output {len(events)} Events, "
+                                            f"[Processing] Area Banner {banner_processed}: "
+                                            f"Output {len(events)} Events, "
                                             f"Remain {banner_data_count - banner_processed}/{banner_data_count}")
 
                                     banner_events += events
@@ -458,13 +473,15 @@ class SekaiJsonVideoProcess:
                                         events = self.area_tag_make_sequence(None, height, width, video_fps,
                                                                              tag_processing_frames)
                                         self.log(
-                                            f"[Processing] Area Tag {tag_processed_count}: Output {len(events)} Events")
+                                            f"[Processing] Area Tag {tag_processed_count}: "
+                                            f"Output {len(events)} Events")
                                     else:
                                         events = self.area_tag_make_sequence(tag_data_processing, height, width,
                                                                              video_fps,
                                                                              tag_processing_frames)
                                         self.log(
-                                            f"[Processing] Area Tag {tag_processed_count}: Output {len(events)} Events, "
+                                            f"[Processing] Area Tag {tag_processed_count}: "
+                                            f"Output {len(events)} Events, "
                                             f"Remain {tag_data_count - tag_processed_count}/{tag_data_count}")
                                     tag_events += events
                                     tag_processing_frames = []
@@ -482,6 +499,8 @@ class SekaiJsonVideoProcess:
             now_frame_count += 1
             del frame
             self.emit({"done": 1, "time": time.time() - self.time_start})
+            if now_frame_count > total_frame_count:
+                break
 
         if not self.stop:
             dialog_styles = self.dialog_make_styles(dialog_const_point_center, int(dialog_pointer.shape[0]))
@@ -729,7 +748,8 @@ class SekaiJsonVideoProcess:
             right_position = np.multiply(frame['position'], (1, 7 / 6)).tolist()
             mask_string, mask_size = reference.get_area_tag_mask(h, w, move=right_position)
             body_pos = rf"{{\an7\fs{int(mask_size[0] * 0.85)}" \
-                       rf"\pos({int(right_position[0] - mask_size[1] * 19 / 20)},{int(right_position[1] - mask_size[0] * 0.4)})}}"
+                       rf"\pos({int(right_position[0] - mask_size[1] * 19 / 20)}," \
+                       rf"{int(right_position[1] - mask_size[0] * 0.4)})}}"
             body_event_data = {
                 "Layer": 1, "Style": "address", "Name": '', "MarginL": 0, "MarginR": 0, "MarginV": 0,
                 "Start": tools.timedelta_to_string(frame_time * frame['frame_id']),
