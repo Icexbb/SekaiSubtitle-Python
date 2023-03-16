@@ -1,4 +1,5 @@
 import os.path
+import sys
 
 import numpy as np
 import pyqtgraph as pg
@@ -114,6 +115,20 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
             pass
         self.signal.emit({"id": self.id, 'data': 0})
 
+    def emit_task_finish(self):
+        root, file = os.path.split(self.taskInfo.get("video"))
+        name: str = os.path.splitext(file)[0]
+        msg = f"{name.capitalize()} 处理完毕！"
+        title = "Sekai Subtitle"
+        if "win" in sys.platform:
+            from win11toast import toast
+            toast(title, msg + "\n点击打开输出目录", audio='ms-winsoundevent:Notification.Looping.Alarm',
+                  on_click=lambda x: os.system("explorer.exe %s" % root),
+                  on_dismissed=lambda x: None)
+        elif "darwin" in sys.platform:
+            os.system(
+                f'osascript -e \'display notification "{msg}" with title "{title}" subtitle "任务完成"\'')
+
     def signal_process(self, msg):
         if msg['type'] == str:
             new_item = QtWidgets.QListWidgetItem()
@@ -134,6 +149,7 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
                 self.processing = False
                 self.TaskStatus.setText("已完成")
                 self.ProgressBar.setStyleSheet("")
+                self.emit_task_finish()
             elif data == 3:
                 self.processing = False
                 self.TaskStatus.setText("队列中")

@@ -1,7 +1,8 @@
 ass==0.5.2
 numpy==1.24.2
 PySide6==6.4.2
-
+PySideSix-Frameless-Window
+win11toast
 packaging~=23.0
 opencv-python~=4.7.0.72
 PyYAML~=6.0
