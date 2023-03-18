@@ -784,6 +784,7 @@ class SekaiJsonVideoProcess:
             self.log(f"[Error] {e}")
             self.emit(4)
         else:
+            self.VideoCapture.release()
             staff_style = []
             for staff in self.staff:
                 style = copy.deepcopy(staff_style_format)
@@ -823,4 +824,3 @@ class SekaiJsonVideoProcess:
                 self.emit(True)
                 self.emit({"done": 1, "end": True, "time": time.time() - self.time_start})
                 self.emit(2)
-        self.VideoCapture.release()

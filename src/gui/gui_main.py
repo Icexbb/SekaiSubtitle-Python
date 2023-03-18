@@ -146,6 +146,17 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         self.icon = title_icon
         if os.path.exists(title_icon):
             self.setWindowIcon(QIcon(title_icon))
+        self.FuncButtonSubtitle.setText(" 轴机")
+        self.FuncButtonText.setText(" 翻译")
+        self.FuncButtonDownload.setText(" 下载")
+        self.FuncButtonAbout.setText("")
+        self.FuncButtonSetting.setText("")
+        self.FuncButtonSubtitle.setIcon(QIcon(os.path.join(icon_path, "subtitles.png")))
+        self.FuncButtonText.setIcon(QIcon(os.path.join(icon_path, "translation.png")))
+        self.FuncButtonAbout.setIcon(QIcon(os.path.join(icon_path, "information.png")))
+        self.FuncButtonDownload.setIcon(QIcon(os.path.join(icon_path, "download.png")))
+        self.FuncButtonSetting.setIcon(QIcon(os.path.join(icon_path, "settings.png")))
+        self.MainLayout.setContentsMargins(0, 0, 0, 0)
 
     def AboutWindow(self):
         dia = AboutDialog(self)

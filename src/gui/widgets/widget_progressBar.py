@@ -84,6 +84,7 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
             self.setFixedHeight(100)
             self.LogShowButton.setText("<")
             self.GraphWidget.setHidden(True)
+        self.StatusLogList.scrollToBottom()
         self.signal.emit({"id": self.id, 'data': self.size()})
 
     def toggle_process(self):
@@ -121,10 +122,11 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
         msg = f"{name.capitalize()} 处理完毕！"
         title = "Sekai Subtitle"
         if "win" in sys.platform:
-            from win11toast import toast
-            toast(title, msg + "\n点击打开输出目录", audio='ms-winsoundevent:Notification.Looping.Alarm',
-                  on_click=lambda x: os.system("explorer.exe %s" % root),
-                  on_dismissed=lambda x: None)
+            import win11toast
+            n = win11toast.notify(
+                title, msg,  # + "\n点击打开输出目录",
+                on_click=root,  # lambda x: os.system("explorer.exe %s" % root),
+            )
         elif "darwin" in sys.platform:
             os.system(
                 f'osascript -e \'display notification "{msg}" with title "{title}" subtitle "任务完成"\'')
@@ -134,7 +136,7 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
             new_item = QtWidgets.QListWidgetItem()
             new_item.setText(msg['data'])
             self.StatusLogList.addItem(new_item)
-            self.StatusLogList.scrollToItem(new_item)
+            self.StatusLogList.scrollToBottom()
         elif msg['type'] == int:
             data = msg['data']
             if data == 0:
