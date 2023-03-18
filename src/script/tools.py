@@ -77,7 +77,7 @@ def check_distance(array_1: list | tuple, array_2: list | tuple):
 
 def check_img_aberration(img: np.ndarray, target: np.ndarray):
     p = (np.abs(img - target)).reshape((img.shape[0] * img.shape[1], 3))
-    return sum([x < 18 for x in p.max(axis=1)]) > (img.shape[0] * img.shape[1] * 0.9)
+    return sum([x < 20 for x in p.max(axis=1)]) > (img.shape[0] * img.shape[1] * 0.85)
 
 
 def check_dark(image: np.ndarray, color: int):

@@ -217,7 +217,7 @@ class SekaiJsonVideoProcess:
 
     @staticmethod
     def match_frame_banner(frame, banner_mask_area):
-        banner_frame_result: bool = match.check_frame_area_mask(frame, banner_mask_area, True)
+        banner_frame_result: bool = match.check_frame_area_mask(frame, banner_mask_area)
         return "banner", (banner_frame_result,)
 
     @staticmethod
@@ -338,15 +338,15 @@ class SekaiJsonVideoProcess:
                                                      dialog_last_center)
                             future_tasks.append(future)
                         if banner_process_running:
-                            if not self.dryrun and (banner_index[banner_processed] != se_index_now):
-                                pass
-                            else:
+                            if self.duration or self.dryrun or \
+                                    (not (self.dryrun and self.duration)
+                                     and banner_index[banner_processed] == se_index_now):
                                 future = executor.submit(self.match_frame_banner, frame, banner_mask_area)
                                 future_tasks.append(future)
                         if tag_process_running:
-                            if not self.dryrun and (tag_index[tag_processed_count] != se_index_now):
-                                pass
-                            else:
+                            if self.duration or self.dryrun or \
+                                    (not (self.dryrun and self.duration)
+                                     and tag_index[tag_processed_count] == se_index_now):
                                 future = executor.submit(self.match_frame_tag, frame, tag_pattern)
                                 future_tasks.append(future)
 
@@ -589,6 +589,8 @@ class SekaiJsonVideoProcess:
         else:
             style = "関連人物"
 
+        offset_frame = self.duration[0] if self.duration else 0
+
         jitter = False
         for item in dialog_frames:
             if tools.check_distance(item["point_center"], start_frame["point_center"]) > pow(pow(5, 2) * 2, 0.5):
@@ -596,8 +598,8 @@ class SekaiJsonVideoProcess:
                 break
 
         if not jitter:
-            start_time = tools.timedelta_to_string(frame_time * start_frame['frame'])
-
+            start_time = tools.timedelta_to_string(frame_time * (start_frame['frame'] + offset_frame))
+            end_time = tools.timedelta_to_string(frame_time * (end_frame['frame'] + offset_frame))
             if dialog_data:
                 dialog_body = self.dialog_body_typer(dialog_data["Body"], self.typer_interval)
             else:
@@ -605,7 +607,7 @@ class SekaiJsonVideoProcess:
             event_data = {
                 "Layer": 1,
                 "Start": start_time,
-                "End": tools.timedelta_to_string(frame_time * end_frame['frame']),
+                "End": end_time,
                 "Style": style,
                 "Name": dialog_data['WindowDisplayName'] if dialog_data else "",
                 "MarginL": 0, "MarginR": 0, "MarginV": 0,
@@ -648,8 +650,8 @@ class SekaiJsonVideoProcess:
 
                 event_data = {
                     "Layer": 1,
-                    "Start": tools.timedelta_to_string(frame_time * frame['frame']),
-                    "End": tools.timedelta_to_string(frame_time * (frame['frame'] + 1)),
+                    "Start": tools.timedelta_to_string(frame_time * (frame['frame'] + offset_frame)),
+                    "End": tools.timedelta_to_string(frame_time * (frame['frame'] + offset_frame + 1)),
                     "Style": style,
                     "Name": dialog_data['WindowDisplayName'] if dialog_data else "",
                     "MarginL": 0, "MarginR": 0, "MarginV": 0,
@@ -671,8 +673,8 @@ class SekaiJsonVideoProcess:
 
                 mask_data = {
                     "Layer": 1,
-                    "Start": tools.timedelta_to_string(frame_time * frame['frame']),
-                    "End": tools.timedelta_to_string(frame_time * (frame['frame'] + 1)),
+                    "Start": tools.timedelta_to_string(frame_time * (frame['frame'] + offset_frame)),
+                    "End": tools.timedelta_to_string(frame_time * (frame['frame'] + offset_frame + 1)),
                     "Style": 'screen',
                     "Name": dialog_data['WindowDisplayName'] if dialog_data else "",
                     "MarginL": 0, "MarginR": 0, "MarginV": 0, "Effect": '',
@@ -688,52 +690,45 @@ class SekaiJsonVideoProcess:
 
             event_data = {
                 "Layer": 1, "Type": "Comment", "Style": style, "Effect": '',
-                "Start": tools.timedelta_to_string(frame_time * dialog_frames[0]["frame"]),
-                "End": tools.timedelta_to_string(frame_time * (dialog_frames[-1]["frame"] + 1)),
+                "Start": tools.timedelta_to_string(frame_time * (dialog_frames[0]["frame"] + offset_frame)),
+                "End": tools.timedelta_to_string(frame_time * (dialog_frames[-1]["frame"] + offset_frame + 1)),
                 "Name": dialog_data['WindowDisplayName'] if dialog_data else "",
                 "MarginL": 0, "MarginR": 0, "MarginV": 0, "Text": dialog_data["Body"]
             }
             dialogs.append(event_data)
-            mask_data = {
-                "Layer": 1, "Type": "Comment", "Style": 'screen', "Effect": '',
-                "Start": tools.timedelta_to_string(frame_time * dialog_frames[0]["frame"]),
-                "End": tools.timedelta_to_string(frame_time * (dialog_frames[-1]["frame"] + 1)),
-                "Name": dialog_data['WindowDisplayName'] if dialog_data else "",
-                "MarginL": 0, "MarginR": 0, "MarginV": 0, "Text": reference.get_dialog_mask(frame_data)
-            }
+            mask_data = copy.deepcopy(event_data)
+            mask_data["Text"] = reference.get_dialog_mask(frame_data)
             masks.append(mask_data)
             return masks + dialogs
 
-    @staticmethod
-    def area_banner_make_sequence(frame_array: list[int], area_info: dict | None, area_mask, fps):
+    def area_banner_make_sequence(self, frame_array: list[int], area_info: dict | None, area_mask, fps):
         events = []
         frame_time = timedelta(seconds=1 / fps)
+
+        offset_frame = self.duration[0] if self.duration else 0
+
         event_mask = {
             "Layer": 0,
-            "Start": tools.timedelta_to_string(frame_array[0] * frame_time),
-            "End": tools.timedelta_to_string(frame_array[-1] * frame_time),
+            "Start": tools.timedelta_to_string((frame_array[0] + offset_frame) * frame_time),
+            "End": tools.timedelta_to_string((frame_array[-1] + offset_frame) * frame_time),
             "Style": "address", "Name": '',
             "MarginL": 0, "MarginR": 0, "MarginV": 0, "Effect": '',
             "Text": r"{\fad(100,100)}" + area_mask
         }
-        event_data = {
-            "Layer": 1,
-            "Start": tools.timedelta_to_string(frame_array[0] * frame_time),
-            "End": tools.timedelta_to_string(frame_array[-1] * frame_time),
-            "Style": "address", "Name": '',
-            "MarginL": 0, "MarginR": 0, "MarginV": 0, "Effect": '',
-            "Text": area_info["StringVal"] if area_info else "LOCATION"
-        }
+        event_data = copy.deepcopy(event_mask)
+        event_data["Text"] = area_info["StringVal"] if area_info else "LOCATION"
+
         events.append(event_mask)
         events.append(event_data)
         return events
 
-    @staticmethod
-    def area_tag_make_sequence(tag_info: dict | None, h: int, w: int, fps: int,
+    def area_tag_make_sequence(self, tag_info: dict | None, h: int, w: int, fps: int,
                                frames: list[dict[str, tuple[int, int] | int]]):
         events_mask = []
         events_body = []
         frame_time = timedelta(seconds=1 / fps)
+        offset_frame = self.duration[0] if self.duration else 0
+
         body = tag_info["StringVal"] if tag_info else ""
         for frame in frames:
             right_position = np.multiply(frame['position'], (1, 7 / 6)).tolist()
@@ -743,8 +738,8 @@ class SekaiJsonVideoProcess:
                        rf"{int(right_position[1] - mask_size[0] * 0.4)})}}"
             body_event_data = {
                 "Layer": 1, "Style": "address", "Name": '', "MarginL": 0, "MarginR": 0, "MarginV": 0,
-                "Start": tools.timedelta_to_string(frame_time * frame['frame_id']),
-                "End": tools.timedelta_to_string(frame_time * (frame['frame_id'] + 1)),
+                "Start": tools.timedelta_to_string(frame_time * (frame['frame_id'] + offset_frame)),
+                "End": tools.timedelta_to_string(frame_time * (frame['frame_id'] + offset_frame + 1)),
                 "Effect": '', "Text": body_pos + body
             }
             if events_body and events_body[-1]["Text"] == body_event_data["Text"]:
@@ -758,8 +753,8 @@ class SekaiJsonVideoProcess:
 
         body_event_data = {
             "Layer": 1, "Style": "address", "Name": '', "Type": "Comment",
-            "Start": tools.timedelta_to_string(frame_time * frames[0]['frame_id']),
-            "End": tools.timedelta_to_string(frame_time * (frames[-1]['frame_id'] + 1)),
+            "Start": tools.timedelta_to_string(frame_time * (frames[0]['frame_id'] + offset_frame)),
+            "End": tools.timedelta_to_string(frame_time * (frames[-1]['frame_id'] + offset_frame + 1)),
             "MarginL": 0, "MarginR": 0, "MarginV": 0, "Effect": '', "Text": body
         }
         events_body.append(body_event_data)

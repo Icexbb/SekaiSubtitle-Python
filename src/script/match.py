@@ -104,12 +104,7 @@ def check_frame_dialog_status(frame: np.ndarray, pointer: np.ndarray, point_cent
     return result
 
 
-def check_frame_area_mask(frame: np.ndarray, area_mask: List[int], content_started: bool = False):
-    if not content_started:
-        start = check_frame_content_start(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY),
-                                          get_resized_interface_menu(frame.shape[1], frame.shape[0]))
-        if not start:
-            return False
+def check_frame_area_mask(frame: np.ndarray, area_mask: List[int]):
     check_size_y = abs(int((area_mask[1] - area_mask[0]) / 3))
     check_size_x = abs(int((area_mask[2] - area_mask[3]) / 2))
     cut1: np.ndarray = frame[area_mask[0]:area_mask[0] + check_size_y, area_mask[2]:area_mask[2] + check_size_x]
@@ -117,22 +112,6 @@ def check_frame_area_mask(frame: np.ndarray, area_mask: List[int], content_start
     area_purple.reverse()
 
     return check_img_aberration(cut1, np.array(area_purple))
-    # num = check_size_y * check_size_x
-    # exist = 0
-    # lost = 0
-    # if max([(cut1[:, :, i]).var() for i in range(cut1.shape[2])]) < 100:
-    #     for array in cut1:
-    #         for pixel in array:
-    #             dis = check_aberration(pixel, area_purple)
-    #             if dis < 18:
-    #                 exist += 1
-    #             else:
-    #                 lost += 1
-    #         if exist > num * 0.9:
-    #             return True
-    #         if lost > num * 0.1:
-    #             return False
-    # return False
 
 
 def check_frame_content_start(frame: np.ndarray, menu_sign: np.ndarray) -> bool:
