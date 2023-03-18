@@ -14,7 +14,7 @@ import yaml
 from PySide6 import QtCore
 
 from script import match, reference, tools
-from script.data import DISPLAY_NAME_STYLE, subtitle_styles_format, staff_style_format, get_divider_event
+from script.data import DISPLAY_NAME_STYLE, subtitle_styles_format, staff_style_format, get_divider_event, area_edge
 from script.subtitle import Subtitle
 
 
@@ -216,8 +216,8 @@ class SekaiJsonVideoProcess:
         return "dialog", (status, center)
 
     @staticmethod
-    def match_frame_banner(frame, banner_mask_area):
-        banner_frame_result: bool = match.check_frame_area_mask(frame, banner_mask_area)
+    def match_frame_banner(frame, banner_mask_area, banner_edge_pattern):
+        banner_frame_result: bool = match.check_frame_banner_edge(frame, banner_mask_area, banner_edge_pattern)
         return "banner", (banner_frame_result,)
 
     @staticmethod
@@ -258,7 +258,12 @@ class SekaiJsonVideoProcess:
 
         banner_events = []
         banner_mask = reference.get_area_banner_mask(reference.get_area_mask_size((width, height)))
-        banner_mask_area = match.get_square_mask_area(height, width)
+        banner_mask_area = match.get_banner_area(height, width)
+        banner_mask_height = abs(banner_mask_area[1] - banner_mask_area[0])
+        banner_pattern_size = int(abs(int(banner_mask_area[3] + 0.1 * banner_mask_height) -
+                                      int(banner_mask_area[2] - 0.1 * banner_mask_height)) * 0.3)
+        banner_edge_pattern = cv2.Canny(cv2.resize(area_edge, (banner_pattern_size, banner_pattern_size)), 100, 200)
+
         banner_data_processing = None
         banner_processing_frames = []
         banner_processed = 0
@@ -341,7 +346,8 @@ class SekaiJsonVideoProcess:
                             if self.duration or self.dryrun or \
                                     (not (self.dryrun and self.duration)
                                      and banner_index[banner_processed] == se_index_now):
-                                future = executor.submit(self.match_frame_banner, frame, banner_mask_area)
+                                future = executor.submit(
+                                    self.match_frame_banner, frame, banner_mask_area, banner_edge_pattern)
                                 future_tasks.append(future)
                         if tag_process_running:
                             if self.duration or self.dryrun or \

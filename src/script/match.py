@@ -37,6 +37,17 @@ def get_resized_area_tag(h, w) -> np.ndarray:
     return place_frame
 
 
+def get_banner_area(h, w) -> list[int]:
+    mask = get_area_mask_size((w, h))
+    mask_string = [int(i) for i in get_area_banner_mask(
+        mask).split(' ') if i.isdigit()]
+    x_ls = mask_string[::2]
+    y_ls = list(set(mask_string[1::2]))
+    x_a = [min(sorted(x_ls)), max(sorted(x_ls))]
+    y_a = sorted(y_ls)
+    return y_a + x_a
+
+
 def get_square_mask_area(h, w) -> list[int]:
     mask = get_area_mask_size((w, h))
     mask_string = [i for i in get_area_banner_mask(mask).split(' ') if i.isdigit()]
@@ -139,3 +150,19 @@ def check_area_tag_position(frame: np.ndarray, tag_pattern: np.ndarray, content_
     else:
         left_top = (loc[1].item(), loc[0].item())
         return tuple([int(left_top[0] + tag_pattern.shape[1]), int(left_top[1] + tag_pattern.shape[1] / 2)])
+
+
+def check_frame_banner_edge(frame, area, temp):
+    height = abs(area[1] - area[0])
+    c = [171, 137, 141]
+    cut = frame[
+          int(area[0] - 0.1 * height):int(area[1] + 0.1 * height),
+          int(area[2] - 0.1 * height):int(area[3] + 0.1 * height)
+          ]
+    sz = int(cut.shape[1] * 0.3)
+    cut = cv2.resize(cut, (sz, sz))
+    cut[int(sz * 0.3):int(sz * 0.7), int(sz * 0.2):int(sz * 0.8)] = c
+    cut = cv2.cvtColor(cut, cv2.COLOR_BGR2GRAY)
+    edge = cv2.Canny(cut, 50, 200)
+    res = cv2.matchTemplate(edge, temp, cv2.TM_CCORR_NORMED)[0][0]
+    return res > 0.32
