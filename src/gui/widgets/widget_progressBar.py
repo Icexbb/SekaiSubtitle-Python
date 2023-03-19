@@ -1,7 +1,8 @@
 import os.path
 import sys
 
-import numpy as np
+# import numpy as np
+from numpy import linspace
 import pyqtgraph as pg
 from PySide6 import QtWidgets, QtCore
 
@@ -26,7 +27,7 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
         self.taskInfo: dict = data
         self.Thread: VideoProcessThread = None
         self.process_data = {
-            "widget_id":self.id,
+            "widget_id": self.id,
             "video": self.taskInfo.get("video"),
             "json": self.taskInfo.get("json"),
             "translate": self.taskInfo.get("translate"),
@@ -62,18 +63,20 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
 
     def updatePlot(self, limit: int = 0):
         self.GraphWidget.clear()
+        pen = pg.mkPen(width=1, color='b')
         if limit:
-            values = self.fps_list[-max(limit, 1):]
             values_2 = self.fps_list[-max(limit * 2, 1):]
             self.GraphWidget.setYRange(max(0, min(values_2) - 20), max(values_2) + 20)
-            x = np.linspace(max(1, len(self.fps_list) - len(values)), len(self.fps_list) + 1, len(values) + 1)
 
+            values = self.fps_list[-max(limit, 1):]
+            start = max(1, len(self.fps_list) - len(values))
+            x = list([start + i for i in range(len(values) + 1)])
+            # x = linspace(max(1, len(self.fps_list) - len(values)), len(self.fps_list) + 1, len(values) + 1)
         else:
             values = self.fps_list[1:]
             self.GraphWidget.setYRange(max(0, min(values) - 20), max(values) + 20)
-            x = np.linspace(0, len(self.fps_list), len(values) + 1)
-
-        pen = pg.mkPen(width=1, color='b')
+            x = list(range(1, len(self.fps_list) + 1))
+            # x = linspace(0, len(self.fps_list), len(values) + 1)
         self.GraphWidget.plot(x, values, stepMode="center", pen=pen)
 
     def showLog(self):
