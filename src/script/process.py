@@ -11,7 +11,8 @@ from queue import Queue
 import cv2
 import numpy as np
 import yaml
-from PySide6 import QtCore
+from PySide6 import QtCore, QtWidgets
+from PySide6.QtWidgets import QMessageBox
 
 from script import match, reference, tools
 from script.data import DISPLAY_NAME_STYLE, subtitle_styles_format, staff_style_format, get_divider_event, area_edge
@@ -27,6 +28,7 @@ class SekaiJsonVideoProcess:
     ):
         self.time_start = time.time()
         self.json_data = None
+        self.data = data
         self.video_file = data.get("video")
         self.json_file = data.get("json")
         self.translate_file = data.get("translate")
@@ -37,10 +39,13 @@ class SekaiJsonVideoProcess:
         self.staff = data.get("staff") or []
         self.typer_interval = data.get("typer_interval")
         self.duration = data.get("duration")
+        self.debug = data.get("debug")
+        self.widget_id = data.get("widget_id")
         self.output_path = os.path.realpath(os.path.splitext(self.video_file)[0] + ".ass")
         self.signal = signal
+        self.log("initial", f"文件输出到 {self.output_path}")
         if self.duration:
-            self.log(f"[Initial] Video Process Duration {self.duration[0]} to {self.duration[-1]}")
+            self.log("initial", f"设置视频处理区间：{self.duration[0]}帧 -> {self.duration[-1]}帧")
 
         if not os.path.exists(self.video_file):
             raise FileNotFoundError
@@ -51,13 +56,13 @@ class SekaiJsonVideoProcess:
                 predict_path = os.path.splitext(self.video_file)[0] + ".json"
                 if os.path.exists(predict_path):
                     self.json_file = predict_path
-                    self.log(f"[Initial] 自动选择了JSON文件 {predict_path}")
+                    self.log("initial", f"自动选择了JSON文件 {predict_path}")
                 else:
-                    self.log(f"[Initial] JSON文件 {predict_path} 不存在")
+                    self.log("initial", f"JSON文件 {predict_path} 不存在")
                     raise FileNotFoundError("Json File Not Found")
             elif isinstance(self.json_file, str):
                 if not os.path.exists(self.json_file):
-                    self.log(f"[Initial] JSON文件 {self.json_file} 不存在")
+                    self.log("initial", f"JSON文件 {self.json_file} 不存在")
                     raise FileNotFoundError("Json File Not Found")
             elif isinstance(self.json_file, list):
                 if len(self.json_file) == 1:
@@ -69,10 +74,10 @@ class SekaiJsonVideoProcess:
                 predict_path = os.path.splitext(self.video_file)[0] + ".txt"
                 if os.path.exists(predict_path):
                     self.translate_file = predict_path
-                    self.log(f"[Initial] 自动选择了翻译文件 {predict_path}")
+                    self.log("initial", f"自动选择了翻译文件 {predict_path}")
             elif not os.path.exists(self.translate_file):
-                self.log(f"[Initial] 翻译文件 {self.translate_file} 不存在")
-                raise FileNotFoundError("Translate File Not Found")
+                self.log("initial", f"翻译文件 {self.translate_file} 不存在")
+                raise FileNotFoundError("Translate File Not Found", self.translate_file)
 
         # self.overwrite = overwrite
         # self.output_path = output_file
@@ -81,7 +86,7 @@ class SekaiJsonVideoProcess:
             predict_path = os.path.splitext(self.video_file)[0] + ".ass"
             if (not os.path.exists(predict_path)) or self.overwrite:
                 self.output_path = predict_path
-                self.log(f"[Initial] 自动选择了输出位置 {predict_path}")
+                self.log("initial", f"自动选择了输出位置 {predict_path}")
             else:
                 raise FileExistsError
         elif os.path.exists(self.output_path):
@@ -91,20 +96,30 @@ class SekaiJsonVideoProcess:
         if not self.dryrun:
             self.load_json()
         else:
-            self.log("[Initial] 用户选择不使用数据文件运行")
+            self.log("initial", f"不使用数据文件")
         self.VideoCapture = cv2.VideoCapture(self.video_file)
-        self.log("[Initial] 初始化完成")
+        self.log("initial", f"初始化完成")
         self.stop = False
         self.queue = queue_in
 
     def set_stop(self):
         self.stop = True
 
-    def log(self, message: str):
+    def log(self, msg_type, msg: str | Exception):
+        msg_type = msg_type.lower()
+        if not self.debug and msg_type in ["debug", "调试"]:
+            return
+        m = f"[{msg_type.capitalize()}] {msg.strip() if isinstance(msg, str) else msg.__repr__()}"
         if self.signal:
-            self.signal.emit({"type": str, "data": message})
+            self.signal.emit({"type": str, "data": m})
         else:
-            print(message)
+            print(m)
+
+        if msg_type in ['error']:
+            from gui.gui_main import MainUi
+            ui = QtWidgets.QApplication.activeWindow()
+            if isinstance(ui, MainUi):
+                ui.signal_exception.emit(msg, self.data)
 
     def emit(self, data):
         if self.signal:
@@ -115,7 +130,7 @@ class SekaiJsonVideoProcess:
             if os.path.exists(self.json_file):
                 self.json_data = json.load(open(self.json_file, 'r', encoding='utf-8'))
                 if self.translate_file:
-                    self.log("[Initial] 尝试进行翻译替换")
+                    self.log("initial", f"尝试进行翻译替换")
                     if isinstance(self.translate_file, list) and self.translate_file:
                         self.translate_file = self.translate_file[0]
                     if os.path.exists(self.translate_file):
@@ -143,7 +158,7 @@ class SekaiJsonVideoProcess:
                                 self.json_data['TalkData'] = result
                                 changed += 1
                             else:
-                                self.log("[Initial] 翻译文件与对话数据不符")
+                                self.log("initial", f"翻译文件与对话数据不符")
 
                             if len(place) == len(
                                     [item for item in self.json_data['SpecialEffectData'] if
@@ -157,9 +172,9 @@ class SekaiJsonVideoProcess:
                                 self.json_data['SpecialEffectData'] = result
                                 changed += 1
                             else:
-                                self.log("[Initial] 翻译文件与地点数据不符")
+                                self.log("initial", f"翻译文件与地点数据不符")
                             if changed == 2:
-                                self.log("[Initial] 已进行中文替换")
+                                self.log("initial", f"已进行中文替换")
                         if os.path.splitext(self.translate_file)[-1].lower() == ".yml":
                             with open(self.translate_file, "r", encoding="utf8") as fp:
                                 data = yaml.load(fp, yaml.Loader)
@@ -171,7 +186,7 @@ class SekaiJsonVideoProcess:
                                 for index, string in enumerate(data_d):
                                     self.json_data['TalkData'][index]["Body"] = string
                             else:
-                                self.log("[Initial] 翻译文件与对话数据不符")
+                                self.log("initial", f"翻译文件与对话数据不符")
                                 not_changed += 1
 
                             effect_type = {"tag": 18, "banner": 8}
@@ -188,25 +203,25 @@ class SekaiJsonVideoProcess:
                                         result.append(item)
                                     self.json_data['SpecialEffectData'] = result
                                 else:
-                                    self.log(f"[Initial] 翻译文件与{'角标' if effect_id == 18 else '横幅'}数据不符")
+                                    self.log("initial", f"翻译文件与{'角标' if effect_id == 18 else '横幅'}数据不符")
                                     not_changed += 1
 
                             if not_changed != 3:
-                                self.log("[Initial] 已进行中文替换")
+                                self.log("initial", f"已进行中文替换")
                     else:
-                        self.log("[Initial] 翻译文件不存在")
+                        self.log("initial", f"翻译文件不存在")
             else:
-                self.log("[Error] JSON文件不存在")
+                self.log("initial", f"JSON文件不存在")
                 raise FileNotFoundError("JSON文件不存在")
         else:
             if len(self.json_file) > 1:
-                self.log("[Initial] 使用了多个Json文件")
+                self.log("initial", f"使用了多个Json文件")
             res = {}
             for file in self.json_file:
                 data = json.load(open(file, 'r', encoding='utf-8'))
                 res = tools.merge_dict(res, data)
             self.json_data = res
-        self.log("[Initial] JSON数据读取完成")
+        self.log("initial", f"JSON数据读取完成")
 
     @staticmethod
     def match_frame_dialog(frame, pointer, last_center):
@@ -227,15 +242,16 @@ class SekaiJsonVideoProcess:
 
     @staticmethod
     def match_check_start(frame):
+        gf = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         start = match.check_frame_content_start(
-            cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), match.get_resized_interface_menu(frame.shape[1], frame.shape[0]))
+            gf, match.get_resized_interface_menu(frame.shape[1], frame.shape[0]))
         return start
 
     def match(self):
         vc = cv2.VideoCapture(self.video_file)
         video_fps = vc.get(5)
         height, width = (vc.get(4), vc.get(3))
-
+        self.log("debug", f"Video {width}x{height}@{video_fps}fps")
         dialog_last_center = None
         last_status = 0
         dialog_pointer = match.get_resized_dialog_pointer(height, width)
@@ -294,6 +310,7 @@ class SekaiJsonVideoProcess:
             total_frame_count = self.duration[-1] - self.duration[0]
             vc.set(cv2.CAP_PROP_POS_FRAMES, self.duration[0])
         self.emit({"total": total_frame_count})
+        self.log("debug", f"Video Frame {total_frame_count}")
 
         se_count = 0
         banner_index = []
@@ -381,8 +398,8 @@ class SekaiJsonVideoProcess:
                                             int(dialog_pointer.shape[0]), height, width, video_fps,
                                             dialog_last_end_frame, dialog_last_end_event, dialog_is_mask_start)
                                         self.log(
-                                            f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events, "
-                                            f"Remains {dialog_total_count - dialog_processed}/{dialog_total_count}")
+                                            "process", f"Dialog {dialog_processed}: Output {len(events)} Events, "
+                                                       f"Remains {dialog_total_count - dialog_processed}/{dialog_total_count}")
                                     else:
                                         events = self.dialog_make_sequence(
                                             dialog_processing_frames, None, int(dialog_pointer.shape[0]),
@@ -390,14 +407,14 @@ class SekaiJsonVideoProcess:
                                             dialog_last_end_frame, dialog_last_end_event, dialog_is_mask_start)
                                         if self.dryrun:
                                             self.log(
-                                                f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events")
-                                            self.log("[Warning] No Data For This Dialog, Please Recheck")
+                                                "process", f"Dialog {dialog_processed}: Output {len(events)} Events")
+                                            self.log("警告", f"No Data For This Dialog, Please Recheck")
                                         else:
                                             self.log(
-                                                f"[Processing] Dialog {dialog_processed}: Output {len(events)} Events")
+                                                "process", f"Dialog {dialog_processed}: Output {len(events)} Events")
                                             if len(events) > 2:
                                                 self.log(
-                                                    f"[Processing] Jitter Happened in a No-Json Task, Please Recheck")
+                                                    "警告", f"Jitter Happened in a No-Json Task, Please Recheck")
 
                                     dialog_last_end_frame = dialog_processing_frames[-1]
                                     dialog_last_end_event = events[-1]
@@ -431,16 +448,16 @@ class SekaiJsonVideoProcess:
                                                                                 banner_mask,
                                                                                 video_fps)
                                         self.log(
-                                            f"[Processing] Area Banner {banner_processed}: Output {len(events)} Events")
+                                            "process", f"Area Banner {banner_processed}: Output {len(events)} Events")
                                     else:
                                         events = self.area_banner_make_sequence(banner_processing_frames,
                                                                                 banner_data_processing,
                                                                                 banner_mask,
                                                                                 video_fps)
                                         self.log(
-                                            f"[Processing] Area Banner {banner_processed}: "
-                                            f"Output {len(events)} Events, "
-                                            f"Remain {banner_data_count - banner_processed}/{banner_data_count}")
+                                            "process", f"Area Banner {banner_processed}: "
+                                                       f"Output {len(events)} Events, "
+                                                       f"Remain {banner_data_count - banner_processed}/{banner_data_count}")
 
                                     banner_events += events
                                     banner_processing_frames = []
@@ -469,16 +486,16 @@ class SekaiJsonVideoProcess:
                                         events = self.area_tag_make_sequence(None, height, width, video_fps,
                                                                              tag_processing_frames)
                                         self.log(
-                                            f"[Processing] Area Tag {tag_processed_count}: "
-                                            f"Output {len(events)} Events")
+                                            "process", f"Area Tag {tag_processed_count}: "
+                                                       f"Output {len(events)} Events")
                                     else:
                                         events = self.area_tag_make_sequence(tag_data_processing, height, width,
                                                                              video_fps,
                                                                              tag_processing_frames)
                                         self.log(
-                                            f"[Processing] Area Tag {tag_processed_count}: "
-                                            f"Output {len(events)} Events, "
-                                            f"Remain {tag_data_count - tag_processed_count}/{tag_data_count}")
+                                            "process", f"Area Tag {tag_processed_count}: "
+                                                       f"Output {len(events)} Events, "
+                                                       f"Remain {tag_data_count - tag_processed_count}/{tag_data_count}")
                                     tag_events += events
                                     tag_processing_frames = []
                                     tag_data_processing = None
@@ -500,7 +517,7 @@ class SekaiJsonVideoProcess:
 
         if not self.stop:
             dialog_styles = self.dialog_make_styles(dialog_const_point_center, int(dialog_pointer.shape[0]))
-            self.log("[Processing] Matching Process Finished")
+            self.log("process", f"Matching Process Finished")
             if (not self.dryrun) and dialog_data + banner_data + tag_data:
                 recheck = []
                 if dialog_data:
@@ -509,7 +526,7 @@ class SekaiJsonVideoProcess:
                     recheck.append("Banner")
                 if tag_data:
                     recheck.append("Tag")
-                self.log("[Warning] Process Not Fully Matched in " + ",".join(recheck))
+                self.log("process", f"Process Not Fully Matched in " + ",".join(recheck))
             return dialogs_events, dialog_styles, banner_events, tag_events
         else:
             raise KeyboardInterrupt
@@ -772,7 +789,7 @@ class SekaiJsonVideoProcess:
 
     def run(self):
         self.time_start = time.time()
-        self.log(f"[Processing] Start Processing {os.path.split(self.video_file)[-1]}")
+        self.log("process", f"Start Processing {os.path.split(self.video_file)[-1]}")
         self.emit(1)
 
         video_height = self.VideoCapture.get(4)
@@ -780,9 +797,9 @@ class SekaiJsonVideoProcess:
         try:
             dialogs_events, dialog_styles, banner_events, tag_events = self.match()
         except KeyboardInterrupt:
-            self.log(f"[Terminated] Process Terminated Prematurely By User,No File Changed")
+            self.log("process", f"Process Terminated Prematurely By User,No File Changed")
         except Exception as e:
-            self.log(f"[Error] {e}")
+            self.log("error", e)
             self.emit(4)
         else:
             self.VideoCapture.release()
@@ -813,14 +830,14 @@ class SekaiJsonVideoProcess:
             if os.path.exists(self.output_path):
                 if self.overwrite:
                     os.remove(self.output_path)
-                    self.log(f"[Output] Existing output files with the same name have been purged")
+                    self.log("output", f"Existing output files with the same name have been purged")
                 else:
                     raise FileExistsError
 
             with open(self.output_path, 'w', encoding='utf8') as fp:
                 fp.write(subtitle.string)
 
-            self.log(f"[Success] File Exported to {os.path.realpath(self.output_path)} Successfully")
+            self.log("success", f"File Exported to {os.path.realpath(self.output_path)} Successfully")
             if self.signal:
                 self.emit(True)
                 self.emit({"done": 1, "end": True, "time": time.time() - self.time_start})

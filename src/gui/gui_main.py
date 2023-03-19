@@ -30,9 +30,12 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
     _startPos = None
     _endPos = None
     _isTracking = None
+    signal_exception = QtCore.Signal(Exception, dict)
 
     def __init__(self):
         super().__init__()
+        self.icon_q = None
+        self._debug = 0
         self.icon = None
         self.version = VERSION
         self.setupUi(self)
@@ -65,6 +68,7 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         self.FuncButtonSetting.clicked.connect(lambda: self.switchWidget(3, QtCore.QSize(650, 450)))
         self.FuncButtonAbout.clicked.connect(self.AboutWindow)
         self.switchWidget(0, QtCore.QSize(650, 450))
+        self.signal_exception.connect(self.handel_exception)
 
         if self.FormSettingWidget.get_config("update"):
             self.update_url = "https://api.github.com/repos/Icexbb/SekaiSubtitle-Python/releases/latest"
@@ -134,6 +138,22 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         except BaseException as e:
             self.FigureLabel.setText("")
             raise e
+        self.FigureLabel.installEventFilter(self)
+
+    def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent):
+        if obj.objectName() == "FigureLabel":
+            if isinstance(event, QtGui.QMouseEvent):
+                if event.type() == QtCore.QEvent.Type.MouseButtonDblClick and \
+                        event.button() == QtGui.QMouseEvent.button(event).LeftButton:
+                    self.enter_debug_mode()
+        return False
+
+    def enter_debug_mode(self):
+        self._debug += 1
+        if self.debug:
+            QtWidgets.QMessageBox.information(
+                self, PROGRAM_NAME, "您已处在Debug模式", QtWidgets.QMessageBox.StandardButton.Yes
+            )
 
     def load_icon(self):
         icon_path = "asset"
@@ -145,7 +165,8 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
             title_icon = os.path.join(icon_path, "icon.ico")
         self.icon = title_icon
         if os.path.exists(title_icon):
-            self.setWindowIcon(QIcon(title_icon))
+            self.icon_q = QIcon(title_icon)
+            self.setWindowIcon(self.icon_q)
         self.FuncButtonSubtitle.setText(" 轴机")
         self.FuncButtonText.setText(" 翻译")
         self.FuncButtonDownload.setText(" 下载")
@@ -235,12 +256,40 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
     def choose_file_root(self, value: str):
         self.FormSettingWidget.last_dir = value
 
+    @property
+    def debug(self):
+        return bool(self._debug > 1)
+
     def restart(self):
         # qDebug("Performing application reboot...")
         self.FormProcessWidget.stop_all()
         self.FormProcessWidget.clear_all()
         self.close()
         QtWidgets.QApplication.exit(EXIT_CODE_REBOOT)
+
+    def get_bar(self, widget_id):
+        if widget_id:
+            for item in self.FormProcessWidget.bars:
+                if item.id == widget_id:
+                    return item
+
+    def handel_exception(self, exc: Exception, data: dict):
+        if not self.debug:
+            return
+        msgs = traceback.format_exception(exc)
+        tb = "\n".join(msgs).strip()
+        bar = self.get_bar(data.get("widget_id"))
+        mb = QtWidgets.QMessageBox(parent=bar)
+
+        text = "任务进程发生错误：\n" + tb + "\n请将该窗口内容发送给维护者"
+        buttons = QtWidgets.QMessageBox.StandardButton.Yes
+        mb.setText(text)
+        mb.setStandardButtons(buttons)
+        mb.setButtonText(buttons, "复制内容")
+        mb.setWindowIcon(self.windowIcon())
+        mb.setWindowTitle(self.windowTitle())
+        if mb.exec() == buttons:
+            QtGui.QClipboard().setText(tb)
 
 
 def handleException(exc_type, exc_value, exc_traceback):
@@ -249,7 +298,7 @@ def handleException(exc_type, exc_value, exc_traceback):
     exception = str("".join(traceback.format_exception(exc_type, exc_value, exc_traceback)))
     dialog = QtWidgets.QDialog()
     os.makedirs("data/log", exist_ok=True)
-    filename = os.path.realpath(f"data/log/Exception-{datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}.txt")
+    filename = os.path.realpath(f"data/log/Exception-{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.txt")
     with open(filename, 'w', encoding="utf-8") as fp:
         fp.write(exception)
     dialog.setAttribute(QtCore.Qt.WidgetAttribute.WA_DeleteOnClose)
@@ -259,7 +308,6 @@ def handleException(exc_type, exc_value, exc_traceback):
     msg.setWindowTitle(PROGRAM_NAME)
     msg.setDetailedText(exception)
     msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
-
     msg.exec_()
 
 

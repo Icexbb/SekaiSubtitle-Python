@@ -26,6 +26,7 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
         self.taskInfo: dict = data
         self.Thread: VideoProcessThread = None
         self.process_data = {
+            "widget_id":self.id,
             "video": self.taskInfo.get("video"),
             "json": self.taskInfo.get("json"),
             "translate": self.taskInfo.get("translate"),
@@ -35,6 +36,7 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
             "staff": self.taskInfo.get("staff"),
             "typer_interval": self.parent.parent.typer_interval,
             "duration": self.taskInfo.get("duration"),
+            "debug": self.parent.parent.debug
         }
 
         self.TaskNameString = os.path.splitext(os.path.split(self.process_data.get("video"))[-1])[0]
