@@ -1043,11 +1043,3 @@ def get_divider_event(string=None, slash=15):
     }]
 
 
-asset_path = "asset"
-if getattr(sys, 'frozen', False):
-    asset_path = os.path.join(sys._MEIPASS, asset_path)
-
-template_menu = cv2.imread(os.path.join(asset_path, "menu.png"), cv2.IMREAD_UNCHANGED)
-template_point = cv2.imread(os.path.join(asset_path, "point.png"), cv2.IMREAD_UNCHANGED)
-template_place = cv2.imread(os.path.join(asset_path, "place.png"), cv2.IMREAD_UNCHANGED)
-area_edge = cv2.imread(os.path.join(asset_path, "banner.png"), cv2.IMREAD_GRAYSCALE)

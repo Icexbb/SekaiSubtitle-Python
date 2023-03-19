@@ -42,10 +42,10 @@ class Ui_DownloadWidget(object):
         self.frame.setObjectName(u"frame")
         self.horizontalLayout = QHBoxLayout(self.frame)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.label = QLabel(self.frame)
-        self.label.setObjectName(u"label")
+        self.L0 = QLabel(self.frame)
+        self.L0.setObjectName(u"L0")
 
-        self.horizontalLayout.addWidget(self.label)
+        self.horizontalLayout.addWidget(self.L0)
 
         self.DataSourceBox = QComboBox(self.frame)
         self.DataSourceBox.addItem("")
@@ -63,10 +63,10 @@ class Ui_DownloadWidget(object):
         self.frame_2.setObjectName(u"frame_2")
         self.horizontalLayout_2 = QHBoxLayout(self.frame_2)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.label_2 = QLabel(self.frame_2)
-        self.label_2.setObjectName(u"label_2")
+        self.L1 = QLabel(self.frame_2)
+        self.L1.setObjectName(u"L1")
 
-        self.horizontalLayout_2.addWidget(self.label_2)
+        self.horizontalLayout_2.addWidget(self.L1)
 
         self.DataTypeBox = QComboBox(self.frame_2)
         self.DataTypeBox.setObjectName(u"DataTypeBox")
@@ -82,10 +82,10 @@ class Ui_DownloadWidget(object):
         self.frame_3.setObjectName(u"frame_3")
         self.horizontalLayout_3 = QHBoxLayout(self.frame_3)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.label_3 = QLabel(self.frame_3)
-        self.label_3.setObjectName(u"label_3")
+        self.L2 = QLabel(self.frame_3)
+        self.L2.setObjectName(u"L2")
 
-        self.horizontalLayout_3.addWidget(self.label_3)
+        self.horizontalLayout_3.addWidget(self.L2)
 
         self.DataPeriodBox = QComboBox(self.frame_3)
         self.DataPeriodBox.setObjectName(u"DataPeriodBox")
@@ -101,10 +101,10 @@ class Ui_DownloadWidget(object):
         self.frame_4.setObjectName(u"frame_4")
         self.horizontalLayout_4 = QHBoxLayout(self.frame_4)
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.label_4 = QLabel(self.frame_4)
-        self.label_4.setObjectName(u"label_4")
+        self.L3 = QLabel(self.frame_4)
+        self.L3.setObjectName(u"L3")
 
-        self.horizontalLayout_4.addWidget(self.label_4)
+        self.horizontalLayout_4.addWidget(self.L3)
 
         self.DataEpisodeBox = QComboBox(self.frame_4)
         self.DataEpisodeBox.setObjectName(u"DataEpisodeBox")
@@ -167,13 +167,13 @@ class Ui_DownloadWidget(object):
 
     def retranslateUi(self, DownloadWidget):
         DownloadWidget.setWindowTitle(QCoreApplication.translate("DownloadWidget", u"Form", None))
-        self.label.setText(QCoreApplication.translate("DownloadWidget", u"\u6570\u636e\u6e90", None))
+        self.L0.setText(QCoreApplication.translate("DownloadWidget", u"\u6570\u636e\u6e90", None))
         self.DataSourceBox.setItemText(0, QCoreApplication.translate("DownloadWidget", u"https://sekai.best/", None))
         self.DataSourceBox.setItemText(1, QCoreApplication.translate("DownloadWidget", u"https://pjsek.ai/", None))
 
-        self.label_2.setText(QCoreApplication.translate("DownloadWidget", u"\u5267\u60c5\u7c7b\u578b", None))
-        self.label_3.setText(QCoreApplication.translate("DownloadWidget", u"\u5267\u60c5\u671f\u6570", None))
-        self.label_4.setText(QCoreApplication.translate("DownloadWidget", u"\u5267\u60c5\u8bdd\u6570", None))
+        self.L1.setText(QCoreApplication.translate("DownloadWidget", u"\u5267\u60c5\u7c7b\u578b", None))
+        self.L2.setText(QCoreApplication.translate("DownloadWidget", u"\u5267\u60c5\u671f\u6570", None))
+        self.L3.setText(QCoreApplication.translate("DownloadWidget", u"\u5267\u60c5\u8bdd\u6570", None))
         self.SavePlaceLabel.setText("")
         self.RefreshButton.setText(QCoreApplication.translate("DownloadWidget", u"\u5237\u65b0", None))
         self.DownloadButton.setText(QCoreApplication.translate("DownloadWidget", u"\u5f00\u59cb\u4e0b\u8f7d", None))

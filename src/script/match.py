@@ -1,12 +1,22 @@
 # -*- coding: utf-8 -*-
+import os
+import sys
 from typing import List
 
 import cv2
 import numpy as np
 
-from script.data import template_menu, template_point, template_place
+# from script.data import template_menu, template_point, template_place
 from script.reference import get_area_mask_size, get_area_banner_mask
 from script.tools import check_dark, check_img_aberration
+
+
+def get_asset_path():
+    if getattr(sys, 'frozen', False):
+        asset_path = os.path.join(sys._MEIPASS, "asset")
+    else:
+        asset_path = "asset"
+    return asset_path
 
 
 def __scaling_ratio(h: int, w: int) -> float:
@@ -17,6 +27,7 @@ def __scaling_ratio(h: int, w: int) -> float:
 
 def get_resized_dialog_pointer(h, w) -> np.ndarray:
     i = __scaling_ratio(h, w)
+    template_point = cv2.imread(os.path.join(get_asset_path(), "point.png"))
     template = cv2.cvtColor(template_point, cv2.COLOR_BGR2GRAY)
     pointer = cv2.resize(template, (int(template.shape[0] * i), int(template.shape[1] * i)))
     return pointer
@@ -24,6 +35,7 @@ def get_resized_dialog_pointer(h, w) -> np.ndarray:
 
 def get_resized_interface_menu(h, w) -> np.ndarray:
     i = __scaling_ratio(h, w)
+    template_menu = cv2.imread(os.path.join(get_asset_path(), "menu.png"))
     template = cv2.cvtColor(template_menu, cv2.COLOR_BGR2GRAY)
     menu = cv2.resize(template, (int(template.shape[0] * i), int(template.shape[1] * i)))
     return menu
@@ -31,10 +43,22 @@ def get_resized_interface_menu(h, w) -> np.ndarray:
 
 def get_resized_area_tag(h, w) -> np.ndarray:
     i = __scaling_ratio(h, w)
+    template_place = cv2.imread(os.path.join(get_asset_path(), "place.png"))
     place_frame = cv2.resize(
         template_place, (int(template_place.shape[1] * i), int(template_place.shape[0] * i)),
         interpolation=cv2.INTER_AREA)
     return place_frame
+
+
+def get_resized_area_edge(h, w) -> np.ndarray:
+    banner_mask_area = get_banner_area(h, w)
+    banner_mask_height = abs(banner_mask_area[1] - banner_mask_area[0])
+    banner_pattern_size = int(abs(int(banner_mask_area[3] + 0.1 * banner_mask_height) -
+                                  int(banner_mask_area[2] - 0.1 * banner_mask_height)) * 0.3)
+    template_area_edge = cv2.imread(os.path.join(get_asset_path(), "banner.png"))
+    banner_edge_pattern = cv2.Canny(cv2.resize(template_area_edge, (banner_pattern_size, banner_pattern_size)), 100,
+                                    200)
+    return banner_edge_pattern
 
 
 def get_banner_area(h, w) -> list[int]:

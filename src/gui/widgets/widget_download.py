@@ -240,7 +240,7 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
                     d = tree['卡牌剧情'][chara]
                 else:
                     d = {}
-                d[f"{rarity} {prefix} {section}"] = url
+                d[f"{card_id} - {rarity} {prefix} {section}"] = url
                 tree['卡牌剧情'][chara] = d
 
         if os.path.exists(os.path.join(root, "eventStories.json")):
@@ -281,9 +281,12 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
 
         if os.path.exists(os.path.join(root, "actionSets.json")):
             data = read_json(os.path.join(root, "actionSets.json"))
-            tree['区域对话'] = {}
+            tree['地图对话'] = {}
+            as_count = 0
+            as_count_sp = 0
             for ep in data:
-                if "scenarioId" not in ep.keys():
+                ep: dict
+                if (not ep.get("scenarioId")) or (not ep.get("actionSetType")):
                     continue
                 area = areaDict[ep['areaId']]
                 group = int(ep["id"] / 100)
@@ -295,11 +298,18 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
                             chara_string.append(characterDict[gc['characterId'] - 1]["name_j"])
                             break
                 chara = ",".join(chara_string)
-                if area in tree['区域对话']:
-                    d = tree['区域对话'][area]
+                if area in tree['地图对话']:
+                    d = tree['地图对话'][area]
                 else:
                     d = {}
-                as_id = f"{ep['id']} - {chara}"
+
+                if ep.get("actionSetType") == "normal":
+                    as_count += 1
+                    as_id = f"{as_count:04d} - {chara} - id{ep['id']}"
+                else:
+                    as_count_sp += 1
+                    as_id = f"S{as_count_sp:03d} - {chara} - id{ep['id']}"
+
                 if source == "pjsekai":
                     url = f"https://assets.pjsek.ai/file/pjsekai-assets/startapp/scenario/actionset/" \
                           f"group{group}/{scenario_id}.json"
@@ -307,7 +317,7 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
                     url = f"https://storage.sekai.best/sekai-assets/scenario/actionset/" \
                           f"group{group}_rip/{scenario_id}.asset"
                 d[as_id] = url
-                tree['区域对话'][area] = d
+                tree['地图对话'][area] = d
 
         if os.path.exists(os.path.join(root, "specialStories.json")):
             data = read_json(os.path.join(root, "specialStories.json"))
@@ -378,9 +388,27 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
             type_key = self.DataTypeBox.currentText()
             if type_key:
                 self.DataPeriodBox.clear()
-                for key in data[type_key]:
+                ls = data[type_key]
+                if type_key == "活动剧情":
+                    ls = reversed(ls)
+                for key in ls:
                     self.DataPeriodBox.addItem(key)
                 self.DataPeriodBox.repaint()
+                if type_key == "地图对话":
+                    self.L2.setText("区域类别")
+                    self.L3.setText("对话序号")
+                elif type_key == "活动剧情":
+                    self.L2.setText("活动期数")
+                    self.L3.setText("剧情话数")
+                elif type_key == "特殊剧情":
+                    self.L2.setText("剧情类别")
+                    self.L3.setText("剧情话数")
+                elif type_key == "主线剧情":
+                    self.L2.setText("乐队章节")
+                    self.L3.setText("剧情话数")
+                elif type_key == "卡牌剧情":
+                    self.L2.setText("所属角色")
+                    self.L3.setText("角色卡牌")
         else:
             self.DataTypeBox.clear()
 
@@ -391,7 +419,10 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
             period_key = self.DataPeriodBox.currentText()
             if type_key and period_key:
                 self.DataEpisodeBox.clear()
-                for key in data[type_key][period_key]:
+                ls = data[type_key][period_key]
+                if type_key == "地图对话":
+                    ls = sorted(ls)
+                for key in ls:
                     self.DataEpisodeBox.addItem(key)
                 self.DataEpisodeBox.repaint()
         else:

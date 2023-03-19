@@ -60,21 +60,25 @@ class Ui_Form(object):
         self.horizontalLayout.setContentsMargins(3, 3, 3, 3)
         self.ButtonLoad = QPushButton(self.frame)
         self.ButtonLoad.setObjectName(u"ButtonLoad")
+        self.ButtonLoad.setMaximumSize(QSize(40, 16777215))
 
         self.horizontalLayout.addWidget(self.ButtonLoad)
 
         self.ButtonClear = QPushButton(self.frame)
         self.ButtonClear.setObjectName(u"ButtonClear")
+        self.ButtonClear.setMaximumSize(QSize(40, 16777215))
 
         self.horizontalLayout.addWidget(self.ButtonClear)
 
         self.ButtonOpen = QPushButton(self.frame)
         self.ButtonOpen.setObjectName(u"ButtonOpen")
+        self.ButtonOpen.setMaximumSize(QSize(40, 16777215))
 
         self.horizontalLayout.addWidget(self.ButtonOpen)
 
         self.ButtonSave = QPushButton(self.frame)
         self.ButtonSave.setObjectName(u"ButtonSave")
+        self.ButtonSave.setMaximumSize(QSize(40, 16777215))
 
         self.horizontalLayout.addWidget(self.ButtonSave)
 
