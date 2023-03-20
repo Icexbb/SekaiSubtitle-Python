@@ -114,6 +114,7 @@ class NewStaffDialog(FramelessDialog, Ui_NewStaffDialog):
             "translate_proof": self.EditTranslateProof.text(),
             "subtitle_maker": self.EditSubMaker.text(),
             "subtitle_proof": self.EditSubProof.text(),
+            "compositor": self.EditComp.text(),
             "prefix": self.EditPrefix.toPlainText(),
             "subfix": self.EditSubfix.toPlainText(),
             "position": str(position),
@@ -154,16 +155,42 @@ class NewStaffDialog(FramelessDialog, Ui_NewStaffDialog):
         string = ""
         if s := (self.data.get("prefix")).strip():
             string += f"{s}\n"
+        staffs = {}
         if s := (self.data.get("recorder")).strip():
-            string += f"录制：{s}\n"
+            # string += f"录制：{s}\n"
+            d = staffs.get(s) or []
+            d.append("录制")
+            staffs[s] = d
         if s := (self.data.get("translator")).strip():
-            string += f"翻译：{s}\n"
+            # string += f"翻译：{s}\n"
+            d = staffs.get(s) or []
+            d.append("翻译")
+            staffs[s] = d
         if s := (self.data.get("translate_proof")).strip():
-            string += f"翻校：{s}\n"
+            # string += f"翻校：{s}\n"
+            d = staffs.get(s) or []
+            d.append("翻校")
+            staffs[s] = d
         if s := (self.data.get("subtitle_maker")).strip():
-            string += f"时轴：{s}\n"
+            # string += f"时轴：{s}\n"
+            d = staffs.get(s) or []
+            d.append("时轴")
+            staffs[s] = d
         if s := (self.data.get("subtitle_proof")).strip():
-            string += f"轴校&压制：{s}\n"
+            # string += f"轴校：{s}\n"
+            d = staffs.get(s) or []
+            d.append("轴校")
+            staffs[s] = d
+        if s := (self.data.get("compositor")).strip():
+            # string += f"压制：{s}\n"
+            d = staffs.get(s) or []
+            d.append("压制")
+            staffs[s] = d
+        sort = ["录制", "翻译", "翻校", "时轴", "轴校", "压制"]
+        staff_pair = sorted(staffs.items(), key=lambda x: min([sort.index(s) for s in x[1]]))
+        staff_string = "\n".join([f"{'&'.join(staff[1])}：{staff[0]}" for staff in staff_pair])
+        if staff_string:
+            string += f"{staff_string}\n"
         if s := (self.data.get("subfix")).strip():
             string += f"{s}\n"
         string = string.strip().replace("\n", r"\N")

@@ -62,10 +62,10 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         self.TitleBar = TitleBar(self)
         self.TitleBar.TitleLabel.setText(PROGRAM_NAME)
         self.setTitleBar(self.TitleBar)
-        self.FuncButtonSubtitle.clicked.connect(lambda: self.switchWidget(0, QtCore.QSize(650, 450)))
-        self.FuncButtonDownload.clicked.connect(lambda: self.switchWidget(1, QtCore.QSize(650, 450)))
-        self.FuncButtonText.clicked.connect(lambda: self.switchWidget(2, QtCore.QSize(1280, 720)))
-        self.FuncButtonSetting.clicked.connect(lambda: self.switchWidget(3, QtCore.QSize(650, 450)))
+        self.FuncButtonSubtitle.clicked.connect(lambda: self.switchWidget(0, QtCore.QSize(900, 600)))
+        self.FuncButtonDownload.clicked.connect(lambda: self.switchWidget(1, QtCore.QSize(900, 600)))
+        self.FuncButtonText.clicked.connect(lambda: self.switchWidget(2, QtCore.QSize(900, 600)))
+        self.FuncButtonSetting.clicked.connect(lambda: self.switchWidget(3, QtCore.QSize(900, 600)))
         self.FuncButtonAbout.clicked.connect(self.AboutWindow)
         self.switchWidget(0, QtCore.QSize(650, 450))
         self.signal_exception.connect(self.handel_exception)
@@ -172,11 +172,11 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         self.FuncButtonDownload.setText(" 下载")
         self.FuncButtonAbout.setText("")
         self.FuncButtonSetting.setText("")
-        self.FuncButtonSubtitle.setIcon(QIcon(os.path.join(icon_path, "subtitles.png")))
-        self.FuncButtonText.setIcon(QIcon(os.path.join(icon_path, "translation.png")))
-        self.FuncButtonAbout.setIcon(QIcon(os.path.join(icon_path, "information.png")))
-        self.FuncButtonDownload.setIcon(QIcon(os.path.join(icon_path, "download.png")))
-        self.FuncButtonSetting.setIcon(QIcon(os.path.join(icon_path, "settings.png")))
+        self.FuncButtonSubtitle.setIcon(QIcon(os.path.join(icon_path, "ui/subtitles.png")))
+        self.FuncButtonText.setIcon(QIcon(os.path.join(icon_path, "ui/translation.png")))
+        self.FuncButtonAbout.setIcon(QIcon(os.path.join(icon_path, "ui/information.png")))
+        self.FuncButtonDownload.setIcon(QIcon(os.path.join(icon_path, "ui/download.png")))
+        self.FuncButtonSetting.setIcon(QIcon(os.path.join(icon_path, "ui/settings.png")))
         self.MainLayout.setContentsMargins(0, 0, 0, 0)
 
     def AboutWindow(self):
@@ -311,32 +311,3 @@ def handleException(exc_type, exc_value, exc_traceback):
     msg.exec_()
 
 
-def start_gui():
-    start_time = 0
-    try:
-        QtWidgets.QApplication.setAttribute(QtCore.Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
-        QtWidgets.QApplication.setAttribute(QtCore.Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
-    except AttributeError:
-        pass
-    icon_path = "asset"
-    if getattr(sys, 'frozen', False):
-        icon_path = os.path.join(sys._MEIPASS, icon_path)
-    splash = None
-    while True:
-        try:
-            app = QtWidgets.QApplication(sys.argv)
-        except RuntimeError:
-            app = QtWidgets.QApplication.instance()
-        sys.excepthook = handleException
-        if not start_time:
-            splash = QtWidgets.QSplashScreen(QtGui.QPixmap(os.path.join(icon_path, "icon.png")))
-            splash.show()
-        window = MainUi()
-        window.show()
-        if not start_time and splash:
-            splash.finish(window)
-            splash = None
-        exit_code = app.exec_()
-        start_time += 1
-        if exit_code != EXIT_CODE_REBOOT:
-            break
