@@ -223,10 +223,9 @@ class SekaiJsonVideoProcess:
         self.log("initial", f"JSON数据读取完成")
 
     @staticmethod
-    def match_frame_dialog(frame, pointer, last_center):
-        g_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        center = match.check_frame_pointer_position(g_frame, pointer, last_center)
-        status = match.check_frame_dialog_status(g_frame, pointer, center)
+    def match_frame_dialog(frame: np.ndarray[np.uint8], pointer, last_center):
+        center = match.check_frame_pointer_position(frame, pointer, last_center)
+        status = match.check_frame_dialog_status(frame, pointer, center)
         return "dialog", (status, center)
 
     @staticmethod
@@ -240,10 +239,9 @@ class SekaiJsonVideoProcess:
         return "tag", (tag_frame_result,)
 
     @staticmethod
-    def match_check_start(frame):
-        gf = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    def match_check_start(frame: np.ndarray[np.uint8]):
         start = match.check_frame_content_start(
-            gf, match.get_resized_interface_menu(frame.shape[1], frame.shape[0]))
+            frame, match.get_resized_interface_menu(frame.shape[1], frame.shape[0]))
         return start
 
     def match(self):
@@ -341,8 +339,10 @@ class SekaiJsonVideoProcess:
             ret, frame = vc.read()
             if not ret:
                 break
+            g_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            c_frame = cv2.Canny(g_frame, 50, 200)
             if not content_started:
-                content_started = self.match_check_start(frame)
+                content_started = self.match_check_start(c_frame)
             if content_started:
                 running_process_count = sum([dialog_process_running, banner_process_running, tag_process_running])
                 if running_process_count:
@@ -352,7 +352,7 @@ class SekaiJsonVideoProcess:
                             se_index_now = min(dialog_index[dialog_processed:] + banner_index[banner_processed:] +
                                                tag_index[tag_processed_count:])
                         if dialog_process_running:
-                            future = executor.submit(self.match_frame_dialog, frame, dialog_pointer,
+                            future = executor.submit(self.match_frame_dialog, g_frame, dialog_pointer,
                                                      dialog_last_center)
                             future_tasks.append(future)
                         if banner_process_running:
@@ -360,7 +360,7 @@ class SekaiJsonVideoProcess:
                                     (not (self.dryrun and self.duration)
                                      and banner_index[banner_processed] == se_index_now):
                                 future = executor.submit(
-                                    self.match_frame_banner, frame, banner_mask_area, banner_edge_pattern)
+                                    self.match_frame_banner, g_frame, banner_mask_area, banner_edge_pattern)
                                 future_tasks.append(future)
                         if tag_process_running:
                             if self.duration or self.dryrun or \

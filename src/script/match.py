@@ -37,10 +37,10 @@ def get_resized_dialog_pointer(h, w) -> np.ndarray:
 def get_resized_interface_menu(h, w) -> np.ndarray:
     i = __scaling_ratio(h, w)
     template_menu = base64_cv2(b64_menu)
-    # cv2.imread(os.path.join(get_asset_path(), "menu.png"), cv2.IMREAD_GRAYSCALE)
-    template_menu = cv2.cvtColor(template_menu, cv2.COLOR_BGR2GRAY)
-    menu = cv2.resize(template_menu, (int(template_menu.shape[0] * i), int(template_menu.shape[1] * i)))
-    return menu
+    # template_menu = cv2.cvtColor(template_menu, cv2.COLOR_BGR2GRAY)
+    template_menu = cv2.resize(template_menu, (int(template_menu.shape[0] * i), int(template_menu.shape[1] * i)))
+    template_menu = cv2.Canny(template_menu, 50, 200)
+    return template_menu
 
 
 def get_resized_area_tag(h, w) -> np.ndarray:
@@ -180,7 +180,8 @@ def check_area_tag_position(frame: np.ndarray, tag_pattern: np.ndarray, content_
 
 def check_frame_banner_edge(frame, area, temp):
     height = abs(area[1] - area[0])
-    c = [171, 137, 141]
+    # c = [171, 137, 141]
+    c=142
     cut = frame[
           int(area[0] - 0.1 * height):int(area[1] + 0.1 * height),
           int(area[2] - 0.1 * height):int(area[3] + 0.1 * height)
@@ -188,7 +189,7 @@ def check_frame_banner_edge(frame, area, temp):
     sz = int(cut.shape[1] * 0.3)
     cut = cv2.resize(cut, (sz, sz))
     cut[int(sz * 0.3):int(sz * 0.7), int(sz * 0.2):int(sz * 0.8)] = c
-    cut = cv2.cvtColor(cut, cv2.COLOR_BGR2GRAY)
+    # cut = cv2.cvtColor(cut, cv2.COLOR_BGR2GRAY)
     edge = cv2.Canny(cut, 50, 200)
     res = cv2.matchTemplate(edge, temp, cv2.TM_CCORR_NORMED)[0][0]
     return res > 0.32
