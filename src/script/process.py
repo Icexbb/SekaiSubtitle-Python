@@ -725,17 +725,17 @@ class SekaiJsonVideoProcess:
         frame_time = timedelta(seconds=1 / fps)
 
         offset_frame = self.duration[0] if self.duration else 0
-
+        fading_frame = int(100 / (1000 / fps))
         event_mask = {
             "Layer": 0,
-            "Start": tools.timedelta_to_string((frame_array[0] + offset_frame) * frame_time),
-            "End": tools.timedelta_to_string((frame_array[-1] + offset_frame) * frame_time),
+            "Start": tools.timedelta_to_string((max(0, frame_array[0] - fading_frame + offset_frame)) * frame_time),
+            "End": tools.timedelta_to_string((frame_array[-1] + fading_frame + offset_frame) * frame_time),
             "Style": "address", "Name": '',
             "MarginL": 0, "MarginR": 0, "MarginV": 0, "Effect": '',
             "Text": r"{\fad(100,100)}" + area_mask
         }
         event_data = copy.deepcopy(event_mask)
-        event_data["Text"] = area_info["StringVal"] if area_info else "LOCATION"
+        event_data["Text"] = r"{\fad(100,100)}" + (area_info["StringVal"] if area_info else "LOCATION")
 
         events.append(event_mask)
         events.append(event_data)
