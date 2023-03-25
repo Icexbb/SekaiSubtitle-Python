@@ -1,0 +1,35 @@
+name: Feature Request
+description: Create a report to help us improve
+labels: [enhancement]
+body:
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 在提问之前...
+      options:
+      - label: 我已经搜索了现有的 issues 和 discussions
+        required: true
+      - label: 我已经阅读了 readme 中除版本记录以外的所有内容
+        required: true
+      - label: 我在提问题之前至少花费了 5 分钟来思考和准备
+        required: true
+      - label: 使用现有版本的功能无法实现这个功能
+        required: true
+      - label: 我认为这个新的 Feature 可以提高大部分使用者的工作进程
+        required: false
+  - type: textarea
+    id: describe
+    attributes:
+      label: 描述你的Feature
+      description: 简要描述你的Feature
+    validations:
+      required: true
+  - type: textarea
+    id: others
+    attributes:
+      label: 补充
+      description: |
+        运行环境？相关的配置？链接？参考资料？
+        任何能让我们对你所遇到的问题有更多了解的东西。
+    validations:
+      required: false
