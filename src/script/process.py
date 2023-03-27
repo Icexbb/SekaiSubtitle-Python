@@ -512,6 +512,8 @@ class SekaiJsonVideoProcess:
                 break
 
         if not self.stop:
+            if not dialogs_events+banner_events+tag_events:
+                raise ValueError('No Event Matched')
             dialog_styles = self.dialog_make_styles(dialog_const_point_center, int(dialog_pointer.shape[0]))
             self.log("process", f"Matching Process Finished")
             if (not self.dryrun) and dialog_data + banner_data + tag_data:

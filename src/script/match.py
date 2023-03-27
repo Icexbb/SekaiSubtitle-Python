@@ -158,7 +158,7 @@ def check_frame_content_start(frame: np.ndarray, menu_sign: np.ndarray) -> bool:
     cut_left = -1 * int(3 * menu_width)
     cut = frame[:cut_down, cut_left:]
     res = cv2.matchTemplate(cut, menu_sign, cv2.TM_CCOEFF_NORMED)
-    threshold = 0.70
+    threshold = 0.30
     loc = divmod(np.argmax(res), res.shape[1])
     exist = (not (res[loc[0], loc[1]] < threshold))
     return exist
@@ -181,7 +181,7 @@ def check_area_tag_position(frame: np.ndarray, tag_pattern: np.ndarray, content_
 def check_frame_banner_edge(frame, area, temp):
     height = abs(area[1] - area[0])
     # c = [171, 137, 141]
-    c=142
+    c = 142
     cut = frame[
           int(area[0] - 0.1 * height):int(area[1] + 0.1 * height),
           int(area[2] - 0.1 * height):int(area[3] + 0.1 * height)

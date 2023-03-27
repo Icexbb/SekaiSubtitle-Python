@@ -23,7 +23,7 @@ from gui.widgets.widget_translate import TranslateWidget
 EXIT_CODE_REBOOT = -11231351
 
 PROGRAM_NAME = "Sekai Subtitle"
-VERSION = "v0.7.3"
+VERSION = "v0.7.4"
 
 
 class MainUi(FramelessMainWindow, Ui_MainWindow):
@@ -51,6 +51,8 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         self.FormTranslateWidget = TranslateWidget(self)
         self.MainLayout = QtWidgets.QStackedLayout()
         self.CenterFrame.setLayout(self.MainLayout)
+        self.CenterFrame.setStyleSheet("QFrame#CenterFrame{background-color:rgb(240,240,240)}")
+        self.CenterFrame.setContentsMargins(3,3,3,3)
         self.MainLayout.addWidget(self.FormProcessWidget)
         self.MainLayout.addWidget(self.FormDownloadWidget)
         self.MainLayout.addWidget(self.FormTranslateWidget)
@@ -309,5 +311,3 @@ def handleException(exc_type, exc_value, exc_traceback):
     msg.setDetailedText(exception)
     msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
     msg.exec_()
-
-

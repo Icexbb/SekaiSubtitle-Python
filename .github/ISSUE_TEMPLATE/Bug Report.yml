@@ -52,7 +52,6 @@ body:
       description: |
         请复制并粘贴任何相关的日志输出。
         可以把文件拖入这个区域以添加日志文件。
-        日志文件在fgoLog目录下。
       render: Text
     validations:
       required: false
