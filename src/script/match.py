@@ -12,7 +12,7 @@ from script.tools import check_dark, check_img_aberration
 from script.data import b64_menu, b64_banner, b64_place, b64_point
 
 
-def base64_cv2(base64_str):
+def base64_cv2(base64_str) -> np.ndarray:
     imgString = base64.b64decode(base64_str)
     nparr = np.fromstring(imgString, np.uint8)
     image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
@@ -37,9 +37,9 @@ def get_resized_dialog_pointer(h, w) -> np.ndarray:
 def get_resized_interface_menu(h, w) -> np.ndarray:
     i = __scaling_ratio(h, w)
     template_menu = base64_cv2(b64_menu)
-    # template_menu = cv2.cvtColor(template_menu, cv2.COLOR_BGR2GRAY)
+    template_menu = cv2.cvtColor(template_menu, cv2.COLOR_BGR2GRAY)
     template_menu = cv2.resize(template_menu, (int(template_menu.shape[0] * i), int(template_menu.shape[1] * i)))
-    template_menu = cv2.Canny(template_menu, 50, 200)
+    # template_menu = cv2.Canny(template_menu, 50, 200)
     return template_menu
 
 
@@ -102,7 +102,7 @@ def check_frame_pointer_position(
     cut = frame[cut_up:cut_down, cut_left:cut_right]
 
     res = cv2.matchTemplate(cut, pointer, cv2.TM_CCOEFF_NORMED)
-    threshold = 0.85
+    threshold = 0.80
 
     loc = divmod(np.argmax(res), res.shape[1])
     if res[loc[0], loc[1]] < threshold:
@@ -153,12 +153,12 @@ def check_frame_area_mask(frame: np.ndarray, area_mask: List[int]):
 
 def check_frame_content_start(frame: np.ndarray, menu_sign: np.ndarray) -> bool:
     menu_height: int = menu_sign.shape[1]
-    menu_width: int = menu_sign.shape[0]
+    # menu_width: int = menu_sign.shape[0]
     cut_down = int(3 * menu_height)
-    cut_left = -1 * int(3 * menu_width)
+    cut_left = -1 * int(frame.shape[0] * 0.3)
     cut = frame[:cut_down, cut_left:]
     res = cv2.matchTemplate(cut, menu_sign, cv2.TM_CCOEFF_NORMED)
-    threshold = 0.30
+    threshold = 0.70
     loc = divmod(np.argmax(res), res.shape[1])
     exist = (not (res[loc[0], loc[1]] < threshold))
     return exist

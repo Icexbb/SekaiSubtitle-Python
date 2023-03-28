@@ -12,6 +12,8 @@ import cv2
 import numpy as np
 import yaml
 from PySide6 import QtCore, QtWidgets
+
+import script.tools
 from script import match, reference, tools
 from script.data import DISPLAY_NAME_STYLE, subtitle_styles_format, staff_style_format, get_divider_event
 from script.subtitle import Subtitle
@@ -340,9 +342,14 @@ class SekaiJsonVideoProcess:
             if not ret:
                 break
             g_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            c_frame = cv2.Canny(g_frame, 50, 200)
+            # c_frame = cv2.Canny(g_frame, 50, 200)
             if not content_started:
-                content_started = self.match_check_start(c_frame)
+                content_started = self.match_check_start(g_frame)
+                if content_started:
+                    st = script.tools.timedelta_to_string_short(
+                        timedelta(
+                            seconds=(1 / video_fps) * (now_frame_count + (self.duration[0] if self.duration else 0))))
+                    self.log('process', f'Content Started At Frame{now_frame_count} {st}')
             if content_started:
                 running_process_count = sum([dialog_process_running, banner_process_running, tag_process_running])
                 if running_process_count:
@@ -512,7 +519,7 @@ class SekaiJsonVideoProcess:
                 break
 
         if not self.stop:
-            if not dialogs_events+banner_events+tag_events:
+            if not dialogs_events + banner_events + tag_events:
                 raise ValueError('No Event Matched')
             dialog_styles = self.dialog_make_styles(dialog_const_point_center, int(dialog_pointer.shape[0]))
             self.log("process", f"Matching Process Finished")
