@@ -45,8 +45,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.MenuFrame = QFrame(self.MainFrame)
         self.MenuFrame.setObjectName(u"MenuFrame")
-        self.MenuFrame.setMinimumSize(QSize(100, 0))
-        self.MenuFrame.setMaximumSize(QSize(100, 16777215))
+        self.MenuFrame.setMinimumSize(QSize(120, 0))
+        self.MenuFrame.setMaximumSize(QSize(120, 16777215))
         self.MenuFrame.setStyleSheet(u"")
         self.verticalLayout_4 = QVBoxLayout(self.MenuFrame)
         self.verticalLayout_4.setSpacing(12)
@@ -109,19 +109,28 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_4.addWidget(self.widget_6)
 
+        self.FigureWidget = QWidget(self.MenuFrame)
+        self.FigureWidget.setObjectName(u"FigureWidget")
+        self.FigureLayout = QVBoxLayout(self.FigureWidget)
+        self.FigureLayout.setSpacing(0)
+        self.FigureLayout.setObjectName(u"FigureLayout")
+        self.FigureLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-        self.verticalLayout_4.addItem(self.verticalSpacer)
+        self.FigureLayout.addItem(self.verticalSpacer)
 
-        self.FigureLabel = QLabel(self.MenuFrame)
+        self.FigureLabel = QLabel(self.FigureWidget)
         self.FigureLabel.setObjectName(u"FigureLabel")
-        self.FigureLabel.setMinimumSize(QSize(100, 100))
-        self.FigureLabel.setMaximumSize(QSize(100, 100))
+        self.FigureLabel.setMinimumSize(QSize(120, 120))
+        self.FigureLabel.setMaximumSize(QSize(120, 240))
         self.FigureLabel.setLayoutDirection(Qt.LeftToRight)
         self.FigureLabel.setAutoFillBackground(False)
         self.FigureLabel.setAlignment(Qt.AlignCenter)
 
-        self.verticalLayout_4.addWidget(self.FigureLabel)
+        self.FigureLayout.addWidget(self.FigureLabel)
+
+
+        self.verticalLayout_4.addWidget(self.FigureWidget)
 
         self.widget_5 = QWidget(self.MenuFrame)
         self.widget_5.setObjectName(u"widget_5")

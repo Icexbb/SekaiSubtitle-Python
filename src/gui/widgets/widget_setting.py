@@ -26,8 +26,8 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         self.SettingProxyTypeCombo.currentTextChanged.connect(self.setProxyState)
         self._last_dir = None
         self.load_config()
-        self.SettingAnimatedCheck.setChecked(False)
-        self.SettingAnimatedCheck.setEnabled(False)
+        # self.SettingAnimatedCheck.setChecked(False)
+        # self.SettingAnimatedCheck.setEnabled(False)
         self.save_config()
         self.setProxyState()
 

@@ -8,17 +8,19 @@ import traceback
 
 from PySide6 import QtWidgets, QtCore, QtGui, QtNetwork
 from PySide6.QtCore import QUrl, SIGNAL
-from PySide6.QtGui import QIcon, QFont, QMovie, QDesktopServices
+from PySide6.QtGui import QIcon, QFont, QDesktopServices
 from packaging.version import Version
 from qframelesswindow import FramelessMainWindow
 
 from gui.design.WindowMain import Ui_MainWindow
 from gui.widgets.dialog_about import AboutDialog
+from gui.widgets.widget_chibi import WidgetChibi
 from gui.widgets.widget_download import DownloadWidget
 from gui.widgets.widget_setting import SettingWidget
 from gui.widgets.widget_subtitle import ProcessWidget
 from gui.widgets.widget_titlebar import TitleBar
 from gui.widgets.widget_translate import TranslateWidget
+from script import data
 
 EXIT_CODE_REBOOT = -11231351
 
@@ -52,13 +54,14 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         self.MainLayout = QtWidgets.QStackedLayout()
         self.CenterFrame.setLayout(self.MainLayout)
         self.CenterFrame.setStyleSheet("QFrame#CenterFrame{background-color:rgb(240,240,240)}")
-        self.CenterFrame.setContentsMargins(3,3,3,3)
+        self.CenterFrame.setContentsMargins(3, 3, 3, 3)
         self.MainLayout.addWidget(self.FormProcessWidget)
         self.MainLayout.addWidget(self.FormDownloadWidget)
         self.MainLayout.addWidget(self.FormTranslateWidget)
         self.MainLayout.addWidget(self.FormSettingWidget)
 
         self.load_icon()
+        self.ChibiWidget = None
         self.load_random_chibi()
 
         self.TitleBar = TitleBar(self)
@@ -100,39 +103,22 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
             QtWidgets.QMessageBox.critical(self, "检查更新", f"检查版本更新时遇到错误\n{reply.errorString()}")
 
     def load_random_chibi(self):
-        icon_path = "asset"
-        if getattr(sys, 'frozen', False):
-            icon_path = os.path.join(sys._MEIPASS, icon_path)
+        icon_path=data.get_asset_path('chibi')
         try:
             select = self.FormSettingWidget.get_config("chibi")
             animated = self.FormSettingWidget.get_config("animated")
-
             if select == "随机":
-                if animated:
-                    root = os.path.join(icon_path + "/chibi_gif/")
-                    chara = random.choice(os.listdir(root))
-                    cloth = random.choice(os.listdir(os.path.join(root, chara)))
-                    motion = random.choice(os.listdir(os.path.join(root, chara, cloth)))
-                    i = os.path.join(root, chara, cloth, motion)
-                else:
-                    i = os.path.join(icon_path + "/chibi/" + random.choice(os.listdir(icon_path + "/chibi")))
+                if not animated:
+                    i = os.path.join(icon_path, random.choice(os.listdir(icon_path)))
             else:
-                if animated:
-                    root = os.path.join(icon_path + "/chibi_gif/")
-                    chara = select
-                    cloth = random.choice(os.listdir(os.path.join(root, chara)))
-                    motion = random.choice(os.listdir(os.path.join(root, chara, cloth)))
-                    i = os.path.join(root, chara, cloth, motion)
-                else:
-                    i = os.path.join(icon_path + f"/chibi/{select}.png")
+                if not animated:
+                    i = os.path.join(icon_path ,f"{select}.png")
                     if not os.path.exists(i):
-                        i = os.path.join(icon_path + "/chibi/" + random.choice(os.listdir(icon_path + "/chibi")))
+                        i = os.path.join(icon_path, random.choice(os.listdir(icon_path)))
             if animated:
-                movie = QMovie(i)
-                movie.setCacheMode(QtGui.QMovie.CacheMode.CacheAll)
-                movie.setScaledSize(self.FigureLabel.size())
-                movie.start()
-                self.FigureLabel.setMovie(movie)
+                self.ChibiWidget = WidgetChibi(select if select != "随机" else None)
+                self.FigureLabel.deleteLater()
+                self.FigureLayout.addWidget(self.ChibiWidget)
             else:
                 self.FigureLabel.setPixmap(
                     QtGui.QPixmap(i).scaledToHeight(self.FigureLabel.height(),
@@ -143,7 +129,7 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         self.FigureLabel.installEventFilter(self)
 
     def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent):
-        if obj.objectName() == "FigureLabel":
+        if obj.objectName() == self.FuncButtonSetting.objectName():
             if isinstance(event, QtGui.QMouseEvent):
                 if event.type() == QtCore.QEvent.Type.MouseButtonDblClick and \
                         event.button() == QtGui.QMouseEvent.button(event).LeftButton:

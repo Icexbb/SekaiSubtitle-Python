@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script src="spine-player.js"></script>
+    <link rel="stylesheet" href="spine-player.css">
+</head>
+
+<style>
+    body {
+        margin: 0;
+        width: 120px;
+        height: 120px;
+        overflow: hidden;
+    }
+</style>
+
+<body>
+
+<div id="container" style="width: 120px; height: 120px;"></div>
+</div>
+</body>
+<script>
+    function getQueryVariable(variable) {
+        const query = window.location.search.substring(1);
+        const vars = query.split("&");
+        for (let i = 0; i < vars.length; i++) {
+            const pair = vars[i].split("=");
+            if (pair[0] === variable)
+                return pair[1];
+        }
+        return null;
+    }
+
+    atlas_name = getQueryVariable("an") ? getQueryVariable("an") : "sekai_skeleton"
+    animation_prefix = getQueryVariable("ap") ? getQueryVariable("ap") : ""
+    // Creates a new spine player with a transparent background,
+    // so content from the website shines through. Hides the controls.
+    // Instead, the user can control the animation via buttons.
+    const jsControlledPlayer = new spine.SpinePlayer("container", {
+        jsonUrl: "assets/sekai_skeleton.json",
+        atlasUrl: "assets/" + atlas_name + ".atlas",
+        animation: "z_mesh_templete",
+        showControls: false,
+        premultipliedAlpha: true,
+        backgroundColor: "#F6F6F6",
+        alpha: true,
+        viewport: {
+            x: -60,
+            y: -10,
+            width: 130,
+            height: 190,
+            padLeft: "5%",
+            padRight: "5%",
+            padTop: "5%",
+            padBottom: "5%"
+        },
+        //defaultMix: 1,
+        success: (player) => {
+            // Register button click event handlers once the
+            // skeleton has been loaded successfully
+            document.getElementById("container").addEventListener("click", event => {
+                randAnimation()
+            });
+            randAnimation();
+        }
+    });
+
+    function randAnimation() {
+        const animation_list = [];
+        for (ani of jsControlledPlayer.skeleton.data.animations)
+            if (ani['name'].startsWith(animation_prefix) && ani['name'].endsWith('_f')) animation_list.push(ani['name'])
+        const rand = Math.floor(Math.random() * animation_list.length);
+        const animation = animation_list[rand];
+        const _default_animation = "z_mesh_templete";
+        setAnimation(animation, _default_animation, true);
+    }
+
+    function setAnimation(animation, default_animation, loop) {
+        jsControlledPlayer.setAnimation(animation, loop); // set the walk animation to play once
+        const duration = jsControlledPlayer.skeleton.data.animations.filter(item => item['name'] === animation)[0].duration;
+        if (!loop)
+            setTimeout(
+                () => {
+                    jsControlledPlayer.setAnimation(default_animation, true)
+                },
+                parseInt(duration * 1000)
+            )
+    }
+
+    function changeAnimation(animation) {
+        setAnimation(animation, "z_mesh_templete", true)
+    }
+</script>
+</body>
+
+</html>
