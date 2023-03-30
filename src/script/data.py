@@ -420,19 +420,11 @@ characterDict = [
 
 areaDict = [
     "",
-    u"十字路口",
-    u"商业街",
-    u"购物中心",
-    u"音乐商店",
-    u"教室的SEKAI",
+    u"十字路口", u"商业街", u"购物中心", u"音乐商店", u"教室的SEKAI",
     "",
-    u"舞台的SEKAI",
-    u"街道的SEKAI",
-    u"奇幻仙境的SEKAI",
-    u"空无一人的SEKAI",
-    u"神山高中",
-    u"凤凰仙境乐园",
-    u"宫益坂女子学园"
+    u"舞台的SEKAI", u"街道的SEKAI", u"奇幻仙境的SEKAI", u"空无一人的SEKAI",
+    u"神山高中", u"凤凰仙境乐园", u"宫益坂女子学园",
+    u"悪ノ大罪シリーズのセカイ", u"MIKU学院 教室", u"MIKU学院 操场"
 ]
 
 
