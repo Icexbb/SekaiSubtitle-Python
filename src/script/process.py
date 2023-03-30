@@ -512,9 +512,11 @@ class SekaiJsonVideoProcess:
                                     except IndexError:
                                         tag_data_processing = None
                                 tag_last_result = tag_frame_result
-            now_frame_count += 1
-            del frame
             self.emit({"done": 1, "time": time.time() - self.time_start})
+            if not now_frame_count % 5:
+                self.emit(frame)
+            now_frame_count += 1
+
             if now_frame_count > total_frame_count:
                 break
 

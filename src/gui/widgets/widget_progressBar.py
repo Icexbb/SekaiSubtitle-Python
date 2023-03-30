@@ -1,10 +1,14 @@
 import os.path
 import sys
+from concurrent import futures
 
+import cv2
+import numpy as np
+from PySide6.QtGui import QImage
 # import numpy as np
 from numpy import linspace
 import pyqtgraph as pg
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 
 from gui.design.WidgetProcessBar import Ui_ProgressBarWidget
 from gui.thread_process import VideoProcessThread
@@ -51,6 +55,7 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
         self.fps_list = []
         self.setupPlot()
         self.showLog()
+        self.executor = futures.ThreadPoolExecutor(5)
 
     def setupPlot(self):
         self.GraphWidget = pg.PlotWidget(self)
@@ -84,11 +89,11 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
         if self.logShowing:
             self.setFixedHeight(200)
             self.LogShowButton.setText("∧")
-            self.GraphWidget.setHidden(False)
+            self.GraphLayoutWidget.setHidden(False)
         else:
             self.setFixedHeight(100)
             self.LogShowButton.setText("<")
-            self.GraphWidget.setHidden(True)
+            self.GraphLayoutWidget.setHidden(True)
         self.StatusLogList.scrollToBottom()
         self.signal.emit({"id": self.id, 'data': self.size()})
 
@@ -174,6 +179,10 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
                 self.ProgressBar.setValue(0)
         elif msg['type'] == "stop":
             pass
+        elif msg['type'] == np.ndarray:
+            cvImg = msg['data']
+            # self.paintFrame(cvImg)
+            self.executor.submit(self.paintFrame, cvImg)
         else:
             data = msg['data']
             if s := data.get("total"):
@@ -195,14 +204,24 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
                 self.fps_list.append(fps)
 
                 if data.get("end"):
-                    self.updatePlot()
-                    self.PercentLabel.setText(f"FPS: {speed:.1f} USE: {time_spend:.1f}s {percent:.1f}%")
+                    limit = 0
+                    label_text = f"FPS: {speed:.1f} USE: {time_spend:.1f}s {percent:.1f}%"
                 else:
-                    self.updatePlot(min(1000, int(self.ProgressBar.maximum() / 20)))
-                    self.PercentLabel.setText(f"FPS: {fps:.1f} ETA: {eta:.1f}s {percent:.1f}%")
+                    limit = min(1000, int(self.ProgressBar.maximum() / 20))
+                    label_text = f"FPS: {fps:.1f} ETA: {eta:.1f}s {percent:.1f}%"
+                self.PercentLabel.setText(label_text)
+                self.updatePlot(limit)
                 if not self.processing:
                     self.PercentLabel.setText("")
 
         self.PercentLabel.repaint()
         self.ProgressBar.repaint()
         self.TaskStatus.repaint()
+
+    def paintFrame(self, cvImg):
+        size = self.VideoFrameLabel.size()
+        cvImg = cv2.resize(cvImg, (size.width(), size.height()), interpolation=cv2.INTER_LANCZOS4)
+        height, width, channel = cvImg.shape
+        bytesPerLine = 3 * width
+        qImg = QtGui.QPixmap(QImage(cvImg.data, width, height, bytesPerLine, QImage.Format_BGR888))
+        self.VideoFrameLabel.setPixmap(qImg)

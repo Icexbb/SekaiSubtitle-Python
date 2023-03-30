@@ -103,7 +103,7 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
             QtWidgets.QMessageBox.critical(self, "检查更新", f"检查版本更新时遇到错误\n{reply.errorString()}")
 
     def load_random_chibi(self):
-        icon_path=data.get_asset_path('chibi')
+        icon_path = data.get_asset_path('chibi')
         try:
             select = self.FormSettingWidget.get_config("chibi")
             animated = self.FormSettingWidget.get_config("animated")
@@ -112,7 +112,7 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
                     i = os.path.join(icon_path, random.choice(os.listdir(icon_path)))
             else:
                 if not animated:
-                    i = os.path.join(icon_path ,f"{select}.png")
+                    i = os.path.join(icon_path, f"{select}.png")
                     if not os.path.exists(i):
                         i = os.path.join(icon_path, random.choice(os.listdir(icon_path)))
             if animated:
@@ -126,15 +126,15 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         except BaseException as e:
             self.FigureLabel.setText("")
             raise e
-        self.FigureLabel.installEventFilter(self)
+        self.installEventFilter(self)
 
     def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent):
-        if obj.objectName() == self.FuncButtonSetting.objectName():
-            if isinstance(event, QtGui.QMouseEvent):
-                if event.type() == QtCore.QEvent.Type.MouseButtonDblClick and \
-                        event.button() == QtGui.QMouseEvent.button(event).LeftButton:
+        if isinstance(event, QtGui.QMouseEvent):
+            if event.type() == QtCore.QEvent.Type.MouseButtonDblClick and \
+                    event.button() == QtCore.Qt.MouseButton.RightButton:
+                if self.childAt(event.pos()).objectName() == self.FuncButtonAbout.objectName():
                     self.enter_debug_mode()
-        return False
+        return super().eventFilter(obj,event)
 
     def enter_debug_mode(self):
         self._debug += 1
@@ -192,12 +192,16 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
     # 鼠标按下事件
     def mousePressEvent(self, a0: QtGui.QMouseEvent):
         # 根据鼠标按下时的位置判断是否在QFrame范围内
-        if self.childAt(a0.position().x(), a0.position().y()).objectName() in ["MainFrame", "TitleBar", "TitleLabel"]:
+        if self.childAt(a0.pos()).objectName() in ["MainFrame", "TitleBar", ]:
             # 判断鼠标按下的是左键
             if a0.button() == QtCore.Qt.MouseButton.LeftButton:
                 self._isTracking = True
                 # 记录初始位置
-                self._startPos = QtCore.QPoint(a0.position().x(), a0.position().y())
+                self._startPos = a0.pos()  # QtCore.QPoint(a0.position().x(), a0.position().y())
+
+    def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
+        if self.childAt(event.pos()).objectName() == "TitleLabel":
+            self.enter_debug_mode()
 
     # 鼠标松开事件
     def mouseReleaseEvent(self, a0: QtGui.QMouseEvent):

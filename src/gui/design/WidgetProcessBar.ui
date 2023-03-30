@@ -184,13 +184,25 @@
        <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0">
         <item>
          <widget class="QWidget" name="GraphLayoutWidget" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="maximumSize">
            <size>
-            <width>200</width>
+            <width>120</width>
             <height>16777215</height>
            </size>
           </property>
-          <layout class="QHBoxLayout" name="GraphLayout">
+          <layout class="QVBoxLayout" name="GraphLayout">
            <property name="leftMargin">
             <number>0</number>
            </property>
@@ -203,13 +215,32 @@
            <property name="bottomMargin">
             <number>0</number>
            </property>
+           <item alignment="Qt::AlignHCenter|Qt::AlignTop">
+            <widget class="QLabel" name="VideoFrameLabel">
+             <property name="minimumSize">
+              <size>
+               <width>120</width>
+               <height>60</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>120</width>
+               <height>60</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
         <item>
          <widget class="QListWidget" name="StatusLogList">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+           <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>

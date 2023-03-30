@@ -33,8 +33,9 @@
         return null;
     }
 
-    atlas_name = getQueryVariable("an") ? getQueryVariable("an") : "sekai_skeleton"
-    animation_prefix = getQueryVariable("ap") ? getQueryVariable("ap") : ""
+    let atlas_name = getQueryVariable("an") ? getQueryVariable("an") : "sekai_skeleton"
+    let animation_prefix = getQueryVariable("ap") ? getQueryVariable("ap") : ""
+    let backgroundColor = getQueryVariable("bc") ? getQueryVariable("bc") : "F6F6F6"
     // Creates a new spine player with a transparent background,
     // so content from the website shines through. Hides the controls.
     // Instead, the user can control the animation via buttons.
@@ -44,7 +45,7 @@
         animation: "z_mesh_templete",
         showControls: false,
         premultipliedAlpha: true,
-        backgroundColor: "#F6F6F6",
+        backgroundColor: "#"+backgroundColor,
         alpha: true,
         viewport: {
             x: -60,
