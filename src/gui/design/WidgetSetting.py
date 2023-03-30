@@ -25,7 +25,7 @@ class Ui_Form(object):
         if not Form.objectName():
             Form.setObjectName(u"Form")
         Form.resize(418, 463)
-        Form.setStyleSheet(u"QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:20px;}\n"
+        Form.setStyleSheet(u"QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:10px;}\n"
 "                QScrollArea{background-color: transparent;}\n"
 "                QWidget#scrollAreaWidgetContents{background-color: transparent;}\n"
 "                QLabel{ font: 10pt \"Microsoft YaHei UI\";}\n"

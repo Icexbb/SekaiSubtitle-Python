@@ -23,7 +23,7 @@ class Ui_WidgetTranslateItem(object):
     def setupUi(self, WidgetTranslateItem):
         if not WidgetTranslateItem.objectName():
             WidgetTranslateItem.setObjectName(u"WidgetTranslateItem")
-        WidgetTranslateItem.resize(172, 62)
+        WidgetTranslateItem.resize(526, 62)
         WidgetTranslateItem.setMinimumSize(QSize(0, 62))
         WidgetTranslateItem.setStyleSheet(u"QFrame#MainFrame{background-color:rgb(250, 250, 250);border:1px solid\n"
 "                gray;border-radius:10px;}\n"

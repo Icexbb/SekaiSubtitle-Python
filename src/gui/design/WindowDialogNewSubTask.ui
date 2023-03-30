@@ -53,11 +53,9 @@
       <bool>true</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true">QFrame#MainFrame{background-color: rgb(255, 255, 255);border-color: rgb(204,
-                            204, 204);border-size: 2px;border-radius:20px;}
-                            QLabel{font: 12pt &quot;Microsoft YaHei UI&quot;;}
-                            QGroupBox{background-color: rgba(204, 204, 204,50);border-color: rgb(204, 204,
-                            204);border-size: 1px;border-radius:20px;}
+      <string notr="true">QFrame#MainFrame{background-color: rgb(255, 255, 255);border-color: rgb(204,204, 204);border-size: 2px;border-radius:10px;}
+QLabel{font: 12pt &quot;Microsoft YaHei UI&quot;;}
+QGroupBox{background-color: rgba(204, 204, 204,50);border-color: rgb(204, 204,204);border-size: 1px;border-radius:10px;}
                         </string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1">

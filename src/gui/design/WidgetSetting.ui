@@ -14,7 +14,7 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:20px;}
+   <string notr="true">QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:10px;}
                 QScrollArea{background-color: transparent;}
                 QWidget#scrollAreaWidgetContents{background-color: transparent;}
                 QLabel{ font: 10pt &quot;Microsoft YaHei UI&quot;;}

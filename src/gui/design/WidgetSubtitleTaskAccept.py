@@ -25,8 +25,8 @@ class Ui_AccWidget(object):
         AccWidget.resize(400, 75)
         AccWidget.setMinimumSize(QSize(0, 75))
         AccWidget.setMaximumSize(QSize(16777215, 75))
-        AccWidget.setStyleSheet(u"QLabel#StatusLabel{ font: 500 24pt \"Microsoft YaHei UI\";}\n"
-"                QWidget#StatusWidget{ border: 3px dashed rgba(0, 157, 255, 50); border-radius:20px;}\n"
+        AccWidget.setStyleSheet(u"QLabel#StatusLabel{ font: 500 12pt \"Microsoft YaHei UI\";}\n"
+"QWidget#StatusWidget{ border: 3px dashed rgba(0, 157, 255, 50); border-radius:15px;}\n"
 "            ")
         self.gridLayout = QGridLayout(AccWidget)
         self.gridLayout.setSpacing(0)
@@ -67,6 +67,6 @@ class Ui_AccWidget(object):
 
     def retranslateUi(self, AccWidget):
         AccWidget.setWindowTitle(QCoreApplication.translate("AccWidget", u"Form", None))
-        self.StatusLabel.setText(QCoreApplication.translate("AccWidget", u"\u51c6\u5907\u5c31\u7eea", None))
+        self.StatusLabel.setText(QCoreApplication.translate("AccWidget", u"\u70b9\u51fb\u6216\u62d6\u52a8\u6587\u4ef6\u5230\u6b64\u5904\u6765\u521b\u5efa\u4efb\u52a1", None))
     # retranslateUi
 

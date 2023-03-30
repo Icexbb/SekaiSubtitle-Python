@@ -23,9 +23,9 @@ class Ui_DownloadWidget(object):
     def setupUi(self, DownloadWidget):
         if not DownloadWidget.objectName():
             DownloadWidget.setObjectName(u"DownloadWidget")
-        DownloadWidget.resize(653, 377)
+        DownloadWidget.resize(575, 377)
         DownloadWidget.setStyleSheet(u"QFrame{background-color:rgb(248, 248, 248);border-color: rgb(204, 204, 204);border-size:\n"
-"                2px;border-radius:20px;}\n"
+"                2px;border-radius:10px;}\n"
 "                QFrame#MainFrame{background-color: rgb(255, 255, 255);}\n"
 "                QPushButton{border: 2px solid grey; border-radius: 10px;}\n"
 "            ")

@@ -22,13 +22,24 @@ class WidgetCharaIcon(Ui_CharaIcon, QtWidgets.QWidget):
 
 
 class WidgetTranslateLines(Ui_TranslateLines, QtWidgets.QWidget):
-    def __init__(self, string):
+    def __init__(self, parent, string):
         super().__init__()
         self.setupUi(self)
+        self.parent: WidgetTranslateItem = parent
         self.string = string
         self.TextBrowserOrigin.setText(self.string)
         self.TextEditTranslate.textChanged.connect(self.changeTextColor)
         self.ClearButton.clicked.connect(self.TextEditTranslate.clear)
+        self.parent.parent.type_signal.connect(self.changeProcessType)
+        self.changeProcessType(self.parent.parent.ProcessType)
+
+    def changeProcessType(self, value):
+        if value:
+            self.WidgetMiddle.setHidden(False)
+            self.setFixedHeight(94)
+        else:
+            self.WidgetMiddle.setHidden(True)
+            self.setFixedHeight(64)
 
     def changeTextColor(self):
         len_origin = len(self.TextBrowserOrigin.text())
@@ -50,11 +61,17 @@ class WidgetTranslateLines(Ui_TranslateLines, QtWidgets.QWidget):
     def translatedString(self, value: str):
         self.TextEditTranslate.setText(value)
 
+    def loadTranslated(self, value: str):
+        self.translatedString = value
+        self.TextBrowserTranslated.setText(value)
+
 
 class WidgetTranslateItem(Ui_TranslateItem, QtWidgets.QWidget):
-    def __init__(self, data: dict, num: int):
+    def __init__(self, parent, list_item, data: dict, num: int):
         super().__init__()
         self.setupUi(self)
+        self.list_item: ListWidgetItem = list_item
+        self.parent: TranslateWidget = parent
         self.data = data
         self.num = num
         self.LabelNumber.setText(str(num))
@@ -75,12 +92,19 @@ class WidgetTranslateItem(Ui_TranslateItem, QtWidgets.QWidget):
             self.strings = [self.data.get("StringVal")]
         self.CharaWidget = WidgetCharaIcon(self.chara)
         self.FrameCharaLayout.addWidget(self.CharaWidget)
-
+        self.parent.type_signal.connect(self.changeProcess)
         for string in self.strings:
-            line = WidgetTranslateLines(string)
+            line = WidgetTranslateLines(self, string)
             self.WidgetLinesLayout.addWidget(line)
             self.lines.append(line)
         self.setFixedHeight(66 * len(self.lines))
+
+    def changeProcess(self, value):
+        if value:
+            self.setFixedHeight((94 + 2) * len(self.lines))
+        else:
+            self.setFixedHeight((64 + 2) * len(self.lines))
+        self.list_item.setSizeHint(self.size())
 
     @property
     def translated(self):
@@ -98,7 +122,7 @@ class WidgetTranslateItem(Ui_TranslateItem, QtWidgets.QWidget):
                 p[index] = string
             strings = p
         for line, string in zip(self.lines, strings):
-            line.translatedString = string
+            line.loadTranslated(value)
 
 
 class ListWidgetItem(QtWidgets.QListWidgetItem):
@@ -128,6 +152,8 @@ class RightClickEnabledButton(QtWidgets.QPushButton):
 
 
 class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
+    type_signal = Signal(int)
+
     def __init__(self, parent):
         super().__init__()
         self.trans_file = None
@@ -144,11 +170,27 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
 
         self.ButtonSave.deleteLater()
         self.ButtonSave = RightClickEnabledButton("保存", "ButtonSave")
-        self.horizontalLayout.addWidget(self.ButtonSave)
+        self.horizontalLayout_5.addWidget(self.ButtonSave)
 
         self.ButtonSave.clicked.connect(self.save_file_yaml)
         self.ButtonSave.rightClicked.connect(self.save_file_txt)
         self.setAcceptDrops(True)
+
+        self.RadioTrans.setChecked(True)
+        self._ProcessType = 0
+
+        self.RadioTrans.clicked.connect(self.changeProcess)
+        self.RadioCheck.clicked.connect(self.changeProcess)
+        self.RadioProof.clicked.connect(self.changeProcess)
+
+    @property
+    def ProcessType(self):
+        return self._ProcessType
+
+    @ProcessType.setter
+    def ProcessType(self, value: int):
+        self._ProcessType = value
+        self.type_signal.emit(value)
 
     def dragEnterEvent(self, event: QtGui.QDragEnterEvent) -> None:
         path = event.mimeData().text()
@@ -198,14 +240,15 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
                     se_count += 1
 
     def clearItem(self):
-        for i in range(self.ListWidgetLine.count()):
-            self.ListWidgetLine.removeItemWidget(self.ListWidgetLine.takeItem(i))
+        while self.ListWidgetLine.count():
+            self.ListWidgetLine.removeItemWidget(self.ListWidgetLine.takeItem(0))
         self.lines.clear()
         self.data_file = None
         self.data = None
 
     def newItem(self, data, item_id):
-        line = WidgetTranslateItem(data, item_id + 1)
+        item = ListWidgetItem()
+        line = WidgetTranslateItem(self, item, data, item_id + 1)
         if line.data.get("TalkCharacters"):
             cid = line.data.get("TalkCharacters")[0].get("Character2dId")
             for c in self.data['AppearCharacters']:
@@ -219,13 +262,16 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
                             line.CharaWidget.LabelIcon.setPixmap(
                                 QtGui.QPixmap(icon_path).scaledToWidth(
                                     50, QtCore.Qt.TransformationMode.SmoothTransformation))
-        item = ListWidgetItem()
         item.num = item_id
         item.setSizeHint(QtCore.QSize(self.ListWidgetLine.width(), line.size().height()))
         item.setSizeHint(line.size() + QtCore.QSize(-60, 0))
         self.ListWidgetLine.addItem(item)
         self.ListWidgetLine.setItemWidget(item, line)
         self.lines.append(line)
+
+    @property
+    def filePrefix(self):
+        return f"【{'翻译' if not self.ProcessType else '校对' if self.ProcessType == 1 else '合意'}】"
 
     def save_file_txt(self):
         if [line for line in self.lines if line.type == 'tag']:
@@ -237,10 +283,11 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
                 return
         result = []
         if self.data_file:
+            dir = os.path.split(self.trans_file)[0] \
+                if self.trans_file else os.path.split(self.data_file)[0] or self.parent.choose_file_root
             filename = QtWidgets.QFileDialog.getSaveFileName(
-                self, "保存",
-                os.path.split(self.trans_file)[0] if self.trans_file else "" or self.parent.choose_file_root,
-                "SekaiText文件(*.txt);;all files(*.*)")
+                self, "保存", dir=os.path.join(dir, f"{self.filePrefix}{self.EditTitle.text()}.txt"),
+                filter="SekaiText文件(*.txt)")
             if filename[1]:
                 for line in self.lines:
                     if line.CharaWidget.LabelName.text():
@@ -260,11 +307,13 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
 
     def save_file_yaml(self):
         if self.data_file:
+            dir = os.path.split(self.trans_file)[0] \
+                if self.trans_file else os.path.split(self.data_file)[0] or self.parent.choose_file_root
             filename = QtWidgets.QFileDialog.getSaveFileName(
-                self, "保存",
-                os.path.split(self.trans_file)[0] if self.trans_file else "" or self.parent.choose_file_root,
-                "SekaiSubtitle翻译文件(*.yml);;all files(*.*)")
-            if filename[1]:
+                self, "保存", dir=os.path.join(dir, f"{self.filePrefix}{self.EditTitle.text()}.yml"),
+                filter="SekaiSubtitle翻译文件(*.yml)"
+            )
+            if filename[0]:
                 data = {"dialog": [], "tag": [], "banner": []}
                 for line in self.lines:
                     if line.type in data.keys():
@@ -318,12 +367,12 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
                 if len(res) == len(limited_lines):
                     for lines, widget in zip(res, limited_lines):
                         for index, string in enumerate(lines):
-                            widget.lines[index].TextEditTranslate.setText(string)
+                            widget.lines[index].loadTranslated(string)
                 else:
                     for line_index, lines in enumerate(res):
                         widget = limited_lines[line_index]
                         for index, string in enumerate(lines):
-                            widget.lines[index].TextEditTranslate.setText(string)
+                            widget.lines[index].loadTranslated(string)
             elif os.path.splitext(file_name_choose)[-1].lower() == ".yml":
                 with open(file_name_choose, 'r', encoding='utf-8') as fp:
                     data = yaml.load(fp, yaml.Loader)
@@ -333,3 +382,11 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
                     if index_count == len(data[line_type]):
                         for index_of_data, index_of_widget in enumerate(index_list):
                             self.lines[index_of_widget].translated = data[line_type][index_of_data]
+
+    def changeProcess(self):
+        if self.RadioTrans.isChecked():
+            self.ProcessType = 0
+        elif self.RadioProof.isChecked():
+            self.ProcessType = 1
+        else:
+            self.ProcessType = 2

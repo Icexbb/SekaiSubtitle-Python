@@ -23,19 +23,21 @@ class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(421, 64)
+        Form.resize(421, 94)
         sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Form.sizePolicy().hasHeightForWidth())
         Form.setSizePolicy(sizePolicy)
         Form.setMinimumSize(QSize(0, 64))
-        Form.setMaximumSize(QSize(16777215, 64))
+        Form.setMaximumSize(QSize(16777215, 94))
         Form.setStyleSheet(u"#WidgetUp{background-color: rgba(150, 255, 150,50);}\n"
-"                #WidgetDown{background-color: rgba(255, 255, 150, 50);}\n"
-"                QLineEdit{margin:2px;background-color:rgba(0,0,0,0);}\n"
-"                QToolButton#ClearButton{border:0px;background-color: rgba(255, 150, 150, 50);}\n"
-"                #LineFrame{border:0.5px groove gray;border-radius:10px;}\n"
+"#WidgetDown{background-color: rgba(255, 255, 150, 50);}\n"
+"#WidgetMiddle{background-color: rgba(150, 255, 255, 50);}\n"
+"QLineEdit{margin:2px;background-color:rgba(0,0,0,0);}\n"
+"QToolButton#ClearButton{border:0px;background-color: rgba(255, 150, 150, 50);}\n"
+"#LineFrame{border:0.5px groove gray;border-radius:10px;}\n"
+"\n"
 "            ")
         self.gridLayout = QGridLayout(Form)
         self.gridLayout.setSpacing(0)
@@ -73,6 +75,27 @@ class Ui_Form(object):
 
 
         self.verticalLayout.addWidget(self.WidgetUp)
+
+        self.WidgetMiddle = QWidget(self.LineFrame)
+        self.WidgetMiddle.setObjectName(u"WidgetMiddle")
+        self.horizontalLayout = QHBoxLayout(self.WidgetMiddle)
+        self.horizontalLayout.setSpacing(0)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.TextBrowserTranslated = QLineEdit(self.WidgetMiddle)
+        self.TextBrowserTranslated.setObjectName(u"TextBrowserTranslated")
+        self.TextBrowserTranslated.setMinimumSize(QSize(0, 0))
+        self.TextBrowserTranslated.setMaximumSize(QSize(16777215, 30))
+        self.TextBrowserTranslated.setMouseTracking(False)
+        self.TextBrowserTranslated.setFocusPolicy(Qt.NoFocus)
+        self.TextBrowserTranslated.setFrame(False)
+        self.TextBrowserTranslated.setReadOnly(True)
+        self.TextBrowserTranslated.setClearButtonEnabled(False)
+
+        self.horizontalLayout.addWidget(self.TextBrowserTranslated)
+
+
+        self.verticalLayout.addWidget(self.WidgetMiddle)
 
         self.WidgetDown = QWidget(self.LineFrame)
         self.WidgetDown.setObjectName(u"WidgetDown")

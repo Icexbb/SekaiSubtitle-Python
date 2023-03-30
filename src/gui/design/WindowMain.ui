@@ -14,9 +14,9 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QWidget#MainFrame{background-color: rgb(255, 255, 255);border-radius:20px;}
-QFrame#CenterFrame{border-radius:20px;background-color: rgb(250, 250, 250);}
-QFrame#MenuFrame{ border-radius:20px; background-color: rgba(238, 238, 238,128);}
+   <string notr="true">QWidget#MainFrame{border-radius:10px;background-color: rgb(255, 255, 255);}
+QFrame#CenterFrame{border-radius:10px;background-color: rgb(250, 250, 250);}
+QFrame#MenuFrame{border-radius:10px; background-color: rgba(238, 238, 238,128);}
 #MenuFrame QPushButton{font: 400 12pt &quot;Microsoft YaHei UI&quot;;border:none}
             </string>
   </property>

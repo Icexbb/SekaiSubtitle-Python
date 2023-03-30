@@ -7,7 +7,7 @@ from PySide6 import QtNetwork, QtCore, QtWidgets
 from PySide6.QtCore import SIGNAL, Signal
 
 from gui.design.WidgetDataDownload import Ui_DownloadWidget
-from script.data import chara_name, areaDict, characterDict
+from script.data import chara_name, areaDict, characterDict, unit_dict
 from script.tools import save_json, read_json
 
 
@@ -280,28 +280,26 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
                     tree['主线剧情'][chapters['title']] = eps
 
         if os.path.exists(os.path.join(root, "actionSets.json")):
-            data = read_json(os.path.join(root, "actionSets.json"))
-            tree['地图对话'] = {}
+            data: list[dict] = read_json(os.path.join(root, "actionSets.json"))
+            tree['地图对话 - 地点筛选'] = {}
+            tree['地图对话 - 人物筛选'] = {}
+            tree['地图对话 - 活动追加'] = {}
+            tree['地图对话 - 月度追加'] = {}
             as_count = 0
             as_count_sp = 0
             for ep in data:
-                ep: dict
                 if (not ep.get("scenarioId")) or (not ep.get("actionSetType")):
                     continue
-                area = areaDict[ep['areaId']]
-                group = int(ep["id"] / 100)
-                scenario_id = ep['scenarioId']
-                chara_string = []
+                area: str = areaDict[ep['areaId']]
+                group: int = int(ep["id"] / 100)
+                scenario_id: str = ep['scenarioId']
+                chara_string: list[str] = []
                 for cid in ep['characterIds']:
                     for gc in character2ds:
                         if cid == gc['id']:
-                            chara_string.append(characterDict[gc['characterId'] - 1]["name_j"])
+                            chara_string.append(characterDict[gc['characterId'] - 1])
                             break
-                chara = ",".join(chara_string)
-                if area in tree['地图对话']:
-                    d = tree['地图对话'][area]
-                else:
-                    d = {}
+                chara: str = ",".join(chara_string)
 
                 if ep.get("actionSetType") == "normal":
                     as_count += 1
@@ -316,8 +314,34 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
                 else:
                     url = f"https://storage.sekai.best/sekai-assets/scenario/actionset/" \
                           f"group{group}_rip/{scenario_id}.asset"
+
+                if "monthly" in scenario_id:
+                    year = scenario_id.split("_")[1].removeprefix("monthly")[:2]
+                    month = scenario_id.split("_")[1].removeprefix("monthly")[2:]
+                    key = f"{year}年{month}月"
+                    d = tree['地图对话 - 月度追加'].get(key) or {}
+                    d[as_id] = url
+                    tree['地图对话 - 月度追加'][key] = d
+
+                if "ev" in scenario_id:
+                    release_event_id = ep['releaseConditionId']
+                    if release_event_id > 100000:
+                        release_event_id = int((release_event_id % 10000) / 100) + 1
+                    unit = unit_dict[scenario_id.split("_")[2]]
+                    key = f"{release_event_id}: {events[release_event_id - 1]['name']} - {unit}" \
+                        if release_event_id < len(events) else f"{release_event_id}: 未知活动 - {unit}"
+                    d = tree['地图对话 - 活动追加'].get(key) or {}
+                    d[as_id] = url
+                    tree['地图对话 - 活动追加'][key] = d
+
+                d = tree['地图对话 - 地点筛选'].get(area) or {}
                 d[as_id] = url
-                tree['地图对话'][area] = d
+                tree['地图对话 - 地点筛选'][area] = d
+
+                for chara in chara_string:
+                    d = tree['地图对话 - 人物筛选'].get(chara) or {}
+                    d[as_id] = url
+                    tree['地图对话 - 人物筛选'][chara] = d
 
         if os.path.exists(os.path.join(root, "specialStories.json")):
             data = read_json(os.path.join(root, "specialStories.json"))
@@ -378,7 +402,8 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
         self.DataEpisodeBox.clear()
         if data:
             self.DataTypeBox.clear()
-            for key in data:
+            keys = sorted(list(data.keys()))
+            for key in keys:
                 self.DataTypeBox.addItem(key)
             self.DataTypeBox.repaint()
 
@@ -391,12 +416,28 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
                 ls = data[type_key]
                 if type_key == "活动剧情":
                     ls = reversed(ls)
+                if type_key == "地图对话 - 人物筛选":
+                    ls = sorted(ls, key=lambda x: characterDict.index(x))
                 for key in ls:
                     self.DataPeriodBox.addItem(key)
                 self.DataPeriodBox.repaint()
-                if type_key == "地图对话":
+                if type_key == "地图对话 - 地点筛选":
                     self.L2.setText("区域类别")
                     self.L3.setText("对话序号")
+                elif type_key == "地图对话 - 月度追加":
+                    self.L2.setText("追加时间")
+                    self.L3.setText("对话序号")
+                elif type_key == "地图对话 - 活动追加":
+                    self.L2.setText("追加活动")
+                    self.L3.setText("对话序号")
+                elif type_key == "地图对话 - 人物筛选":
+                    self.L2.setText("角色名称")
+                    self.L3.setText("对话序号")
+                    self.DataPeriodBox.insertSeparator(4)
+                    self.DataPeriodBox.insertSeparator(9)
+                    self.DataPeriodBox.insertSeparator(14)
+                    self.DataPeriodBox.insertSeparator(19)
+                    self.DataPeriodBox.insertSeparator(24)
                 elif type_key == "活动剧情":
                     self.L2.setText("活动期数")
                     self.L3.setText("剧情话数")

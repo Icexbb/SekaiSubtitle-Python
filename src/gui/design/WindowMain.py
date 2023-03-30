@@ -24,9 +24,9 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(900, 600)
-        MainWindow.setStyleSheet(u"QWidget#MainFrame{background-color: rgb(255, 255, 255);border-radius:20px;}\n"
-"QFrame#CenterFrame{border-radius:20px;background-color: rgb(250, 250, 250);}\n"
-"QFrame#MenuFrame{ border-radius:20px; background-color: rgba(238, 238, 238,128);}\n"
+        MainWindow.setStyleSheet(u"QWidget#MainFrame{border-radius:10px;background-color: rgb(255, 255, 255);}\n"
+"QFrame#CenterFrame{border-radius:10px;background-color: rgb(250, 250, 250);}\n"
+"QFrame#MenuFrame{border-radius:10px; background-color: rgba(238, 238, 238,128);}\n"
 "#MenuFrame QPushButton{font: 400 12pt \"Microsoft YaHei UI\";border:none}\n"
 "            ")
         self.centralwidget = QWidget(MainWindow)

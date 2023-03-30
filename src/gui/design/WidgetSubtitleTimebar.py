@@ -23,7 +23,7 @@ class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(464, 57)
+        Form.resize(464, 47)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -61,6 +61,9 @@ class Ui_Form(object):
         self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
         self.LLabel = QLabel(self.MW)
         self.LLabel.setObjectName(u"LLabel")
+        font = QFont()
+        font.setPointSize(8)
+        self.LLabel.setFont(font)
 
         self.horizontalLayout_4.addWidget(self.LLabel)
 
@@ -70,6 +73,7 @@ class Ui_Form(object):
 
         self.CLabel = QLabel(self.MW)
         self.CLabel.setObjectName(u"CLabel")
+        self.CLabel.setFont(font)
 
         self.horizontalLayout_4.addWidget(self.CLabel)
 
@@ -79,6 +83,7 @@ class Ui_Form(object):
 
         self.RLabel = QLabel(self.MW)
         self.RLabel.setObjectName(u"RLabel")
+        self.RLabel.setFont(font)
 
         self.horizontalLayout_4.addWidget(self.RLabel)
 
@@ -99,8 +104,8 @@ class Ui_Form(object):
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.VLeft.sizePolicy().hasHeightForWidth())
         self.VLeft.setSizePolicy(sizePolicy1)
-        self.VLeft.setMinimumSize(QSize(5, 15))
-        self.VLeft.setMaximumSize(QSize(16777215, 15))
+        self.VLeft.setMinimumSize(QSize(5, 10))
+        self.VLeft.setMaximumSize(QSize(16777215, 10))
 
         self.horizontalLayout.addWidget(self.VLeft)
 
@@ -112,8 +117,8 @@ class Ui_Form(object):
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.VCurrent.sizePolicy().hasHeightForWidth())
         self.VCurrent.setSizePolicy(sizePolicy2)
-        self.VCurrent.setMinimumSize(QSize(0, 15))
-        self.VCurrent.setMaximumSize(QSize(16777215, 15))
+        self.VCurrent.setMinimumSize(QSize(0, 10))
+        self.VCurrent.setMaximumSize(QSize(16777215, 10))
         self.horizontalLayout_3 = QHBoxLayout(self.VCurrent)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
@@ -125,8 +130,8 @@ class Ui_Form(object):
         self.VRight.setEnabled(False)
         sizePolicy1.setHeightForWidth(self.VRight.sizePolicy().hasHeightForWidth())
         self.VRight.setSizePolicy(sizePolicy1)
-        self.VRight.setMinimumSize(QSize(5, 15))
-        self.VRight.setMaximumSize(QSize(16777215, 15))
+        self.VRight.setMinimumSize(QSize(5, 10))
+        self.VRight.setMaximumSize(QSize(16777215, 10))
 
         self.horizontalLayout.addWidget(self.VRight)
 

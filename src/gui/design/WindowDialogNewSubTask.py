@@ -38,11 +38,9 @@ class Ui_NewSubProcessDialog(object):
         self.MainFrame = QFrame(NewSubProcessDialog)
         self.MainFrame.setObjectName(u"MainFrame")
         self.MainFrame.setEnabled(True)
-        self.MainFrame.setStyleSheet(u"QFrame#MainFrame{background-color: rgb(255, 255, 255);border-color: rgb(204,\n"
-"                            204, 204);border-size: 2px;border-radius:20px;}\n"
-"                            QLabel{font: 12pt \"Microsoft YaHei UI\";}\n"
-"                            QGroupBox{background-color: rgba(204, 204, 204,50);border-color: rgb(204, 204,\n"
-"                            204);border-size: 1px;border-radius:20px;}\n"
+        self.MainFrame.setStyleSheet(u"QFrame#MainFrame{background-color: rgb(255, 255, 255);border-color: rgb(204,204, 204);border-size: 2px;border-radius:10px;}\n"
+"QLabel{font: 12pt \"Microsoft YaHei UI\";}\n"
+"QGroupBox{background-color: rgba(204, 204, 204,50);border-color: rgb(204, 204,204);border-size: 1px;border-radius:10px;}\n"
 "                        ")
         self.verticalLayout = QVBoxLayout(self.MainFrame)
         self.verticalLayout.setObjectName(u"verticalLayout")
