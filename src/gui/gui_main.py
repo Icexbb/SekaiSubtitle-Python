@@ -25,7 +25,7 @@ from script import data
 EXIT_CODE_REBOOT = -11231351
 
 PROGRAM_NAME = "Sekai Subtitle"
-VERSION = "v0.7.4"
+VERSION = "v0.8.0"
 
 
 class MainUi(FramelessMainWindow, Ui_MainWindow):
