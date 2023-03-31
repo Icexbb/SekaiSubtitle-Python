@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 import sys
 
 from PySide6 import QtWidgets, QtGui, QtCore
@@ -16,16 +17,28 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         self.parent = parent
         self.load_chibi()
         self.pushButton.clicked.connect(self.change_config)
-        self.root = os.path.join(os.path.expanduser('~'), "SekaiSubtitle", "setting")
+        self.root = os.path.join(os.path.expanduser('~/Documents'), "SekaiSubtitle", "setting")
         os.makedirs(self.root, exist_ok=True)
         self.config_file = os.path.join(self.root, "config.json")
+        if not os.path.exists(self.config_file):
+            old_file = os.path.join(os.path.expanduser('~'), "SekaiSubtitle", "setting", "config.json")
+            if os.path.exists(old_file):
+                shutil.move(old_file, self.config_file)
+                shutil.rmtree(os.path.join(os.path.expanduser('~'), "SekaiSubtitle"))
         self.SettingProxyEdit.setValidator(
             QtGui.QRegularExpressionValidator(QtCore.QRegularExpression(
                 r"([a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?)|"
                 r"((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]\d)|\d)(\.((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]\d)|\d)){3}")))
         self.SettingProxyTypeCombo.currentTextChanged.connect(self.setProxyState)
         self._last_dir = None
-        self.load_config()
+        try:
+            self.load_config()
+        except Exception as e:
+            os.remove(self.config_file)
+            self.load_config()
+            QtWidgets.QMessageBox.warning(
+                self, "载入错误", f"在载入设置文件时发生错误，已恢复默认设置，请检查设置内容:\n{e.__repr__()}",
+                QtWidgets.QMessageBox.StandardButton.Ok)
         # self.SettingAnimatedCheck.setChecked(False)
         # self.SettingAnimatedCheck.setEnabled(False)
         self.save_config()
@@ -41,8 +54,9 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         self.save_config()
 
     def setProxyState(self):
-        self.SettingProxyHostSpin.setEnabled(self.SettingProxyTypeCombo.currentIndex())
-        self.SettingProxyEdit.setEnabled(self.SettingProxyTypeCombo.currentIndex())
+        self.SettingProxyHostSpin.setHidden(not self.SettingProxyTypeCombo.currentIndex())
+        self.SettingProxyEdit.setHidden(not self.SettingProxyTypeCombo.currentIndex())
+        self.SettingProxyLabel.setHidden(not self.SettingProxyTypeCombo.currentIndex())
 
     @property
     def proxy(self):
@@ -70,6 +84,8 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
                 self.SettingProxyTypeCombo.setCurrentText(p_type)
             else:
                 raise ValueError("Proxy Not Match Pattern")
+        else:
+            self.SettingProxyTypeCombo.setCurrentIndex(0)
 
     def load_chibi(self):
         icon_path = "asset/chibi"
@@ -90,10 +106,12 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         adjust_window = self.SettingStartAdjustWindowCheck.isChecked()
         typer_interval = self.SettingTyperSpin.value()
         download_timeout = self.SettingTimeoutSpin.value()
+        translate_save_interval = self.SettingSaveSpin.value()
         config = {
             "proxy": proxy, "font": font.toString(), "start_immediate": start_immediate, "chibi": chibi,
             "animated": animated, "update": update, "last_dir": self.last_dir,
-            "adjust_window": adjust_window, "typer_interval": typer_interval, "download_timeout": download_timeout
+            "adjust_window": adjust_window, "typer_interval": typer_interval, "download_timeout": download_timeout,
+            "translate_save_interval": translate_save_interval
         }
         save_json(self.config_file, config)
 
@@ -104,38 +122,28 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
     def load_config(self):
         config = read_json(self.config_file)
         try:
-            if "proxy" in config:
-                self.proxy = config["proxy"]
+            self.proxy = config.get("proxy")
         except ValueError:
-            QtWidgets.QMessageBox.warning(self,"Sekai Subtitle","代理格式错误 请重新设置！",QtWidgets.QMessageBox.StandardButton.Yes,QtWidgets.QMessageBox.StandardButton.Yes)
+            QtWidgets.QMessageBox.warning(self, "Sekai Subtitle", "代理格式错误 请重新设置！",
+                                          QtWidgets.QMessageBox.StandardButton.Yes,
+                                          QtWidgets.QMessageBox.StandardButton.Yes)
         if "font" in config:
             self.SettingFontComboBox.setCurrentFont(QFont(config["font"]))
-        if "start_immediate" in config:
-            self.SettingStartImmediateCheck.setChecked(config['start_immediate'])
         if "chibi" in config:
-            self.SettingChibiSelect.setCurrentText(config['chibi'])
+            self.SettingChibiSelect.setCurrentText(config.get('chibi'))
         else:
             self.SettingChibiSelect.setCurrentIndex(0)
-        if "animated" in config:
-            self.SettingAnimatedCheck.setChecked(config['animated'])
         if "update" in config:
             self.SettingStartupUpdateCheck.setChecked(config['update'])
         else:
             self.SettingStartupUpdateCheck.setChecked(True)
-        if "last_dir" in config:
-            self.last_dir = config['last_dir']
-        else:
-            self.last_dir = os.getcwd()
-        if "adjust_window" in config:
-            self.SettingStartAdjustWindowCheck.setChecked(config["adjust_window"])
-        else:
-            self.SettingStartAdjustWindowCheck.setChecked(True)
-        if "typer_interval" in config:
-            self.SettingTyperSpin.setValue(config["typer_interval"])
-        if "download_timeout" in config:
-            self.SettingTimeoutSpin.setValue(config.get("download_timeout"))
-        else:
-            self.SettingTimeoutSpin.setValue(15)
+        self.SettingStartImmediateCheck.setChecked(config.get('start_immediate'))
+        self.SettingAnimatedCheck.setChecked(config.get('animated'))
+        self.last_dir = config.get('last_dir') or os.getcwd()
+        self.SettingStartAdjustWindowCheck.setChecked(config.get("adjust_window"))
+        self.SettingTyperSpin.setValue(config.get("typer_interval") or False)
+        self.SettingTimeoutSpin.setValue(config.get("download_timeout") or 15)
+        self.SettingSaveSpin.setValue(config.get("translate_save_interval") or 5)
 
     def get_config(self, config_field=None) -> dict | str:
         config = read_json(self.config_file)

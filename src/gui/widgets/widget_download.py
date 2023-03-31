@@ -11,21 +11,6 @@ from script.data import chara_name, areaDict, characterDict, unit_dict
 from script.tools import save_json, read_json
 
 
-class DownloadThread(QtCore.QThread):
-    signal_success = Signal()
-    signal_timeout = Signal()
-
-    def __init__(self, url, timeout):
-        super().__init__()
-        self.url = url
-        self.timeout = timeout
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(lambda x: print(x))
-
-    def run(self) -> None:
-        pass
-
-
 class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
     def __init__(self, parent):
         super().__init__()
@@ -59,7 +44,6 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
 
         source = self.DataSourceBox.currentIndex()
         self.update_tree("pjsekai" if source else "best")
-        self.d = DownloadThread(None, 5)
         if self.nam_proxy:
             self.tree_updater.setProxy(self.nam_proxy)
             self.downloader.setProxy(self.nam_proxy)

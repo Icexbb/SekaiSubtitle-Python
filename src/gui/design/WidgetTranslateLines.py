@@ -23,7 +23,7 @@ class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(421, 94)
+        Form.resize(394, 94)
         sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -36,9 +36,7 @@ class Ui_Form(object):
 "#WidgetMiddle{background-color: rgba(150, 255, 255, 50);}\n"
 "QLineEdit{margin:2px;background-color:rgba(0,0,0,0);}\n"
 "QToolButton#ClearButton{border:0px;background-color: rgba(255, 150, 150, 50);}\n"
-"#LineFrame{border:0.5px groove gray;border-radius:10px;}\n"
-"\n"
-"            ")
+"#LineFrame{border:0.5px solid gray;border-radius:5px;}")
         self.gridLayout = QGridLayout(Form)
         self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(u"gridLayout")
@@ -58,6 +56,8 @@ class Ui_Form(object):
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.WidgetUp = QWidget(self.LineFrame)
         self.WidgetUp.setObjectName(u"WidgetUp")
+        self.WidgetUp.setMinimumSize(QSize(0, 30))
+        self.WidgetUp.setMaximumSize(QSize(16777215, 30))
         self.horizontalLayout_2 = QHBoxLayout(self.WidgetUp)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -78,13 +78,20 @@ class Ui_Form(object):
 
         self.WidgetMiddle = QWidget(self.LineFrame)
         self.WidgetMiddle.setObjectName(u"WidgetMiddle")
+        self.WidgetMiddle.setMinimumSize(QSize(0, 0))
+        self.WidgetMiddle.setMaximumSize(QSize(16777215, 30))
         self.horizontalLayout = QHBoxLayout(self.WidgetMiddle)
         self.horizontalLayout.setSpacing(0)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.TextBrowserTranslated = QLineEdit(self.WidgetMiddle)
         self.TextBrowserTranslated.setObjectName(u"TextBrowserTranslated")
-        self.TextBrowserTranslated.setMinimumSize(QSize(0, 0))
+        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.TextBrowserTranslated.sizePolicy().hasHeightForWidth())
+        self.TextBrowserTranslated.setSizePolicy(sizePolicy2)
+        self.TextBrowserTranslated.setMinimumSize(QSize(0, 30))
         self.TextBrowserTranslated.setMaximumSize(QSize(16777215, 30))
         self.TextBrowserTranslated.setMouseTracking(False)
         self.TextBrowserTranslated.setFocusPolicy(Qt.NoFocus)
@@ -99,6 +106,8 @@ class Ui_Form(object):
 
         self.WidgetDown = QWidget(self.LineFrame)
         self.WidgetDown.setObjectName(u"WidgetDown")
+        self.WidgetDown.setMinimumSize(QSize(0, 30))
+        self.WidgetDown.setMaximumSize(QSize(16777215, 30))
         self.horizontalLayout_3 = QHBoxLayout(self.WidgetDown)
         self.horizontalLayout_3.setSpacing(0)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
@@ -107,9 +116,16 @@ class Ui_Form(object):
         self.TextEditTranslate.setObjectName(u"TextEditTranslate")
         self.TextEditTranslate.setMinimumSize(QSize(0, 30))
         self.TextEditTranslate.setMaximumSize(QSize(16777215, 30))
+        self.TextEditTranslate.setFocusPolicy(Qt.TabFocus)
         self.TextEditTranslate.setFrame(False)
 
         self.horizontalLayout_3.addWidget(self.TextEditTranslate)
+
+        self.WarningLabel = QLabel(self.WidgetDown)
+        self.WarningLabel.setObjectName(u"WarningLabel")
+        self.WarningLabel.setToolTipDuration(0)
+
+        self.horizontalLayout_3.addWidget(self.WarningLabel)
 
         self.TextLengthLabel = QLabel(self.WidgetDown)
         self.TextLengthLabel.setObjectName(u"TextLengthLabel")
@@ -137,6 +153,7 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+        self.WarningLabel.setText("")
         self.TextLengthLabel.setText("")
         self.ClearButton.setText(QCoreApplication.translate("Form", u"x", None))
     # retranslateUi

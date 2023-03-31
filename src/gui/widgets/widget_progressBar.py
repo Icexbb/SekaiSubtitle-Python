@@ -47,7 +47,6 @@ class ProgressBar(QtWidgets.QWidget, Ui_ProgressBarWidget):
         self.TaskNameString = os.path.splitext(os.path.split(self.process_data.get("video"))[-1])[0]
         self.TaskName.setText(self.TaskNameString)
         self.TaskName.repaint()
-        self.timer = QtCore.QTimer(self)
         self.signal.connect(self.parent.ProcessSignalFromChild)
         self.LogShowButton.clicked.connect(self.showLog)
         self.logShowing = True

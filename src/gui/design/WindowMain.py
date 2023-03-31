@@ -29,20 +29,17 @@ class Ui_MainWindow(object):
 "QFrame#MenuFrame{border-radius:10px; background-color: rgba(238, 238, 238,128);}\n"
 "#MenuFrame QPushButton{font: 400 12pt \"Microsoft YaHei UI\";border:none}\n"
 "            ")
-        self.centralwidget = QWidget(MainWindow)
-        self.centralwidget.setObjectName(u"centralwidget")
-        self.gridLayout = QGridLayout(self.centralwidget)
-        self.gridLayout.setSpacing(0)
-        self.gridLayout.setObjectName(u"gridLayout")
-        self.gridLayout.setContentsMargins(0, 0, 0, 0)
-        self.MainFrame = QWidget(self.centralwidget)
+        self.MainFrame = QWidget(MainWindow)
         self.MainFrame.setObjectName(u"MainFrame")
-        self.MainFrame.setStyleSheet(u"")
-        self.gridLayout_2 = QGridLayout(self.MainFrame)
-        self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.gridLayout_2.setContentsMargins(-1, 40, -1, -1)
-        self.horizontalLayout = QHBoxLayout()
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.gridLayout = QGridLayout(self.MainFrame)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setContentsMargins(-1, 35, -1, -1)
+        self.CenterFrame = QFrame(self.MainFrame)
+        self.CenterFrame.setObjectName(u"CenterFrame")
+        self.CenterFrame.setStyleSheet(u"")
+
+        self.gridLayout.addWidget(self.CenterFrame, 0, 1, 1, 1)
+
         self.MenuFrame = QFrame(self.MainFrame)
         self.MenuFrame.setObjectName(u"MenuFrame")
         self.MenuFrame.setMinimumSize(QSize(120, 0))
@@ -156,21 +153,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addWidget(self.widget_5)
 
 
-        self.horizontalLayout.addWidget(self.MenuFrame)
+        self.gridLayout.addWidget(self.MenuFrame, 0, 0, 1, 1)
 
-        self.CenterFrame = QFrame(self.MainFrame)
-        self.CenterFrame.setObjectName(u"CenterFrame")
-        self.CenterFrame.setStyleSheet(u"")
-
-        self.horizontalLayout.addWidget(self.CenterFrame)
-
-
-        self.gridLayout_2.addLayout(self.horizontalLayout, 0, 0, 1, 1)
-
-
-        self.gridLayout.addWidget(self.MainFrame, 0, 0, 1, 1)
-
-        MainWindow.setCentralWidget(self.centralwidget)
+        MainWindow.setCentralWidget(self.MainFrame)
 
         self.retranslateUi(MainWindow)
 

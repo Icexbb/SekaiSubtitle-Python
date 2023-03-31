@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>421</width>
+    <width>394</width>
     <height>94</height>
    </rect>
   </property>
@@ -37,9 +37,7 @@
 #WidgetMiddle{background-color: rgba(150, 255, 255, 50);}
 QLineEdit{margin:2px;background-color:rgba(0,0,0,0);}
 QToolButton#ClearButton{border:0px;background-color: rgba(255, 150, 150, 50);}
-#LineFrame{border:0.5px groove gray;border-radius:10px;}
-
-            </string>
+#LineFrame{border:0.5px solid gray;border-radius:5px;}</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
@@ -89,6 +87,18 @@ QToolButton#ClearButton{border:0px;background-color: rgba(255, 150, 150, 50);}
       </property>
       <item>
        <widget class="QWidget" name="WidgetUp" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>30</height>
+         </size>
+        </property>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <property name="leftMargin">
           <number>0</number>
@@ -138,6 +148,18 @@ QToolButton#ClearButton{border:0px;background-color: rgba(255, 150, 150, 50);}
       </item>
       <item>
        <widget class="QWidget" name="WidgetMiddle" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>30</height>
+         </size>
+        </property>
         <layout class="QHBoxLayout" name="horizontalLayout">
          <property name="spacing">
           <number>0</number>
@@ -156,10 +178,16 @@ QToolButton#ClearButton{border:0px;background-color: rgba(255, 150, 150, 50);}
          </property>
          <item>
           <widget class="QLineEdit" name="TextBrowserTranslated">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>0</height>
+             <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -190,6 +218,18 @@ QToolButton#ClearButton{border:0px;background-color: rgba(255, 150, 150, 50);}
       </item>
       <item>
        <widget class="QWidget" name="WidgetDown" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>30</height>
+         </size>
+        </property>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <property name="spacing">
           <number>0</number>
@@ -220,8 +260,21 @@ QToolButton#ClearButton{border:0px;background-color: rgba(255, 150, 150, 50);}
              <height>30</height>
             </size>
            </property>
+           <property name="focusPolicy">
+            <enum>Qt::TabFocus</enum>
+           </property>
            <property name="frame">
             <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="WarningLabel">
+           <property name="toolTipDuration">
+            <number>0</number>
+           </property>
+           <property name="text">
+            <string/>
            </property>
           </widget>
          </item>

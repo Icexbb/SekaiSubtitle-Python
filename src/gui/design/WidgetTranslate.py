@@ -24,7 +24,7 @@ class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(671, 374)
+        Form.resize(404, 295)
         sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -106,6 +106,11 @@ class Ui_Form(object):
 
         self.horizontalLayout_3.addItem(self.horizontalSpacer_2)
 
+        self.AutoSaveLabel = QLabel(self.widget)
+        self.AutoSaveLabel.setObjectName(u"AutoSaveLabel")
+
+        self.horizontalLayout_3.addWidget(self.AutoSaveLabel)
+
         self.gridWidget = QWidget(self.widget)
         self.gridWidget.setObjectName(u"gridWidget")
         sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -113,7 +118,8 @@ class Ui_Form(object):
         sizePolicy1.setVerticalStretch(60)
         sizePolicy1.setHeightForWidth(self.gridWidget.sizePolicy().hasHeightForWidth())
         self.gridWidget.setSizePolicy(sizePolicy1)
-        self.gridWidget.setMinimumSize(QSize(0, 60))
+        self.gridWidget.setMinimumSize(QSize(200, 60))
+        self.gridWidget.setMaximumSize(QSize(200, 16777215))
         self.verticalLayout_2 = QVBoxLayout(self.gridWidget)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.widget_2 = QWidget(self.gridWidget)
@@ -198,6 +204,7 @@ class Ui_Form(object):
         self.ButtonClear.setText(QCoreApplication.translate("Form", u"\u6e05\u9664", None))
         self.ButtonOpen.setText(QCoreApplication.translate("Form", u"\u6253\u5f00", None))
         self.ButtonSave.setText(QCoreApplication.translate("Form", u"\u4fdd\u5b58", None))
+        self.AutoSaveLabel.setText("")
         self.RadioTrans.setText(QCoreApplication.translate("Form", u"\u7ffb\u8bd1", None))
         self.RadioProof.setText(QCoreApplication.translate("Form", u"\u6821\u5bf9", None))
         self.RadioCheck.setText(QCoreApplication.translate("Form", u"\u5408\u610f", None))

@@ -9,8 +9,9 @@ import traceback
 from PySide6 import QtWidgets, QtCore, QtGui, QtNetwork
 from PySide6.QtCore import QUrl, SIGNAL
 from PySide6.QtGui import QIcon, QFont, QDesktopServices
+from PySide6.QtWidgets import QPushButton
 from packaging.version import Version
-from qframelesswindow import FramelessMainWindow
+import qframelesswindow
 
 from gui.design.WindowMain import Ui_MainWindow
 from gui.widgets.dialog_about import AboutDialog
@@ -19,33 +20,30 @@ from gui.widgets.widget_download import DownloadWidget
 from gui.widgets.widget_setting import SettingWidget
 from gui.widgets.widget_subtitle import ProcessWidget
 from gui.widgets.widget_titlebar import TitleBar
-from gui.widgets.widget_translate import TranslateWidget
+from gui.widgets.widget_translate import TranslateWidget, RightClickEnabledButton
 from script import data
 
 EXIT_CODE_REBOOT = -11231351
 
 PROGRAM_NAME = "Sekai Subtitle"
-VERSION = "v0.8.2"
+VERSION = "v0.8.3"
 
 
-class MainUi(FramelessMainWindow, Ui_MainWindow):
+class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
     _startPos = None
     _endPos = None
     _isTracking = None
     signal_exception = QtCore.Signal(Exception, dict)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self.setupUi(self)
         self.icon_q = None
         self._debug = 0
         self.icon = None
         self.version = VERSION
-        self.setupUi(self)
         self.setWindowTitle(PROGRAM_NAME)
         self.setObjectName(PROGRAM_NAME)
-
-        self.setWindowFlag(QtCore.Qt.WindowType.FramelessWindowHint)
-        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
 
         self.FormSettingWidget = SettingWidget(self)
         self.FormProcessWidget = ProcessWidget(self)
@@ -53,8 +51,8 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         self.FormTranslateWidget = TranslateWidget(self)
         self.MainLayout = QtWidgets.QStackedLayout()
         self.CenterFrame.setLayout(self.MainLayout)
-        self.CenterFrame.setStyleSheet("QFrame#CenterFrame{background-color:rgb(240,240,240)}")
-        self.CenterFrame.setContentsMargins(3, 3, 3, 3)
+        self.CenterFrame.setStyleSheet("QFrame#CenterFrame{background-color:rgb(200,200,200)}")
+        self.CenterFrame.setContentsMargins(1, 1, 1, 1)
         self.MainLayout.addWidget(self.FormProcessWidget)
         self.MainLayout.addWidget(self.FormDownloadWidget)
         self.MainLayout.addWidget(self.FormTranslateWidget)
@@ -67,6 +65,10 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         self.TitleBar = TitleBar(self)
         self.TitleBar.TitleLabel.setText(PROGRAM_NAME)
         self.setTitleBar(self.TitleBar)
+        self.setWindowFlag(QtCore.Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setResizeEnabled(True)
+
         self.FuncButtonSubtitle.clicked.connect(lambda: self.switchWidget(0, QtCore.QSize(900, 600)))
         self.FuncButtonDownload.clicked.connect(lambda: self.switchWidget(1, QtCore.QSize(900, 600)))
         self.FuncButtonText.clicked.connect(lambda: self.switchWidget(2, QtCore.QSize(900, 600)))
@@ -116,9 +118,9 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
                     if not os.path.exists(i):
                         i = os.path.join(icon_path, random.choice(os.listdir(icon_path)))
             if animated:
-                self.ChibiWidget = WidgetChibi(select if select != "随机" else None)
-                self.FigureLabel.deleteLater()
+                self.ChibiWidget = WidgetChibi(self, select if select != "随机" else None)
                 self.FigureLayout.addWidget(self.ChibiWidget)
+                self.FigureLabel.deleteLater()
             else:
                 self.FigureLabel.setPixmap(
                     QtGui.QPixmap(i).scaledToHeight(self.FigureLabel.height(),
@@ -134,7 +136,7 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
                     event.button() == QtCore.Qt.MouseButton.RightButton:
                 if self.childAt(event.pos()).objectName() == self.FuncButtonAbout.objectName():
                     self.enter_debug_mode()
-        return super().eventFilter(obj,event)
+        return super().eventFilter(obj, event)
 
     def enter_debug_mode(self):
         self._debug += 1
@@ -192,7 +194,7 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
     # 鼠标按下事件
     def mousePressEvent(self, a0: QtGui.QMouseEvent):
         # 根据鼠标按下时的位置判断是否在QFrame范围内
-        if self.childAt(a0.pos()).objectName() in ["MainFrame", "TitleBar", ]:
+        if self.childAt(a0.pos()).objectName() in ["MainFrame", "TitleBar"]:
             # 判断鼠标按下的是左键
             if a0.button() == QtCore.Qt.MouseButton.LeftButton:
                 self._isTracking = True
@@ -258,6 +260,11 @@ class MainUi(FramelessMainWindow, Ui_MainWindow):
         self.FormProcessWidget.clear_all()
         self.close()
         QtWidgets.QApplication.exit(EXIT_CODE_REBOOT)
+
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        for file in os.listdir(self.FormTranslateWidget.autoSavePath):
+            os.remove(os.path.join(self.FormTranslateWidget.autoSavePath, file))
+        return super().closeEvent(event)
 
     def get_bar(self, widget_id):
         if widget_id:

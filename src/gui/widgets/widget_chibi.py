@@ -2,15 +2,12 @@ import os
 import random
 import threading
 import socket
-from PySide6 import QtCore
+from PySide6 import QtCore, QtWidgets
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from http.server import SimpleHTTPRequestHandler
 from http.server import ThreadingHTTPServer
 from functools import partial
 import contextlib
-import sys
-
-from PySide6.QtWidgets import QWidget
 
 from script.data import get_asset_path, chara_en_name
 
@@ -44,9 +41,9 @@ class ChibiServer(threading.Thread):
             httpd.serve_forever()
 
 
-class WidgetChibi(QWebEngineView, QWidget):
-    def __init__(self, chara_name: str = None):
-        super().__init__()
+class WidgetChibi(QtWidgets.QWidget):
+    def __init__(self, parent, chara_name: str = None):
+        super().__init__(parent=parent)
         self.thread_http = ChibiServer()
         self.thread_http.start()
         self.chara_id = chara_en_name.index(chara_name.lower()) + 1 if chara_name else random.randint(1, 26)
@@ -58,7 +55,15 @@ class WidgetChibi(QWebEngineView, QWidget):
         model = random.choice(self.model_ls)
         ap = 'm_' if self.chara_id in [11, 12, 13, 16, 23, 26] else "w_"
         self.setFixedSize(QtCore.QSize(120, 120))
-        self.load(QtCore.QUrl(f"http://127.0.0.1:9000/?an={model}&ap={ap}"))
+        self.webengine = QWebEngineView()
+        self.webengine.setFixedSize(QtCore.QSize(120, 120))
+
+        self.Layout = QtWidgets.QHBoxLayout(self)
+        self.Layout.addChildWidget(self.webengine)
+        self.setLayout(self.Layout)
+        self.Layout.setContentsMargins(0, 0, 0, 0)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.webengine.load(QtCore.QUrl(f"http://127.0.0.1:9000/?an={model}&ap={ap}"))
 
     def setAnimation(self, animation):
-        self.page().runJavaScript(f"changeAnimation({animation})")
+        self.webengine.page().runJavaScript(f"changeAnimation({animation})")

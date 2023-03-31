@@ -3,6 +3,7 @@ import os
 import sys
 
 from PySide6 import QtWidgets, QtGui
+from PySide6.QtCore import Qt
 
 from gui.gui_main import handleException, MainUi, EXIT_CODE_REBOOT
 

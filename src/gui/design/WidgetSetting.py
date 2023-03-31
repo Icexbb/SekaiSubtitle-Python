@@ -16,15 +16,16 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFontComboBox,
-    QFrame, QGridLayout, QHBoxLayout, QLabel,
-    QLineEdit, QPushButton, QScrollArea, QSizePolicy,
-    QSpacerItem, QSpinBox, QVBoxLayout, QWidget)
+    QFrame, QGridLayout, QGroupBox, QHBoxLayout,
+    QLabel, QLineEdit, QPushButton, QScrollArea,
+    QSizePolicy, QSpacerItem, QSpinBox, QVBoxLayout,
+    QWidget)
 
 class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(418, 463)
+        Form.resize(418, 588)
         Form.setStyleSheet(u"QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:10px;}\n"
 "                QScrollArea{background-color: transparent;}\n"
 "                QWidget#scrollAreaWidgetContents{background-color: transparent;}\n"
@@ -51,28 +52,278 @@ class Ui_Form(object):
         self.scrollArea.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 400, 396))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 400, 521))
         self.verticalLayout_3 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.horizontalLayout_2 = QHBoxLayout()
+        self.GB1 = QGroupBox(self.scrollAreaWidgetContents)
+        self.GB1.setObjectName(u"GB1")
+        self.verticalLayout_2 = QVBoxLayout(self.GB1)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.verticalLayout_2.setContentsMargins(3, 3, 3, 3)
+        self.HL1 = QHBoxLayout()
+        self.HL1.setSpacing(5)
+        self.HL1.setObjectName(u"HL1")
+        self.HL1.setContentsMargins(5, 5, 5, 5)
+        self.label_5 = QLabel(self.GB1)
+        self.label_5.setObjectName(u"label_5")
+
+        self.HL1.addWidget(self.label_5)
+
+        self.widget = QWidget(self.GB1)
+        self.widget.setObjectName(u"widget")
+        self.horizontalLayout = QHBoxLayout(self.widget)
+        self.horizontalLayout.setSpacing(0)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer_2)
+
+        self.SettingStartupUpdateCheck = QCheckBox(self.widget)
+        self.SettingStartupUpdateCheck.setObjectName(u"SettingStartupUpdateCheck")
+        sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.SettingStartupUpdateCheck.sizePolicy().hasHeightForWidth())
+        self.SettingStartupUpdateCheck.setSizePolicy(sizePolicy)
+        self.SettingStartupUpdateCheck.setChecked(True)
+        self.SettingStartupUpdateCheck.setAutoRepeat(False)
+
+        self.horizontalLayout.addWidget(self.SettingStartupUpdateCheck)
+
+
+        self.HL1.addWidget(self.widget)
+
+        self.HL1.setStretch(0, 2)
+        self.HL1.setStretch(1, 5)
+
+        self.verticalLayout_2.addLayout(self.HL1)
+
+        self.HL2 = QHBoxLayout()
+        self.HL2.setSpacing(5)
+        self.HL2.setObjectName(u"HL2")
+        self.HL2.setContentsMargins(5, 5, 5, 5)
+        self.label_8 = QLabel(self.GB1)
+        self.label_8.setObjectName(u"label_8")
+
+        self.HL2.addWidget(self.label_8)
+
+        self.widget_2 = QWidget(self.GB1)
+        self.widget_2.setObjectName(u"widget_2")
+        self.horizontalLayout_2 = QHBoxLayout(self.widget_2)
+        self.horizontalLayout_2.setSpacing(0)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.horizontalLayout_2.setContentsMargins(5, 5, 5, 5)
-        self.label_2 = QLabel(self.scrollAreaWidgetContents)
+        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.horizontalSpacer_3 = QSpacerItem(240, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_2.addItem(self.horizontalSpacer_3)
+
+        self.SettingStartAdjustWindowCheck = QCheckBox(self.widget_2)
+        self.SettingStartAdjustWindowCheck.setObjectName(u"SettingStartAdjustWindowCheck")
+        sizePolicy.setHeightForWidth(self.SettingStartAdjustWindowCheck.sizePolicy().hasHeightForWidth())
+        self.SettingStartAdjustWindowCheck.setSizePolicy(sizePolicy)
+        self.SettingStartAdjustWindowCheck.setAutoRepeat(False)
+
+        self.horizontalLayout_2.addWidget(self.SettingStartAdjustWindowCheck)
+
+
+        self.HL2.addWidget(self.widget_2)
+
+        self.HL2.setStretch(0, 2)
+        self.HL2.setStretch(1, 5)
+
+        self.verticalLayout_2.addLayout(self.HL2)
+
+        self.HL3 = QHBoxLayout()
+        self.HL3.setSpacing(5)
+        self.HL3.setObjectName(u"HL3")
+        self.HL3.setContentsMargins(5, 5, 5, 5)
+        self.label_4 = QLabel(self.GB1)
+        self.label_4.setObjectName(u"label_4")
+
+        self.HL3.addWidget(self.label_4)
+
+        self.horizontalLayout_6 = QHBoxLayout()
+        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.horizontalSpacer_9 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_6.addItem(self.horizontalSpacer_9)
+
+        self.SettingChibiSelect = QComboBox(self.GB1)
+        self.SettingChibiSelect.setObjectName(u"SettingChibiSelect")
+        self.SettingChibiSelect.setMinimumSize(QSize(80, 0))
+
+        self.horizontalLayout_6.addWidget(self.SettingChibiSelect)
+
+        self.SettingAnimatedCheck = QCheckBox(self.GB1)
+        self.SettingAnimatedCheck.setObjectName(u"SettingAnimatedCheck")
+        sizePolicy.setHeightForWidth(self.SettingAnimatedCheck.sizePolicy().hasHeightForWidth())
+        self.SettingAnimatedCheck.setSizePolicy(sizePolicy)
+
+        self.horizontalLayout_6.addWidget(self.SettingAnimatedCheck)
+
+
+        self.HL3.addLayout(self.horizontalLayout_6)
+
+        self.HL3.setStretch(0, 2)
+        self.HL3.setStretch(1, 5)
+
+        self.verticalLayout_2.addLayout(self.HL3)
+
+
+        self.verticalLayout_3.addWidget(self.GB1)
+
+        self.GB2 = QGroupBox(self.scrollAreaWidgetContents)
+        self.GB2.setObjectName(u"GB2")
+        self.verticalLayout_5 = QVBoxLayout(self.GB2)
+        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
+        self.verticalLayout_5.setContentsMargins(3, 3, 3, 3)
+        self.HL4 = QHBoxLayout()
+        self.HL4.setSpacing(5)
+        self.HL4.setObjectName(u"HL4")
+        self.HL4.setContentsMargins(5, 5, 5, 5)
+        self.label_3 = QLabel(self.GB2)
+        self.label_3.setObjectName(u"label_3")
+
+        self.HL4.addWidget(self.label_3)
+
+        self.widget_3 = QWidget(self.GB2)
+        self.widget_3.setObjectName(u"widget_3")
+        self.horizontalLayout_4 = QHBoxLayout(self.widget_3)
+        self.horizontalLayout_4.setSpacing(0)
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
+        self.horizontalSpacer_4 = QSpacerItem(240, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_4.addItem(self.horizontalSpacer_4)
+
+        self.SettingStartImmediateCheck = QCheckBox(self.widget_3)
+        self.SettingStartImmediateCheck.setObjectName(u"SettingStartImmediateCheck")
+        sizePolicy.setHeightForWidth(self.SettingStartImmediateCheck.sizePolicy().hasHeightForWidth())
+        self.SettingStartImmediateCheck.setSizePolicy(sizePolicy)
+        self.SettingStartImmediateCheck.setAutoRepeat(False)
+
+        self.horizontalLayout_4.addWidget(self.SettingStartImmediateCheck)
+
+
+        self.HL4.addWidget(self.widget_3)
+
+        self.HL4.setStretch(0, 2)
+        self.HL4.setStretch(1, 5)
+
+        self.verticalLayout_5.addLayout(self.HL4)
+
+        self.HL5 = QHBoxLayout()
+        self.HL5.setSpacing(5)
+        self.HL5.setObjectName(u"HL5")
+        self.HL5.setContentsMargins(5, 5, 5, 5)
+        self.label = QLabel(self.GB2)
+        self.label.setObjectName(u"label")
+
+        self.HL5.addWidget(self.label)
+
+        self.widget_4 = QWidget(self.GB2)
+        self.widget_4.setObjectName(u"widget_4")
+        self.widget_4.setMinimumSize(QSize(20, 0))
+        self.horizontalLayout_5 = QHBoxLayout(self.widget_4)
+        self.horizontalLayout_5.setSpacing(0)
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_5.addItem(self.horizontalSpacer_5)
+
+        self.SettingFontComboBox = QFontComboBox(self.widget_4)
+        self.SettingFontComboBox.setObjectName(u"SettingFontComboBox")
+        font = QFont()
+        font.setFamilies([u"\u601d\u6e90\u9ed1\u4f53 CN Bold"])
+        font.setPointSize(83)
+        font.setBold(True)
+        self.SettingFontComboBox.setCurrentFont(font)
+
+        self.horizontalLayout_5.addWidget(self.SettingFontComboBox)
+
+
+        self.HL5.addWidget(self.widget_4)
+
+        self.HL5.setStretch(0, 2)
+        self.HL5.setStretch(1, 5)
+
+        self.verticalLayout_5.addLayout(self.HL5)
+
+        self.HL6 = QHBoxLayout()
+        self.HL6.setSpacing(5)
+        self.HL6.setObjectName(u"HL6")
+        self.HL6.setContentsMargins(5, 5, 5, 5)
+        self.label_7 = QLabel(self.GB2)
+        self.label_7.setObjectName(u"label_7")
+
+        self.HL6.addWidget(self.label_7)
+
+        self.widget_5 = QWidget(self.GB2)
+        self.widget_5.setObjectName(u"widget_5")
+        self.widget_5.setMinimumSize(QSize(20, 0))
+        self.horizontalLayout_7 = QHBoxLayout(self.widget_5)
+        self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
+        self.horizontalLayout_7.setContentsMargins(0, 0, 0, 0)
+        self.HS = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_7.addItem(self.HS)
+
+        self.SettingTyperSpin = QSpinBox(self.widget_5)
+        self.SettingTyperSpin.setObjectName(u"SettingTyperSpin")
+        self.SettingTyperSpin.setMinimumSize(QSize(47, 0))
+        self.SettingTyperSpin.setMaximum(1000)
+        self.SettingTyperSpin.setSingleStep(10)
+        self.SettingTyperSpin.setValue(80)
+
+        self.horizontalLayout_7.addWidget(self.SettingTyperSpin)
+
+        self.label_22 = QLabel(self.widget_5)
+        self.label_22.setObjectName(u"label_22")
+
+        self.horizontalLayout_7.addWidget(self.label_22)
+
+
+        self.HL6.addWidget(self.widget_5)
+
+        self.HL6.setStretch(0, 2)
+        self.HL6.setStretch(1, 5)
+
+        self.verticalLayout_5.addLayout(self.HL6)
+
+
+        self.verticalLayout_3.addWidget(self.GB2)
+
+        self.GB3 = QGroupBox(self.scrollAreaWidgetContents)
+        self.GB3.setObjectName(u"GB3")
+        self.verticalLayout_6 = QVBoxLayout(self.GB3)
+        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
+        self.verticalLayout_6.setContentsMargins(3, 3, 3, 3)
+        self.HL7 = QHBoxLayout()
+        self.HL7.setSpacing(5)
+        self.HL7.setObjectName(u"HL7")
+        self.HL7.setContentsMargins(5, 5, 5, 5)
+        self.label_2 = QLabel(self.GB3)
         self.label_2.setObjectName(u"label_2")
 
-        self.horizontalLayout_2.addWidget(self.label_2)
+        self.HL7.addWidget(self.label_2)
 
-        self.horizontalLayout_8 = QHBoxLayout()
+        self.qw = QWidget(self.GB3)
+        self.qw.setObjectName(u"qw")
+        self.horizontalLayout_8 = QHBoxLayout(self.qw)
         self.horizontalLayout_8.setSpacing(2)
         self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
-        self.SettingProxyTypeCombo = QComboBox(self.scrollAreaWidgetContents)
+        self.horizontalLayout_8.setContentsMargins(0, 0, 0, 0)
+        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_8.addItem(self.horizontalSpacer_6)
+
+        self.SettingProxyTypeCombo = QComboBox(self.qw)
         self.SettingProxyTypeCombo.addItem("")
         self.SettingProxyTypeCombo.addItem("")
         self.SettingProxyTypeCombo.addItem("")
         self.SettingProxyTypeCombo.setObjectName(u"SettingProxyTypeCombo")
-        sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.SettingProxyTypeCombo.sizePolicy().hasHeightForWidth())
         self.SettingProxyTypeCombo.setSizePolicy(sizePolicy)
         self.SettingProxyTypeCombo.setMinimumSize(QSize(75, 0))
@@ -80,17 +331,17 @@ class Ui_Form(object):
 
         self.horizontalLayout_8.addWidget(self.SettingProxyTypeCombo)
 
-        self.SettingProxyEdit = QLineEdit(self.scrollAreaWidgetContents)
+        self.SettingProxyEdit = QLineEdit(self.qw)
         self.SettingProxyEdit.setObjectName(u"SettingProxyEdit")
 
         self.horizontalLayout_8.addWidget(self.SettingProxyEdit)
 
-        self.label_6 = QLabel(self.scrollAreaWidgetContents)
-        self.label_6.setObjectName(u"label_6")
+        self.SettingProxyLabel = QLabel(self.qw)
+        self.SettingProxyLabel.setObjectName(u"SettingProxyLabel")
 
-        self.horizontalLayout_8.addWidget(self.label_6)
+        self.horizontalLayout_8.addWidget(self.SettingProxyLabel)
 
-        self.SettingProxyHostSpin = QSpinBox(self.scrollAreaWidgetContents)
+        self.SettingProxyHostSpin = QSpinBox(self.qw)
         self.SettingProxyHostSpin.setObjectName(u"SettingProxyHostSpin")
         self.SettingProxyHostSpin.setMinimumSize(QSize(60, 0))
         self.SettingProxyHostSpin.setMaximumSize(QSize(60, 16777215))
@@ -101,166 +352,104 @@ class Ui_Form(object):
         self.horizontalLayout_8.addWidget(self.SettingProxyHostSpin)
 
 
-        self.horizontalLayout_2.addLayout(self.horizontalLayout_8)
+        self.HL7.addWidget(self.qw)
 
-        self.horizontalLayout_2.setStretch(0, 1)
-        self.horizontalLayout_2.setStretch(1, 3)
+        self.HL7.setStretch(0, 2)
+        self.HL7.setStretch(1, 5)
 
-        self.verticalLayout_3.addLayout(self.horizontalLayout_2)
+        self.verticalLayout_6.addLayout(self.HL7)
 
-        self.horizontalLayout_10 = QHBoxLayout()
-        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
-        self.horizontalLayout_10.setContentsMargins(5, 5, 5, 5)
-        self.label_9 = QLabel(self.scrollAreaWidgetContents)
+        self.HL8 = QHBoxLayout()
+        self.HL8.setSpacing(5)
+        self.HL8.setObjectName(u"HL8")
+        self.HL8.setContentsMargins(5, 5, 5, 5)
+        self.label_9 = QLabel(self.GB3)
         self.label_9.setObjectName(u"label_9")
 
-        self.horizontalLayout_10.addWidget(self.label_9)
+        self.HL8.addWidget(self.label_9)
 
-        self.SettingTimeoutSpin = QSpinBox(self.scrollAreaWidgetContents)
+        self.widget_6 = QWidget(self.GB3)
+        self.widget_6.setObjectName(u"widget_6")
+        self.widget_6.setMinimumSize(QSize(20, 0))
+        self.horizontalLayout_9 = QHBoxLayout(self.widget_6)
+        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
+        self.horizontalLayout_9.setContentsMargins(0, 0, 0, 0)
+        self.horizontalSpacer_7 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_9.addItem(self.horizontalSpacer_7)
+
+        self.SettingTimeoutSpin = QSpinBox(self.widget_6)
         self.SettingTimeoutSpin.setObjectName(u"SettingTimeoutSpin")
+        self.SettingTimeoutSpin.setMinimumSize(QSize(60, 0))
         self.SettingTimeoutSpin.setMaximum(60)
         self.SettingTimeoutSpin.setSingleStep(1)
         self.SettingTimeoutSpin.setValue(15)
 
-        self.horizontalLayout_10.addWidget(self.SettingTimeoutSpin)
+        self.horizontalLayout_9.addWidget(self.SettingTimeoutSpin)
 
-        self.horizontalLayout_10.setStretch(0, 1)
-        self.horizontalLayout_10.setStretch(1, 3)
+        self.label_21 = QLabel(self.widget_6)
+        self.label_21.setObjectName(u"label_21")
 
-        self.verticalLayout_3.addLayout(self.horizontalLayout_10)
-
-        self.horizontalLayout = QHBoxLayout()
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalLayout.setContentsMargins(5, 5, 5, 5)
-        self.label = QLabel(self.scrollAreaWidgetContents)
-        self.label.setObjectName(u"label")
-
-        self.horizontalLayout.addWidget(self.label)
-
-        self.SettingFontComboBox = QFontComboBox(self.scrollAreaWidgetContents)
-        self.SettingFontComboBox.setObjectName(u"SettingFontComboBox")
-        font = QFont()
-        font.setFamilies([u"\u601d\u6e90\u9ed1\u4f53 CN Bold"])
-        font.setPointSize(83)
-        font.setBold(True)
-        self.SettingFontComboBox.setCurrentFont(font)
-
-        self.horizontalLayout.addWidget(self.SettingFontComboBox)
-
-        self.horizontalLayout.setStretch(0, 1)
-        self.horizontalLayout.setStretch(1, 3)
-
-        self.verticalLayout_3.addLayout(self.horizontalLayout)
-
-        self.horizontalLayout_5 = QHBoxLayout()
-        self.horizontalLayout_5.setSpacing(5)
-        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
-        self.horizontalLayout_5.setContentsMargins(5, 5, 5, 5)
-        self.label_4 = QLabel(self.scrollAreaWidgetContents)
-        self.label_4.setObjectName(u"label_4")
-
-        self.horizontalLayout_5.addWidget(self.label_4)
-
-        self.horizontalLayout_6 = QHBoxLayout()
-        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
-        self.SettingChibiSelect = QComboBox(self.scrollAreaWidgetContents)
-        self.SettingChibiSelect.setObjectName(u"SettingChibiSelect")
-
-        self.horizontalLayout_6.addWidget(self.SettingChibiSelect)
-
-        self.SettingAnimatedCheck = QCheckBox(self.scrollAreaWidgetContents)
-        self.SettingAnimatedCheck.setObjectName(u"SettingAnimatedCheck")
-        sizePolicy.setHeightForWidth(self.SettingAnimatedCheck.sizePolicy().hasHeightForWidth())
-        self.SettingAnimatedCheck.setSizePolicy(sizePolicy)
-
-        self.horizontalLayout_6.addWidget(self.SettingAnimatedCheck)
+        self.horizontalLayout_9.addWidget(self.label_21)
 
 
-        self.horizontalLayout_5.addLayout(self.horizontalLayout_6)
+        self.HL8.addWidget(self.widget_6)
 
-        self.horizontalLayout_5.setStretch(0, 1)
-        self.horizontalLayout_5.setStretch(1, 3)
+        self.HL8.setStretch(0, 2)
+        self.HL8.setStretch(1, 5)
 
-        self.verticalLayout_3.addLayout(self.horizontalLayout_5)
-
-        self.horizontalLayout_7 = QHBoxLayout()
-        self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
-        self.horizontalLayout_7.setContentsMargins(5, 5, 5, 5)
-        self.label_5 = QLabel(self.scrollAreaWidgetContents)
-        self.label_5.setObjectName(u"label_5")
-
-        self.horizontalLayout_7.addWidget(self.label_5)
-
-        self.SettingStartupUpdateCheck = QCheckBox(self.scrollAreaWidgetContents)
-        self.SettingStartupUpdateCheck.setObjectName(u"SettingStartupUpdateCheck")
-        sizePolicy.setHeightForWidth(self.SettingStartupUpdateCheck.sizePolicy().hasHeightForWidth())
-        self.SettingStartupUpdateCheck.setSizePolicy(sizePolicy)
-        self.SettingStartupUpdateCheck.setChecked(True)
-        self.SettingStartupUpdateCheck.setAutoRepeat(False)
-
-        self.horizontalLayout_7.addWidget(self.SettingStartupUpdateCheck)
+        self.verticalLayout_6.addLayout(self.HL8)
 
 
-        self.verticalLayout_3.addLayout(self.horizontalLayout_7)
+        self.verticalLayout_3.addWidget(self.GB3)
 
-        self.horizontalLayout_4 = QHBoxLayout()
-        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.horizontalLayout_4.setContentsMargins(5, 5, 5, 5)
-        self.label_3 = QLabel(self.scrollAreaWidgetContents)
-        self.label_3.setObjectName(u"label_3")
+        self.GB4 = QGroupBox(self.scrollAreaWidgetContents)
+        self.GB4.setObjectName(u"GB4")
+        self.verticalLayout_7 = QVBoxLayout(self.GB4)
+        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
+        self.verticalLayout_7.setContentsMargins(3, 3, 3, 3)
+        self.HL9 = QHBoxLayout()
+        self.HL9.setSpacing(5)
+        self.HL9.setObjectName(u"HL9")
+        self.HL9.setContentsMargins(5, 5, 5, 5)
+        self.label_19 = QLabel(self.GB4)
+        self.label_19.setObjectName(u"label_19")
 
-        self.horizontalLayout_4.addWidget(self.label_3)
+        self.HL9.addWidget(self.label_19)
 
-        self.SettingStartImmediateCheck = QCheckBox(self.scrollAreaWidgetContents)
-        self.SettingStartImmediateCheck.setObjectName(u"SettingStartImmediateCheck")
-        sizePolicy.setHeightForWidth(self.SettingStartImmediateCheck.sizePolicy().hasHeightForWidth())
-        self.SettingStartImmediateCheck.setSizePolicy(sizePolicy)
-        self.SettingStartImmediateCheck.setAutoRepeat(False)
+        self.widget_7 = QWidget(self.GB4)
+        self.widget_7.setObjectName(u"widget_7")
+        self.horizontalLayout_10 = QHBoxLayout(self.widget_7)
+        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
+        self.horizontalLayout_10.setContentsMargins(0, 0, 0, 0)
+        self.horizontalSpacer_8 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.horizontalLayout_4.addWidget(self.SettingStartImmediateCheck)
+        self.horizontalLayout_10.addItem(self.horizontalSpacer_8)
 
+        self.SettingSaveSpin = QSpinBox(self.widget_7)
+        self.SettingSaveSpin.setObjectName(u"SettingSaveSpin")
+        self.SettingSaveSpin.setMinimumSize(QSize(60, 0))
+        self.SettingSaveSpin.setMaximum(1000)
+        self.SettingSaveSpin.setSingleStep(10)
+        self.SettingSaveSpin.setValue(80)
 
-        self.verticalLayout_3.addLayout(self.horizontalLayout_4)
+        self.horizontalLayout_10.addWidget(self.SettingSaveSpin)
 
-        self.horizontalLayout_11 = QHBoxLayout()
-        self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
-        self.horizontalLayout_11.setContentsMargins(5, 5, 5, 5)
-        self.label_8 = QLabel(self.scrollAreaWidgetContents)
-        self.label_8.setObjectName(u"label_8")
+        self.label_6 = QLabel(self.widget_7)
+        self.label_6.setObjectName(u"label_6")
 
-        self.horizontalLayout_11.addWidget(self.label_8)
-
-        self.SettingStartAdjustWindowCheck = QCheckBox(self.scrollAreaWidgetContents)
-        self.SettingStartAdjustWindowCheck.setObjectName(u"SettingStartAdjustWindowCheck")
-        sizePolicy.setHeightForWidth(self.SettingStartAdjustWindowCheck.sizePolicy().hasHeightForWidth())
-        self.SettingStartAdjustWindowCheck.setSizePolicy(sizePolicy)
-        self.SettingStartAdjustWindowCheck.setAutoRepeat(False)
-
-        self.horizontalLayout_11.addWidget(self.SettingStartAdjustWindowCheck)
+        self.horizontalLayout_10.addWidget(self.label_6)
 
 
-        self.verticalLayout_3.addLayout(self.horizontalLayout_11)
+        self.HL9.addWidget(self.widget_7)
 
-        self.horizontalLayout_9 = QHBoxLayout()
-        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
-        self.horizontalLayout_9.setContentsMargins(5, 5, 5, 5)
-        self.label_7 = QLabel(self.scrollAreaWidgetContents)
-        self.label_7.setObjectName(u"label_7")
+        self.HL9.setStretch(0, 2)
+        self.HL9.setStretch(1, 5)
 
-        self.horizontalLayout_9.addWidget(self.label_7)
+        self.verticalLayout_7.addLayout(self.HL9)
 
-        self.SettingTyperSpin = QSpinBox(self.scrollAreaWidgetContents)
-        self.SettingTyperSpin.setObjectName(u"SettingTyperSpin")
-        self.SettingTyperSpin.setMaximum(1000)
-        self.SettingTyperSpin.setSingleStep(10)
-        self.SettingTyperSpin.setValue(80)
 
-        self.horizontalLayout_9.addWidget(self.SettingTyperSpin)
-
-        self.horizontalLayout_9.setStretch(0, 1)
-        self.horizontalLayout_9.setStretch(1, 3)
-
-        self.verticalLayout_3.addLayout(self.horizontalLayout_9)
+        self.verticalLayout_3.addWidget(self.GB4)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
@@ -296,23 +485,31 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+        self.GB1.setTitle(QCoreApplication.translate("Form", u"\u4e00\u822c\u8bbe\u7f6e", None))
+        self.label_5.setText(QCoreApplication.translate("Form", u"\u81ea\u52a8\u68c0\u67e5\u66f4\u65b0", None))
+        self.SettingStartupUpdateCheck.setText("")
+        self.label_8.setText(QCoreApplication.translate("Form", u"\u81ea\u52a8\u8c03\u6574\u7a97\u53e3", None))
+        self.SettingStartAdjustWindowCheck.setText("")
+        self.label_4.setText(QCoreApplication.translate("Form", u"\u4e3b\u754c\u9762\u5c0f\u4eba", None))
+        self.SettingAnimatedCheck.setText(QCoreApplication.translate("Form", u"\u52a8\u753b", None))
+        self.GB2.setTitle(QCoreApplication.translate("Form", u"\u5b57\u5e55\u751f\u6210", None))
+        self.label_3.setText(QCoreApplication.translate("Form", u"\u4efb\u52a1\u7acb\u5373\u5f00\u59cb", None))
+        self.SettingStartImmediateCheck.setText("")
+        self.label.setText(QCoreApplication.translate("Form", u"\u81ea\u5b9a\u4e49\u5b57\u4f53", None))
+        self.label_7.setText(QCoreApplication.translate("Form", u"\u6253\u5b57\u673a\u95f4\u9694", None))
+        self.label_22.setText(QCoreApplication.translate("Form", u"\u6beb\u79d2", None))
+        self.GB3.setTitle(QCoreApplication.translate("Form", u"\u6570\u636e\u4e0b\u8f7d", None))
         self.label_2.setText(QCoreApplication.translate("Form", u"\u4e0b\u8f7d\u4ee3\u7406", None))
         self.SettingProxyTypeCombo.setItemText(0, QCoreApplication.translate("Form", u"\u65e0", None))
         self.SettingProxyTypeCombo.setItemText(1, QCoreApplication.translate("Form", u"http://", None))
         self.SettingProxyTypeCombo.setItemText(2, QCoreApplication.translate("Form", u"socks5://", None))
 
-        self.label_6.setText(QCoreApplication.translate("Form", u":", None))
-        self.label_9.setText(QCoreApplication.translate("Form", u"\u4e0b\u8f7d\u8d85\u65f6(s)", None))
-        self.label.setText(QCoreApplication.translate("Form", u"\u81ea\u5b9a\u4e49\u5b57\u4f53", None))
-        self.label_4.setText(QCoreApplication.translate("Form", u"\u4e3b\u754c\u9762\u5c0f\u4eba", None))
-        self.SettingAnimatedCheck.setText(QCoreApplication.translate("Form", u"\u4f7f\u7528\u52a8\u753b", None))
-        self.label_5.setText(QCoreApplication.translate("Form", u"\u81ea\u52a8\u68c0\u67e5\u66f4\u65b0", None))
-        self.SettingStartupUpdateCheck.setText("")
-        self.label_3.setText(QCoreApplication.translate("Form", u"\u4efb\u52a1\u7acb\u5373\u5f00\u59cb", None))
-        self.SettingStartImmediateCheck.setText("")
-        self.label_8.setText(QCoreApplication.translate("Form", u"\u81ea\u52a8\u8c03\u6574\u7a97\u53e3", None))
-        self.SettingStartAdjustWindowCheck.setText("")
-        self.label_7.setText(QCoreApplication.translate("Form", u"\u6253\u5b57\u673a\u95f4\u9694", None))
+        self.SettingProxyLabel.setText(QCoreApplication.translate("Form", u":", None))
+        self.label_9.setText(QCoreApplication.translate("Form", u"\u4e0b\u8f7d\u8d85\u65f6", None))
+        self.label_21.setText(QCoreApplication.translate("Form", u"\u79d2", None))
+        self.GB4.setTitle(QCoreApplication.translate("Form", u"\u6587\u672c\u7ffb\u8bd1", None))
+        self.label_19.setText(QCoreApplication.translate("Form", u"\u81ea\u52a8\u4fdd\u5b58\u95f4\u9694", None))
+        self.label_6.setText(QCoreApplication.translate("Form", u"\u5206", None))
         self.pushButton.setText(QCoreApplication.translate("Form", u"\u5e94\u7528", None))
     # retranslateUi
 
