@@ -104,13 +104,15 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         animated = self.SettingAnimatedCheck.isChecked()
         update = self.SettingStartupUpdateCheck.isChecked()
         adjust_window = self.SettingStartAdjustWindowCheck.isChecked()
-        typer_interval = self.SettingTyperSpin.value()
+        typer_interval = self.SettingTyperIntervalSpin.value()
+        typer_fade_interval = self.SettingTyperFadeSpin.value()
         download_timeout = self.SettingTimeoutSpin.value()
         translate_save_interval = self.SettingSaveSpin.value()
         config = {
             "proxy": proxy, "font": font.toString(), "start_immediate": start_immediate, "chibi": chibi,
             "animated": animated, "update": update, "last_dir": self.last_dir,
-            "adjust_window": adjust_window, "typer_interval": typer_interval, "download_timeout": download_timeout,
+            "adjust_window": adjust_window, "typer_interval": typer_interval,
+            "typer_fade_interval": typer_fade_interval, "download_timeout": download_timeout,
             "translate_save_interval": translate_save_interval
         }
         save_json(self.config_file, config)
@@ -141,7 +143,8 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         self.SettingAnimatedCheck.setChecked(config.get('animated'))
         self.last_dir = config.get('last_dir') or os.getcwd()
         self.SettingStartAdjustWindowCheck.setChecked(config.get("adjust_window"))
-        self.SettingTyperSpin.setValue(config.get("typer_interval") or False)
+        self.SettingTyperIntervalSpin.setValue(config.get("typer_interval") or 80)
+        self.SettingTyperFadeSpin.setValue(config.get('typer_fade_interval') or 50)
         self.SettingTimeoutSpin.setValue(config.get("download_timeout") or 15)
         self.SettingSaveSpin.setValue(config.get("translate_save_interval") or 5)
 

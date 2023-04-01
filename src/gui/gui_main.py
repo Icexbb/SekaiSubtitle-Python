@@ -15,7 +15,6 @@ import qframelesswindow
 
 from gui.design.WindowMain import Ui_MainWindow
 from gui.widgets.dialog_about import AboutDialog
-from gui.widgets.widget_chibi import WidgetChibi
 from gui.widgets.widget_download import DownloadWidget
 from gui.widgets.widget_setting import SettingWidget
 from gui.widgets.widget_subtitle import ProcessWidget
@@ -26,7 +25,7 @@ from script import data
 EXIT_CODE_REBOOT = -11231351
 
 PROGRAM_NAME = "Sekai Subtitle"
-VERSION = "v0.8.3"
+VERSION = "v0.8.4"
 
 
 class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
@@ -76,6 +75,7 @@ class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
         self.FuncButtonAbout.clicked.connect(self.AboutWindow)
         self.switchWidget(0, QtCore.QSize(650, 450))
         self.signal_exception.connect(self.handel_exception)
+        self.installEventFilter(self)
 
         if self.FormSettingWidget.get_config("update"):
             self.update_url = "https://api.github.com/repos/Icexbb/SekaiSubtitle-Python/releases/latest"
@@ -110,14 +110,13 @@ class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
             select = self.FormSettingWidget.get_config("chibi")
             animated = self.FormSettingWidget.get_config("animated")
             if select == "随机":
-                if not animated:
-                    i = os.path.join(icon_path, random.choice(os.listdir(icon_path)))
+                i = os.path.join(icon_path, random.choice(os.listdir(icon_path)))
             else:
-                if not animated:
-                    i = os.path.join(icon_path, f"{select}.png")
-                    if not os.path.exists(i):
-                        i = os.path.join(icon_path, random.choice(os.listdir(icon_path)))
+                i = os.path.join(icon_path, f"{select}.png")
+                if not os.path.exists(i):
+                    i = os.path.join(icon_path, random.choice(os.listdir(icon_path)))
             if animated:
+                from gui.widgets.widget_chibi import WidgetChibi
                 self.ChibiWidget = WidgetChibi(self, select if select != "随机" else None)
                 self.FigureLayout.addWidget(self.ChibiWidget)
                 self.FigureLabel.deleteLater()
@@ -128,7 +127,6 @@ class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
         except BaseException as e:
             self.FigureLabel.setText("")
             raise e
-        self.installEventFilter(self)
 
     def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent):
         if isinstance(event, QtGui.QMouseEvent):
@@ -240,7 +238,8 @@ class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
 
     @property
     def typer_interval(self):
-        return int(self.FormSettingWidget.get_config("typer_interval"))
+        return [int(self.FormSettingWidget.get_config("typer_interval")), int(
+            self.FormSettingWidget.get_config('typer_fade_interval'))]
 
     @property
     def download_timeout(self):

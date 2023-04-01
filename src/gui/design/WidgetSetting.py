@@ -270,14 +270,14 @@ class Ui_Form(object):
 
         self.horizontalLayout_7.addItem(self.HS)
 
-        self.SettingTyperSpin = QSpinBox(self.widget_5)
-        self.SettingTyperSpin.setObjectName(u"SettingTyperSpin")
-        self.SettingTyperSpin.setMinimumSize(QSize(47, 0))
-        self.SettingTyperSpin.setMaximum(1000)
-        self.SettingTyperSpin.setSingleStep(10)
-        self.SettingTyperSpin.setValue(80)
+        self.SettingTyperIntervalSpin = QSpinBox(self.widget_5)
+        self.SettingTyperIntervalSpin.setObjectName(u"SettingTyperIntervalSpin")
+        self.SettingTyperIntervalSpin.setMinimumSize(QSize(47, 0))
+        self.SettingTyperIntervalSpin.setMaximum(1000)
+        self.SettingTyperIntervalSpin.setSingleStep(10)
+        self.SettingTyperIntervalSpin.setValue(80)
 
-        self.horizontalLayout_7.addWidget(self.SettingTyperSpin)
+        self.horizontalLayout_7.addWidget(self.SettingTyperIntervalSpin)
 
         self.label_22 = QLabel(self.widget_5)
         self.label_22.setObjectName(u"label_22")
@@ -291,6 +291,47 @@ class Ui_Form(object):
         self.HL6.setStretch(1, 5)
 
         self.verticalLayout_5.addLayout(self.HL6)
+
+        self.HL6_2 = QHBoxLayout()
+        self.HL6_2.setSpacing(5)
+        self.HL6_2.setObjectName(u"HL6_2")
+        self.HL6_2.setContentsMargins(5, 5, 5, 5)
+        self.label_10 = QLabel(self.GB2)
+        self.label_10.setObjectName(u"label_10")
+
+        self.HL6_2.addWidget(self.label_10)
+
+        self.widget_8 = QWidget(self.GB2)
+        self.widget_8.setObjectName(u"widget_8")
+        self.widget_8.setMinimumSize(QSize(20, 0))
+        self.horizontalLayout_11 = QHBoxLayout(self.widget_8)
+        self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
+        self.horizontalLayout_11.setContentsMargins(0, 0, 0, 0)
+        self.HS_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_11.addItem(self.HS_2)
+
+        self.SettingTyperFadeSpin = QSpinBox(self.widget_8)
+        self.SettingTyperFadeSpin.setObjectName(u"SettingTyperFadeSpin")
+        self.SettingTyperFadeSpin.setMinimumSize(QSize(47, 0))
+        self.SettingTyperFadeSpin.setMaximum(1000)
+        self.SettingTyperFadeSpin.setSingleStep(10)
+        self.SettingTyperFadeSpin.setValue(50)
+
+        self.horizontalLayout_11.addWidget(self.SettingTyperFadeSpin)
+
+        self.label_23 = QLabel(self.widget_8)
+        self.label_23.setObjectName(u"label_23")
+
+        self.horizontalLayout_11.addWidget(self.label_23)
+
+
+        self.HL6_2.addWidget(self.widget_8)
+
+        self.HL6_2.setStretch(0, 2)
+        self.HL6_2.setStretch(1, 5)
+
+        self.verticalLayout_5.addLayout(self.HL6_2)
 
 
         self.verticalLayout_3.addWidget(self.GB2)
@@ -496,8 +537,10 @@ class Ui_Form(object):
         self.label_3.setText(QCoreApplication.translate("Form", u"\u4efb\u52a1\u7acb\u5373\u5f00\u59cb", None))
         self.SettingStartImmediateCheck.setText("")
         self.label.setText(QCoreApplication.translate("Form", u"\u81ea\u5b9a\u4e49\u5b57\u4f53", None))
-        self.label_7.setText(QCoreApplication.translate("Form", u"\u6253\u5b57\u673a\u95f4\u9694", None))
+        self.label_7.setText(QCoreApplication.translate("Form", u"\u6253\u5b57\u673a\u6587\u5b57\u95f4\u9694", None))
         self.label_22.setText(QCoreApplication.translate("Form", u"\u6beb\u79d2", None))
+        self.label_10.setText(QCoreApplication.translate("Form", u"\u6253\u5b57\u673a\u6e10\u53d8\u65f6\u957f", None))
+        self.label_23.setText(QCoreApplication.translate("Form", u"\u6beb\u79d2", None))
         self.GB3.setTitle(QCoreApplication.translate("Form", u"\u6570\u636e\u4e0b\u8f7d", None))
         self.label_2.setText(QCoreApplication.translate("Form", u"\u4e0b\u8f7d\u4ee3\u7406", None))
         self.SettingProxyTypeCombo.setItemText(0, QCoreApplication.translate("Form", u"\u65e0", None))

@@ -181,22 +181,23 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
         if os.path.exists(os.path.join(root, "character2ds.json")):
             character2ds = read_json(os.path.join(root, "character2ds.json"))
         else:
-            return
+            character2ds = {}
         if os.path.exists(os.path.join(root, "events.json")):
             events = read_json(os.path.join(root, "events.json"))
         else:
-            return
+            events = {}
+
         if os.path.exists(os.path.join(root, "cards.json")):
             cards = read_json(os.path.join(root, "cards.json"))
         else:
-            return
+            cards = {}
 
         if os.path.exists(os.path.join(root, "tree.json")):
             tree = read_json(os.path.join(root, "tree.json"))
         else:
             tree = {}
 
-        if os.path.exists(os.path.join(root, "cardEpisodes.json")):
+        if os.path.exists(os.path.join(root, "cardEpisodes.json")) and cards:
             data = read_json(os.path.join(root, "cardEpisodes.json"))
             tree['卡牌剧情'] = {}
             for ep in data:
@@ -227,7 +228,7 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
                 d[f"{card_id} - {rarity} {prefix} {section}"] = url
                 tree['卡牌剧情'][chara] = d
 
-        if os.path.exists(os.path.join(root, "eventStories.json")):
+        if os.path.exists(os.path.join(root, "eventStories.json")) and events:
             data = read_json(os.path.join(root, "eventStories.json"))
             tree['活动剧情'] = {}
             for item in data:
@@ -263,7 +264,7 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
                         eps[key] = url
                     tree['主线剧情'][chapters['title']] = eps
 
-        if os.path.exists(os.path.join(root, "actionSets.json")):
+        if os.path.exists(os.path.join(root, "actionSets.json")) and character2ds and events:
             data: list[dict] = read_json(os.path.join(root, "actionSets.json"))
             tree['地图对话 - 地点筛选'] = {}
             tree['地图对话 - 人物筛选'] = {}

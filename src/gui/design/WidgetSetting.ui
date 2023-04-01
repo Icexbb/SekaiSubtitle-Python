@@ -514,7 +514,7 @@
                <item>
                 <widget class="QLabel" name="label_7">
                  <property name="text">
-                  <string>打字机间隔</string>
+                  <string>打字机文字间隔</string>
                  </property>
                 </widget>
                </item>
@@ -553,7 +553,7 @@
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="SettingTyperSpin">
+                   <widget class="QSpinBox" name="SettingTyperIntervalSpin">
                     <property name="minimumSize">
                      <size>
                       <width>47</width>
@@ -573,6 +573,95 @@
                   </item>
                   <item>
                    <widget class="QLabel" name="label_22">
+                    <property name="text">
+                     <string>毫秒</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="HL6_2" stretch="2,5">
+               <property name="spacing">
+                <number>5</number>
+               </property>
+               <property name="leftMargin">
+                <number>5</number>
+               </property>
+               <property name="topMargin">
+                <number>5</number>
+               </property>
+               <property name="rightMargin">
+                <number>5</number>
+               </property>
+               <property name="bottomMargin">
+                <number>5</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="label_10">
+                 <property name="text">
+                  <string>打字机渐变时长</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QWidget" name="widget_8" native="true">
+                 <property name="minimumSize">
+                  <size>
+                   <width>20</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <layout class="QHBoxLayout" name="horizontalLayout_11">
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <spacer name="HS_2">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="SettingTyperFadeSpin">
+                    <property name="minimumSize">
+                     <size>
+                      <width>47</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximum">
+                     <number>1000</number>
+                    </property>
+                    <property name="singleStep">
+                     <number>10</number>
+                    </property>
+                    <property name="value">
+                     <number>50</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_23">
                     <property name="text">
                      <string>毫秒</string>
                     </property>
