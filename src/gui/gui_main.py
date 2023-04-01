@@ -9,7 +9,6 @@ import traceback
 from PySide6 import QtWidgets, QtCore, QtGui, QtNetwork
 from PySide6.QtCore import QUrl, SIGNAL
 from PySide6.QtGui import QIcon, QFont, QDesktopServices
-from PySide6.QtWidgets import QPushButton
 from packaging.version import Version
 import qframelesswindow
 
@@ -19,13 +18,13 @@ from gui.widgets.widget_download import DownloadWidget
 from gui.widgets.widget_setting import SettingWidget
 from gui.widgets.widget_subtitle import ProcessWidget
 from gui.widgets.widget_titlebar import TitleBar
-from gui.widgets.widget_translate import TranslateWidget, RightClickEnabledButton
+from gui.widgets.widget_translate import TranslateWidget
 from script import data
 
 EXIT_CODE_REBOOT = -11231351
 
 PROGRAM_NAME = "Sekai Subtitle"
-VERSION = "v0.8.4"
+VERSION = "v0.8.230402"
 
 
 class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
