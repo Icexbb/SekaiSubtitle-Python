@@ -19,6 +19,7 @@ from gui.widgets.widget_setting import SettingWidget
 from gui.widgets.widget_subtitle import ProcessWidget
 from gui.widgets.widget_titlebar import TitleBar
 from gui.widgets.widget_translate import TranslateWidget
+from gui.widgets.widget_chibi import WidgetChibi
 from script import data
 
 EXIT_CODE_REBOOT = -11231351
@@ -115,7 +116,6 @@ class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
                 if not os.path.exists(i):
                     i = os.path.join(icon_path, random.choice(os.listdir(icon_path)))
             if animated:
-                from gui.widgets.widget_chibi import WidgetChibi
                 self.ChibiWidget = WidgetChibi(self, select if select != "随机" else None)
                 self.FigureLayout.addWidget(self.ChibiWidget)
                 self.FigureLabel.deleteLater()
@@ -126,24 +126,6 @@ class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
         except BaseException as e:
             self.FigureLabel.setText("")
             raise e
-
-    # def load_random_chibi(self):
-    #     icon_path = data.get_asset_path('chibi')
-    #     self.FormSettingWidget.SettingAnimatedCheck.setDisabled(True)
-    #     try:
-    #         select = self.FormSettingWidget.get_config("chibi")
-    #         if select == "随机":
-    #             i = os.path.join(icon_path, random.choice(os.listdir(icon_path)))
-    #         else:
-    #             i = os.path.join(icon_path, f"{select}.png")
-    #             if not os.path.exists(i):
-    #                 i = os.path.join(icon_path, random.choice(os.listdir(icon_path)))
-    #         self.FigureLabel.setPixmap(
-    #             QtGui.QPixmap(i).scaledToHeight(self.FigureLabel.height(),
-    #                                             QtCore.Qt.TransformationMode.SmoothTransformation))
-    #     except BaseException as e:
-    #         self.FigureLabel.setText("")
-    #         raise e
 
     def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent):
         if isinstance(event, QtGui.QMouseEvent):
