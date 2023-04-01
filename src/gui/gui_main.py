@@ -127,6 +127,24 @@ class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
             self.FigureLabel.setText("")
             raise e
 
+    # def load_random_chibi(self):
+    #     icon_path = data.get_asset_path('chibi')
+    #     self.FormSettingWidget.SettingAnimatedCheck.setDisabled(True)
+    #     try:
+    #         select = self.FormSettingWidget.get_config("chibi")
+    #         if select == "随机":
+    #             i = os.path.join(icon_path, random.choice(os.listdir(icon_path)))
+    #         else:
+    #             i = os.path.join(icon_path, f"{select}.png")
+    #             if not os.path.exists(i):
+    #                 i = os.path.join(icon_path, random.choice(os.listdir(icon_path)))
+    #         self.FigureLabel.setPixmap(
+    #             QtGui.QPixmap(i).scaledToHeight(self.FigureLabel.height(),
+    #                                             QtCore.Qt.TransformationMode.SmoothTransformation))
+    #     except BaseException as e:
+    #         self.FigureLabel.setText("")
+    #         raise e
+
     def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent):
         if isinstance(event, QtGui.QMouseEvent):
             if event.type() == QtCore.QEvent.Type.MouseButtonDblClick and \

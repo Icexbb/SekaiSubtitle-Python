@@ -344,10 +344,9 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
                               f"{ep['assetbundleName']}/{ep['scenarioId']}.json"
                     title_d[ep_title] = url
                 tree['特殊剧情'][title] = title_d
-
-        if len(tree.keys()) == 5:
-            self.SavePlaceLabel.clear()
-        save_json(os.path.join(root, "tree.json"), tree)
+        if sum([bool(tree[key]) for key in tree.keys()]):
+            os.makedirs(root, exist_ok=True)
+            save_json(os.path.join(root, "tree.json"), tree)
         self.change_source()
 
     def download_data(self):
@@ -372,7 +371,6 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
 
     def load_tree_data(self):
         source = self.DataSourceBox.currentIndex()
-
         if source == 1:  # pjsekai
             p = os.path.join(self.root, "data/pjsekai/tree/tree.json")
         else:
