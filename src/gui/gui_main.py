@@ -25,7 +25,7 @@ from script import data
 EXIT_CODE_REBOOT = -11231351
 
 PROGRAM_NAME = "Sekai Subtitle"
-VERSION = "v0.8.230402"
+VERSION = "0.8.230402.1"
 
 
 class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
@@ -33,14 +33,14 @@ class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
     _endPos = None
     _isTracking = None
     signal_exception = QtCore.Signal(Exception, dict)
-
+    version = VERSION
+    name = PROGRAM_NAME
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setupUi(self)
         self.icon_q = None
         self._debug = 0
         self.icon = None
-        self.version = VERSION
         self.setWindowTitle(PROGRAM_NAME)
         self.setObjectName(PROGRAM_NAME)
 
@@ -260,8 +260,9 @@ class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
         QtWidgets.QApplication.exit(EXIT_CODE_REBOOT)
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
-        for file in os.listdir(self.FormTranslateWidget.autoSavePath):
-            os.remove(os.path.join(self.FormTranslateWidget.autoSavePath, file))
+        if os.path.exists(self.FormTranslateWidget.autoSavePath):
+            for file in os.listdir(self.FormTranslateWidget.autoSavePath):
+                os.remove(os.path.join(self.FormTranslateWidget.autoSavePath, file))
         return super().closeEvent(event)
 
     def get_bar(self, widget_id):
