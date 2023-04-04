@@ -150,6 +150,7 @@ class Ui_DownloadWidget(object):
         self.LogScrollAreaContents.setObjectName(u"LogScrollAreaContents")
         self.LogScrollAreaContents.setGeometry(QRect(0, 0, 557, 133))
         self.LogScrollAreaContentsLayout = QVBoxLayout(self.LogScrollAreaContents)
+        self.LogScrollAreaContentsLayout.setSpacing(10)
         self.LogScrollAreaContentsLayout.setObjectName(u"LogScrollAreaContentsLayout")
         self.LogScrollArea.setWidget(self.LogScrollAreaContents)
 

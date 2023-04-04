@@ -116,7 +116,9 @@ class Ui_Form(object):
         self.TextEditTranslate.setObjectName(u"TextEditTranslate")
         self.TextEditTranslate.setMinimumSize(QSize(0, 30))
         self.TextEditTranslate.setMaximumSize(QSize(16777215, 30))
-        self.TextEditTranslate.setFocusPolicy(Qt.TabFocus)
+        self.TextEditTranslate.setTabletTracking(True)
+        self.TextEditTranslate.setFocusPolicy(Qt.StrongFocus)
+        self.TextEditTranslate.setAutoFillBackground(False)
         self.TextEditTranslate.setFrame(False)
 
         self.horizontalLayout_3.addWidget(self.TextEditTranslate)
