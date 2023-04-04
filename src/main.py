@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
-import os
 import sys
 
 from PySide6 import QtWidgets, QtGui
-from PySide6.QtCore import Qt
 
 from gui.gui_main import handleException, MainUi, EXIT_CODE_REBOOT
-
-icon_path = "asset"
-if getattr(sys, 'frozen', False):
-    icon_path = os.path.join(sys._MEIPASS, icon_path)
+from script.data import get_asset_path
 
 
 def start_gui(st: int = 0):
@@ -18,7 +13,7 @@ def start_gui(st: int = 0):
     except RuntimeError:
         app = QtWidgets.QApplication.instance()
     if not st:
-        splash = QtWidgets.QSplashScreen(QtGui.QPixmap(os.path.join(icon_path, "icon.png")))
+        splash = QtWidgets.QSplashScreen(QtGui.QPixmap(get_asset_path("icon.png")))
         splash.show()
     else:
         splash = None

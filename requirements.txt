@@ -5,4 +5,4 @@ packaging~=23.0
 opencv-python~=4.7.0.72
 PyYAML~=6.0
 pyqtgraph~=0.13.2
-PySideSix-Frameless-Window
+PySideSix-Frameless-Window~=0.0.4
