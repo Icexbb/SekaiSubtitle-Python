@@ -25,7 +25,7 @@ from script import data
 EXIT_CODE_REBOOT = -11231351
 
 PROGRAM_NAME = "Sekai Subtitle"
-VERSION = "0.8.230404"
+VERSION = "0.8.230405"
 
 
 class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
