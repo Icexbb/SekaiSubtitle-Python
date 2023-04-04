@@ -58,8 +58,9 @@ def get_resized_area_edge(h, w) -> np.ndarray:
     banner_pattern_size = int(abs(int(banner_mask_area[3] + 0.1 * banner_mask_height) -
                                   int(banner_mask_area[2] - 0.1 * banner_mask_height)) * 0.3)
     template_area_edge = base64_cv2(b64_banner)  # cv2.imread(os.path.join(get_asset_path(), "banner.png"))
-    banner_edge_pattern = cv2.Canny(cv2.resize(template_area_edge, (banner_pattern_size, banner_pattern_size)), 100,
-                                    200)
+    banner_edge_pattern = cv2.resize(template_area_edge, (banner_pattern_size, banner_pattern_size))
+    banner_edge_pattern = cv2.cvtColor(banner_edge_pattern,cv2.COLOR_BGR2GRAY)
+    # banner_edge_pattern = cv2.Canny(banner_edge_pattern, 100, 200)
     return banner_edge_pattern
 
 
@@ -190,6 +191,23 @@ def check_frame_banner_edge(frame, area, temp):
     cut = cv2.resize(cut, (sz, sz))
     cut[int(sz * 0.3):int(sz * 0.7), int(sz * 0.2):int(sz * 0.8)] = c
     # cut = cv2.cvtColor(cut, cv2.COLOR_BGR2GRAY)
-    edge = cv2.Canny(cut, 25,25)
-    res = cv2.matchTemplate(edge, temp, cv2.TM_CCORR_NORMED)[0][0]
-    return res > 0.35
+    temp_canny = cv2.Canny(temp, 100, 200)
+    ca = 255 - temp
+
+    def match(thresholds):
+        result = []
+        frame_edge = cv2.Canny(cut, thresholds[0], thresholds[1])
+        result.append(max(1 - (np.sum(frame_edge[ca == 255]) / np.sum(ca[ca == 255])) * 10, 0))
+        result.append(np.sum(frame_edge[temp_canny == 255]) / np.sum(temp_canny) / 0.3)
+        result.append(cv2.matchTemplate(frame_edge, temp, cv2.TM_CCORR_NORMED)[0][0])
+        result = np.prod(result)
+        return result > 0.35
+
+    for t in [(50, 150), (25, 25), (50, 50)]:
+        if match(t):
+            return True
+    # edge = cv2.Canny(cut, 25, 25)
+    # res = cv2.matchTemplate(edge, temp, cv2.TM_CCORR_NORMED)[0][0]
+    # if res > 0.35:
+    #     return True
+    return False

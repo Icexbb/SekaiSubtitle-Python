@@ -356,8 +356,9 @@ class SekaiJsonVideoProcess:
                     with futures.ThreadPoolExecutor(running_process_count) as executor:
                         future_tasks = []
                         if not self.dryrun:
-                            se_index_now = min(dialog_index[dialog_processed:] + banner_index[banner_processed:] +
-                                               tag_index[tag_processed_count:])
+                            unprocessed_event = dialog_index[dialog_processed:] + banner_index[banner_processed:] + \
+                                                tag_index[tag_processed_count:]
+                            se_index_now = min(unprocessed_event)
                         if dialog_process_running:
                             future = executor.submit(self.match_frame_dialog, g_frame, dialog_pointer,
                                                      dialog_last_center)
@@ -639,7 +640,7 @@ class SekaiJsonVideoProcess:
                     end_frame['frame'] + (
                 1 if dialog_data and dialog_data.get("WhenFinishCloseWindow") else 0) + offset_frame))
             dialog_body = self.dialog_body_typer(dialog_data["Body"], self.typer_interval) if dialog_data else ""
-            if not dialog_is_mask_start:
+            if not dialog_is_mask_start and last_dialog_frame:
                 start_time = last_dialog_event['End']
             event_data = {
                 "Layer": 2,
