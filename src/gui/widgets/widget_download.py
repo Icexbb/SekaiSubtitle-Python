@@ -47,6 +47,18 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
         if self.nam_proxy:
             self.tree_updater.setProxy(self.nam_proxy)
             self.downloader.setProxy(self.nam_proxy)
+        self.logs = []
+        self.LogScrollAreaContentsLayout.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
+
+
+    def log(self, value: str):
+        Label = QtWidgets.QLabel(value, self)
+        Label.setWordWrap(True)
+        Label.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
+        Label.setSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Maximum)
+        self.LogScrollAreaContentsLayout.addWidget(Label)
+        self.logs.append(Label)
+        self.LogScrollArea.verticalScrollBar().setValue(self.LogScrollArea.verticalScrollBar().maximum())
 
     @property
     def proxy(self) -> str:
@@ -100,7 +112,7 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
         def do_request(url):
             self.tree_updater.get(QtNetwork.QNetworkRequest(QtCore.QUrl(url)))
 
-        self.SavePlaceLabel.setText("获取中")
+        self.log(f"开始从{self.DataSourceBox.currentText()}更新数据列表")
         self.RefreshButton.setEnabled(False)
         source = self.DataSourceBox.currentIndex()
         if source == 0:
@@ -130,11 +142,12 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
                 if "data" in data:
                     data = data['data']
                 save_json(filepath, data)
-                self.SavePlaceLabel.setText(f"列表信息已保存\n路径：{filepath}")
+                self.log(f"列表信息已保存 路径：{filepath}")
                 self.update_tree(source_type)
             else:
-                self.SavePlaceLabel.setText(
-                    f"在下载{file}时发生了错误: {er} \n{reply.errorString()} 请尝试修改代理或超时时间")
+                self.log(
+                    f"在下载{file}时发生了错误: {er} - {reply.errorString()} 请尝试修改代理或超时时间"
+                )
         except json.decoder.JSONDecodeError:
             pass
         finally:
@@ -165,10 +178,9 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
                 if "data" in data:
                     data = data['data']
                 save_json(filepath, data)
-                self.SavePlaceLabel.setText(f"文件已保存\n路径: {filepath}")
+                self.log(f"文件已保存 路径: {filepath}")
             else:
-                self.SavePlaceLabel.setText(
-                    f"在下载{file}时发生了错误: {er} \n{reply.errorString()} 请尝试修改代理或超时时间")
+                self.log(f"在下载{file}时发生了错误: {er} - {reply.errorString()} 请尝试修改代理或超时时间")
         except json.decoder.JSONDecodeError:
             pass
         finally:
@@ -350,9 +362,6 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
         self.change_source()
 
     def download_data(self):
-        self.DownloadButton.setEnabled(False)
-        self.SavePlaceLabel.setText("下载中")
-
         self.change_episode()
         url = self.download_url
         if not url:
@@ -360,8 +369,8 @@ class DownloadWidget(Ui_DownloadWidget, QtWidgets.QWidget):
             self.msgbox.exec_()
             self.msgbox.close()
             return
-
-        self.SavePlaceLabel.setText("下载中")
+        keys = [self.DataTypeBox.currentText(), self.DataPeriodBox.currentText(), self.DataEpisodeBox.currentText()]
+        self.log(f"开始下载：{'-'.join(keys)}")
         self.DownloadButton.setEnabled(False)
 
         def do_request(req_url):

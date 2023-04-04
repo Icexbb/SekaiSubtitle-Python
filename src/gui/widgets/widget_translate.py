@@ -1,7 +1,6 @@
 import datetime
 import os
 import re
-import sys
 
 import yaml
 from PySide6 import QtWidgets, QtCore, QtGui
@@ -11,6 +10,7 @@ from gui.design.WidgetTranslate import Ui_Form as Ui_Translate
 from gui.design.WidgetTranslateIcon import Ui_Form as Ui_CharaIcon
 from gui.design.WidgetTranslateItem import Ui_WidgetTranslateItem as Ui_TranslateItem
 from gui.design.WidgetTranslateLines import Ui_Form as Ui_TranslateLines
+from script.data import get_asset_path
 from script.tools import read_json
 
 
@@ -51,15 +51,16 @@ class WidgetTranslateLines(Ui_TranslateLines, QtWidgets.QWidget):
                 self.WidgetDown.setStyleSheet("")
         self.changeTextColor()
 
-    def contentCheck(self, text):
-        normalend = ['、', '，', '。', '？', '！', '~', '♪', '☆', '.', '—']
-        unusualend = ['）', '」', '』', '”']
+    @staticmethod
+    def contentCheck(text):
+        normal_end = ['、', '，', '。', '？', '！', '~', '♪', '☆', '.', '—']
+        unusual_end = ['）', '」', '』', '”']
         result = ''
-        if text[-1] in normalend:
+        if text[-1] in normal_end:
             if '.，' in text or '.。' in text:
                 result += "\n【「……。」和「……，」只保留省略号】"
-        elif text[-1] in unusualend:
-            if len(text) > 1 and text[-2] not in normalend:
+        elif text[-1] in unusual_end:
+            if len(text) > 1 and text[-2] not in normal_end:
                 result += "\n【句尾缺少逗号句号】"
         else:
             result += "\n【句尾缺少逗号句号】"
@@ -102,10 +103,9 @@ class WidgetTranslateLines(Ui_TranslateLines, QtWidgets.QWidget):
 
 
 class WidgetTranslateItem(Ui_TranslateItem, QtWidgets.QWidget):
-    def __init__(self, parent, list_item, data: dict, num: int):
+    def __init__(self, parent, data: dict, num: int):
         super().__init__()
         self.setupUi(self)
-        self.list_item: ListWidgetItem = list_item
         self.parent: TranslateWidget = parent
         self.data = data
         self.num = num
@@ -136,10 +136,9 @@ class WidgetTranslateItem(Ui_TranslateItem, QtWidgets.QWidget):
 
     def changeProcess(self, value):
         if value:
-            self.setFixedHeight(94 * len(self.lines)+1)
+            self.setFixedHeight(94 * len(self.lines) + 1)
         else:
-            self.setFixedHeight(64 * len(self.lines)+1)
-        self.list_item.setSizeHint(self.size())
+            self.setFixedHeight(64 * len(self.lines) + 1)
 
     @property
     def translated(self):
@@ -186,6 +185,21 @@ class RightClickEnabledButton(QtWidgets.QPushButton):
             self.clicked.emit()
 
 
+scrollBarSheet = '''
+QScrollBar {background: transparent;width: 4px;margin-top: 132px;margin-bottom: 0;padding-right: 2px;}
+QScrollBar {margin-top: 0px;}
+QScrollBar::sub-line {background: transparent;}/*隐藏上箭头*/
+QScrollBar::add-line {background: transparent;}/*隐藏下箭头*/
+QScrollBar::handle {
+background: rgb(122, 122, 122);border: 2px solid rgb(128, 128, 128);border-radius: 1px;min-height: 32px;
+}
+QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {background: none;}
+
+background: transparent;
+border:None;
+'''
+
+
 class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
     type_signal = Signal(int)
 
@@ -227,12 +241,15 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
         self.Timer.start()
         self.Timer.setInterval(1000)
         self.Timer.timerEvent = self.AutoSave
-        self.autoSavePath  = os.path.join(os.path.expanduser('~/Documents'), "SekaiSubtitle", "AutoSave")
+        self.autoSavePath = os.path.join(os.path.expanduser('~/Documents'), "SekaiSubtitle", "AutoSave")
 
-    def AutoSave(self, event):
+        self.ScrollContentsLayout.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
+        self.ScrollContentsLayout.setSpacing(2)
+        # self.ScrollContents.setStyleSheet(scrollBarSheet)
+
+    def AutoSave(self, _):
         if self.data_file:
             self.Timer.setInterval(int(1000 * 60 * self.parent.FormSettingWidget.get_config('translate_save_interval')))
-
             os.makedirs(self.autoSavePath, exist_ok=True)
             prefix = f"[AutoSave]{self.filePrefix}" \
                      f"{self.EditTitle.text() or os.path.splitext(os.path.split(self.data_file)[-1])[0]}"
@@ -240,7 +257,6 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
 
             while True:
                 exists = sorted([file for file in os.listdir(self.autoSavePath) if file.startswith(prefix)])
-                print(exists)
                 if len(exists) < 10:
                     break
                 else:
@@ -313,35 +329,37 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
                     se_count += 1
 
     def clearItem(self):
-        while self.ListWidgetLine.count():
-            self.ListWidgetLine.removeItemWidget(self.ListWidgetLine.takeItem(0))
+        # while self.ListWidgetLine.count():
+        #     self.ListWidgetLine.removeItemWidget(self.ListWidgetLine.takeItem(0))
+        for line in self.lines:
+            self.ScrollContentsLayout.removeWidget(line)
+            line.deleteLater()
         self.lines.clear()
         self.data_file = None
         self.data = None
         self.AutoSave(None)
 
     def newItem(self, data, item_id):
-        item = ListWidgetItem()
-        line = WidgetTranslateItem(self, item, data, item_id + 1)
+        line = WidgetTranslateItem(self, data, item_id + 1)
         if line.data.get("TalkCharacters"):
             cid = line.data.get("TalkCharacters")[0].get("Character2dId")
             for c in self.data['AppearCharacters']:
                 if c['Character2dId'] == cid:
                     if c['CostumeType'][:2].isdigit():
                         chara_id = str(int(c['CostumeType'][:2]))
-                        icon_path = f"asset/icon/chr_{chara_id}.png"
-                        if getattr(sys, 'frozen', False):
-                            icon_path = os.path.join(sys._MEIPASS, icon_path)
+                        icon_path = get_asset_path(f'icon/chr_{chara_id}.png')
                         if os.path.exists(icon_path):
                             line.CharaWidget.LabelIcon.setPixmap(
                                 QtGui.QPixmap(icon_path).scaledToWidth(
                                     50, QtCore.Qt.TransformationMode.SmoothTransformation))
-        item.num = item_id
+        # item.num = item_id
         # item.setSizeHint(QtCore.QSize(self.ListWidgetLine.width(), line.size().height()))
         # item.setSizeHint(line.size() + QtCore.QSize(-60, 0))
-        self.ListWidgetLine.addItem(item)
-        self.ListWidgetLine.setItemWidget(item, line)
+        # self.ListWidgetLine.addItem(item)
+        # self.ListWidgetLine.setItemWidget(item, line)
+        # self.ListLayout.addWidget(line)
         self.lines.append(line)
+        self.ScrollContentsLayout.addWidget(line)
 
     @property
     def filePrefix(self):
@@ -357,10 +375,10 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
                 return
         result = []
         if self.data_file:
-            dir = os.path.split(self.trans_file)[0] \
+            path = os.path.split(self.trans_file)[0] \
                 if self.trans_file else os.path.split(self.data_file)[0] or self.parent.choose_file_root
             filename = QtWidgets.QFileDialog.getSaveFileName(
-                self, "保存", dir=os.path.join(dir, f"{self.filePrefix}{self.EditTitle.text()}.txt"),
+                self, "保存", dir=os.path.join(path, f"{self.filePrefix}{self.EditTitle.text()}.txt"),
                 filter="SekaiText文件(*.txt)")
             if filename[1]:
                 for line in self.lines:
@@ -381,10 +399,10 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
 
     def save_file_yaml(self):
         if self.data_file:
-            dir = os.path.split(self.trans_file)[0] \
+            path = os.path.split(self.trans_file)[0] \
                 if self.trans_file else os.path.split(self.data_file)[0] or self.parent.choose_file_root
             filename = QtWidgets.QFileDialog.getSaveFileName(
-                self, "保存", dir=os.path.join(dir, f"{self.filePrefix}{self.EditTitle.text()}.yml"),
+                self, "保存", dir=os.path.join(path, f"{self.filePrefix}{self.EditTitle.text()}.yml"),
                 filter="SekaiSubtitle翻译文件(*.yml)"
             )
             if filename[0]:
@@ -404,7 +422,7 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
             if not "".join(data['dialog'] + data['tag'] + data['banner']).replace(r"\N", "\n").strip():
                 return False
         with open(file, 'w', encoding='utf8') as fp:
-            fp.write(yaml.dump(data))
+            fp.write(yaml.dump(data, allow_unicode=True))
         return True
 
     def load_text(self, file_name_choose=None):

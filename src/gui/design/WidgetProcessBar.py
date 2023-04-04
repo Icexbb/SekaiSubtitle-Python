@@ -15,10 +15,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QFrame, QGridLayout,
-    QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
-    QProgressBar, QPushButton, QSizePolicy, QSpacerItem,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
+    QLabel, QProgressBar, QPushButton, QScrollArea,
+    QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
 
 class Ui_ProgressBarWidget(object):
     def setupUi(self, ProgressBarWidget):
@@ -40,7 +39,9 @@ class Ui_ProgressBarWidget(object):
 "                QPushButton#LogShowButton{border: 2px solid grey; border-radius: 10px;}\n"
 "                QListWidget#StatusLogList{ background-color: rgba(255, 255, 255, 0); border: none;outline:0px;}\n"
 "                QListWidget::item{background-color: rgba(255, 255, 255, 0);border: none;outline:0px;}\n"
-"            ")
+"QScrollArea{background-color: rgba(255, 255, 255, 0);border: none;outline:0px;}\n"
+"#LogContents{background-color: rgba(255, 255, 255, 0);border"
+                        ": none;outline:0px;}")
         self.gridLayout = QGridLayout(ProgressBarWidget)
         self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(u"gridLayout")
@@ -138,29 +139,32 @@ class Ui_ProgressBarWidget(object):
 
         self.horizontalLayout_2.addWidget(self.GraphLayoutWidget)
 
-        self.StatusLogList = QListWidget(self.MainFrame)
-        self.StatusLogList.setObjectName(u"StatusLogList")
-        sizePolicy5 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        sizePolicy5.setHorizontalStretch(0)
-        sizePolicy5.setVerticalStretch(0)
-        sizePolicy5.setHeightForWidth(self.StatusLogList.sizePolicy().hasHeightForWidth())
-        self.StatusLogList.setSizePolicy(sizePolicy5)
-        self.StatusLogList.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.StatusLogList.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.StatusLogList.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContentsOnFirstShow)
-        self.StatusLogList.setWordWrap(True)
+        self.LogArea = QScrollArea(self.MainFrame)
+        self.LogArea.setObjectName(u"LogArea")
+        self.LogArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.LogArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.LogArea.setWidgetResizable(True)
+        self.LogArea.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
+        self.LogContents = QWidget()
+        self.LogContents.setObjectName(u"LogContents")
+        self.LogContents.setGeometry(QRect(0, 0, 294, 119))
+        self.LogContentsLayout = QVBoxLayout(self.LogContents)
+        self.LogContentsLayout.setSpacing(2)
+        self.LogContentsLayout.setObjectName(u"LogContentsLayout")
+        self.LogContentsLayout.setContentsMargins(0, 0, 0, 0)
+        self.LogArea.setWidget(self.LogContents)
 
-        self.horizontalLayout_2.addWidget(self.StatusLogList)
+        self.horizontalLayout_2.addWidget(self.LogArea)
 
         self.verticalLayout_2 = QVBoxLayout()
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.LogShowButton = QPushButton(self.MainFrame)
         self.LogShowButton.setObjectName(u"LogShowButton")
-        sizePolicy6 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
-        sizePolicy6.setHorizontalStretch(0)
-        sizePolicy6.setVerticalStretch(0)
-        sizePolicy6.setHeightForWidth(self.LogShowButton.sizePolicy().hasHeightForWidth())
-        self.LogShowButton.setSizePolicy(sizePolicy6)
+        sizePolicy5 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+        sizePolicy5.setHorizontalStretch(0)
+        sizePolicy5.setVerticalStretch(0)
+        sizePolicy5.setHeightForWidth(self.LogShowButton.sizePolicy().hasHeightForWidth())
+        self.LogShowButton.setSizePolicy(sizePolicy5)
         self.LogShowButton.setMinimumSize(QSize(20, 20))
         self.LogShowButton.setMaximumSize(QSize(20, 20))
 

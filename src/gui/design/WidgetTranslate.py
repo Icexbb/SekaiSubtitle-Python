@@ -16,25 +16,24 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
-    QLabel, QLineEdit, QListView, QListWidget,
-    QListWidgetItem, QPushButton, QRadioButton, QSizePolicy,
-    QSpacerItem, QVBoxLayout, QWidget)
+    QLabel, QLineEdit, QPushButton, QRadioButton,
+    QScrollArea, QSizePolicy, QSpacerItem, QVBoxLayout,
+    QWidget)
 
 class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(404, 295)
+        Form.resize(410, 372)
         sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Form.sizePolicy().hasHeightForWidth())
         Form.setSizePolicy(sizePolicy)
-        Form.setStyleSheet(u"QListWidget{ background-color: rgba(255, 255, 255, 0); border: none;outline:0px;}\n"
-"QListWidget::item{background-color: rgba(255, 255, 255, 0); border: none;outline:0px;}\n"
-"QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:10px;}\n"
+        Form.setStyleSheet(u"QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:10px;}\n"
 "QPushButton{max-width:50px}\n"
-"            ")
+"#ItemScrollArea{background-color: rgba(255, 255, 255, 0);border: none;outline:0px;}\n"
+"#ScrollContents{background-color: rgba(255, 255, 255, 0);border: none;outline:0px;}")
         self.gridLayout = QGridLayout(Form)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setVerticalSpacing(0)
@@ -45,12 +44,12 @@ class Ui_Form(object):
         self.MainFrame.setFrameShadow(QFrame.Raised)
         self.verticalLayout = QVBoxLayout(self.MainFrame)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.widget = QWidget(self.MainFrame)
-        self.widget.setObjectName(u"widget")
-        self.horizontalLayout_3 = QHBoxLayout(self.widget)
+        self.ControlWidget = QWidget(self.MainFrame)
+        self.ControlWidget.setObjectName(u"ControlWidget")
+        self.horizontalLayout_3 = QHBoxLayout(self.ControlWidget)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.horizontalLayout_3.setContentsMargins(5, 5, 5, 5)
-        self.ButtonFrame = QFrame(self.widget)
+        self.ButtonFrame = QFrame(self.ControlWidget)
         self.ButtonFrame.setObjectName(u"ButtonFrame")
         self.ButtonFrame.setMinimumSize(QSize(0, 60))
         self.ButtonFrame.setMaximumSize(QSize(16777215, 60))
@@ -106,12 +105,12 @@ class Ui_Form(object):
 
         self.horizontalLayout_3.addItem(self.horizontalSpacer_2)
 
-        self.AutoSaveLabel = QLabel(self.widget)
+        self.AutoSaveLabel = QLabel(self.ControlWidget)
         self.AutoSaveLabel.setObjectName(u"AutoSaveLabel")
 
         self.horizontalLayout_3.addWidget(self.AutoSaveLabel)
 
-        self.gridWidget = QWidget(self.widget)
+        self.gridWidget = QWidget(self.ControlWidget)
         self.gridWidget.setObjectName(u"gridWidget")
         sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy1.setHorizontalStretch(0)
@@ -179,15 +178,23 @@ class Ui_Form(object):
         self.horizontalLayout_3.addWidget(self.gridWidget)
 
 
-        self.verticalLayout.addWidget(self.widget)
+        self.verticalLayout.addWidget(self.ControlWidget)
 
-        self.ListWidgetLine = QListWidget(self.MainFrame)
-        self.ListWidgetLine.setObjectName(u"ListWidgetLine")
-        self.ListWidgetLine.setMinimumSize(QSize(340, 0))
-        self.ListWidgetLine.setLineWidth(0)
-        self.ListWidgetLine.setResizeMode(QListView.Adjust)
+        self.ItemScrollArea = QScrollArea(self.MainFrame)
+        self.ItemScrollArea.setObjectName(u"ItemScrollArea")
+        self.ItemScrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.ItemScrollArea.setWidgetResizable(True)
+        self.ItemScrollArea.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
+        self.ScrollContents = QWidget()
+        self.ScrollContents.setObjectName(u"ScrollContents")
+        self.ScrollContents.setGeometry(QRect(0, 0, 392, 269))
+        self.ScrollContentsLayout = QVBoxLayout(self.ScrollContents)
+        self.ScrollContentsLayout.setSpacing(0)
+        self.ScrollContentsLayout.setObjectName(u"ScrollContentsLayout")
+        self.ScrollContentsLayout.setContentsMargins(0, 0, 0, 0)
+        self.ItemScrollArea.setWidget(self.ScrollContents)
 
-        self.verticalLayout.addWidget(self.ListWidgetLine)
+        self.verticalLayout.addWidget(self.ItemScrollArea)
 
 
         self.gridLayout.addWidget(self.MainFrame, 0, 0, 1, 1)

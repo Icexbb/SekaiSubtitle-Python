@@ -190,6 +190,6 @@ def check_frame_banner_edge(frame, area, temp):
     cut = cv2.resize(cut, (sz, sz))
     cut[int(sz * 0.3):int(sz * 0.7), int(sz * 0.2):int(sz * 0.8)] = c
     # cut = cv2.cvtColor(cut, cv2.COLOR_BGR2GRAY)
-    edge = cv2.Canny(cut, 50, 200)
+    edge = cv2.Canny(cut, 25,25)
     res = cv2.matchTemplate(edge, temp, cv2.TM_CCORR_NORMED)[0][0]
-    return res > 0.32
+    return res > 0.35

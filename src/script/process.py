@@ -636,7 +636,8 @@ class SekaiJsonVideoProcess:
         if not jitter:
             start_time = tools.timedelta_to_string(frame_time * (start_frame['frame'] + offset_frame))
             end_time = tools.timedelta_to_string(frame_time * (
-                    end_frame['frame'] + (1 if dialog_data.get("WhenFinishCloseWindow") else 0) + offset_frame))
+                    end_frame['frame'] + (
+                1 if dialog_data and dialog_data.get("WhenFinishCloseWindow") else 0) + offset_frame))
             dialog_body = self.dialog_body_typer(dialog_data["Body"], self.typer_interval) if dialog_data else ""
             if not dialog_is_mask_start:
                 start_time = last_dialog_event['End']

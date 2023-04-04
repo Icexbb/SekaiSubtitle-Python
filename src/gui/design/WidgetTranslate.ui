@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>404</width>
-    <height>295</height>
+    <width>410</width>
+    <height>372</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,11 +20,10 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QListWidget{ background-color: rgba(255, 255, 255, 0); border: none;outline:0px;}
-QListWidget::item{background-color: rgba(255, 255, 255, 0); border: none;outline:0px;}
-QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:10px;}
+   <string notr="true">QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:10px;}
 QPushButton{max-width:50px}
-            </string>
+#ItemScrollArea{background-color: rgba(255, 255, 255, 0);border: none;outline:0px;}
+#ScrollContents{background-color: rgba(255, 255, 255, 0);border: none;outline:0px;}</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
@@ -52,7 +51,7 @@ QPushButton{max-width:50px}
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QWidget" name="widget" native="true">
+       <widget class="QWidget" name="ControlWidget" native="true">
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <property name="leftMargin">
           <number>5</number>
@@ -350,19 +349,43 @@ QPushButton{max-width:50px}
        </widget>
       </item>
       <item>
-       <widget class="QListWidget" name="ListWidgetLine">
-        <property name="minimumSize">
-         <size>
-          <width>340</width>
-          <height>0</height>
-         </size>
+       <widget class="QScrollArea" name="ItemScrollArea">
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
         </property>
-        <property name="lineWidth">
-         <number>0</number>
+        <property name="widgetResizable">
+         <bool>true</bool>
         </property>
-        <property name="resizeMode">
-         <enum>QListView::Adjust</enum>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
         </property>
+        <widget class="QWidget" name="ScrollContents">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>392</width>
+           <height>269</height>
+          </rect>
+         </property>
+         <layout class="QVBoxLayout" name="ScrollContentsLayout">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+         </layout>
+        </widget>
        </widget>
       </item>
      </layout>

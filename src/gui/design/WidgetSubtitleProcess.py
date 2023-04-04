@@ -15,9 +15,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QFrame, QGridLayout,
-    QHBoxLayout, QListView, QListWidget, QListWidgetItem,
-    QPushButton, QSizePolicy, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
+    QPushButton, QScrollArea, QSizePolicy, QVBoxLayout,
+    QWidget)
 
 class Ui_ProcessWidget(object):
     def setupUi(self, ProcessWidget):
@@ -27,7 +27,8 @@ class Ui_ProcessWidget(object):
         ProcessWidget.setStyleSheet(u"QListWidget#ProcessingListWidget{ background-color: rgba(255, 255, 255, 0); border:none;outline:0px;}\n"
 "QListWidget::item{background-color: rgba(255, 255, 255, 0); border: none;outline:0px;}\n"
 "QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:10px;}\n"
-"            ")
+"QScrollArea{background-color: rgba(255, 255, 255, 0);border: none;outline:0px;}\n"
+"#ScrollContents{background-color: rgba(255, 255, 255, 0);border: none;outline:0px;}")
         self.gridLayout = QGridLayout(ProcessWidget)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
@@ -49,21 +50,18 @@ class Ui_ProcessWidget(object):
 
         self.verticalLayout.addWidget(self.StatusWidget)
 
-        self.ProcessingListWidget = QListWidget(self.MainFrame)
-        self.ProcessingListWidget.setObjectName(u"ProcessingListWidget")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.ProcessingListWidget.sizePolicy().hasHeightForWidth())
-        self.ProcessingListWidget.setSizePolicy(sizePolicy1)
-        self.ProcessingListWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.ProcessingListWidget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.ProcessingListWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.ProcessingListWidget.setSelectionMode(QAbstractItemView.NoSelection)
-        self.ProcessingListWidget.setResizeMode(QListView.Adjust)
-        self.ProcessingListWidget.setLayoutMode(QListView.SinglePass)
+        self.scrollArea = QScrollArea(self.MainFrame)
+        self.scrollArea.setObjectName(u"scrollArea")
+        self.scrollArea.setWidgetResizable(True)
+        self.ScrollContents = QWidget()
+        self.ScrollContents.setObjectName(u"ScrollContents")
+        self.ScrollContents.setGeometry(QRect(0, 0, 430, 370))
+        self.ScrollContentsLayout = QVBoxLayout(self.ScrollContents)
+        self.ScrollContentsLayout.setObjectName(u"ScrollContentsLayout")
+        self.ScrollContentsLayout.setContentsMargins(0, 0, 0, 0)
+        self.scrollArea.setWidget(self.ScrollContents)
 
-        self.verticalLayout.addWidget(self.ProcessingListWidget)
+        self.verticalLayout.addWidget(self.scrollArea)
 
         self.frame = QFrame(self.MainFrame)
         self.frame.setObjectName(u"frame")
@@ -75,16 +73,19 @@ class Ui_ProcessWidget(object):
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.StartAllButton = QPushButton(self.frame)
         self.StartAllButton.setObjectName(u"StartAllButton")
+        self.StartAllButton.setMaximumSize(QSize(100, 16777215))
 
         self.horizontalLayout_3.addWidget(self.StartAllButton)
 
         self.StopAllButton = QPushButton(self.frame)
         self.StopAllButton.setObjectName(u"StopAllButton")
+        self.StopAllButton.setMaximumSize(QSize(100, 16777215))
 
         self.horizontalLayout_3.addWidget(self.StopAllButton)
 
         self.ClearAllButton = QPushButton(self.frame)
         self.ClearAllButton.setObjectName(u"ClearAllButton")
+        self.ClearAllButton.setMaximumSize(QSize(100, 16777215))
 
         self.horizontalLayout_3.addWidget(self.ClearAllButton)
 

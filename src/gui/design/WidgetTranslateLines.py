@@ -36,7 +36,7 @@ class Ui_Form(object):
 "#WidgetMiddle{background-color: rgba(150, 255, 255, 50);}\n"
 "QLineEdit{margin:2px;background-color:rgba(0,0,0,0);}\n"
 "QToolButton#ClearButton{border:0px;background-color: rgba(255, 150, 150, 50);}\n"
-"#LineFrame{border:0.5px solid gray;border-radius:5px;}")
+"#LineFrame{border:0.5px solid rgba(0,0,0,64);border-radius:5px;}")
         self.gridLayout = QGridLayout(Form)
         self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(u"gridLayout")

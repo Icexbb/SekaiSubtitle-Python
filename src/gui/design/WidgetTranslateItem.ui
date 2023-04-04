@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>526</width>
+    <width>393</width>
     <height>62</height>
    </rect>
   </property>
@@ -20,8 +20,7 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QFrame#MainFrame{background-color:rgb(250, 250, 250);border:1px solid
-                gray;border-radius:5px;}
+   <string notr="true">QFrame#MainFrame{background-color:rgb(250, 250, 250);border:1px solid rgba(0,0,0,128);border-radius:5px;}
                 QListWidget{background-color: rgba(255, 255, 255, 0); border: none;outline:0px;}
                 QListWidget::item{background-color: rgba(255, 255, 255, 0); border: none;outline:0px;}
             </string>

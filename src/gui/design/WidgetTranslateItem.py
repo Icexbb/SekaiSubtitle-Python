@@ -23,10 +23,9 @@ class Ui_WidgetTranslateItem(object):
     def setupUi(self, WidgetTranslateItem):
         if not WidgetTranslateItem.objectName():
             WidgetTranslateItem.setObjectName(u"WidgetTranslateItem")
-        WidgetTranslateItem.resize(526, 62)
+        WidgetTranslateItem.resize(393, 62)
         WidgetTranslateItem.setMinimumSize(QSize(0, 62))
-        WidgetTranslateItem.setStyleSheet(u"QFrame#MainFrame{background-color:rgb(250, 250, 250);border:1px solid\n"
-"                gray;border-radius:5px;}\n"
+        WidgetTranslateItem.setStyleSheet(u"QFrame#MainFrame{background-color:rgb(250, 250, 250);border:1px solid rgba(0,0,0,128);border-radius:5px;}\n"
 "                QListWidget{background-color: rgba(255, 255, 255, 0); border: none;outline:0px;}\n"
 "                QListWidget::item{background-color: rgba(255, 255, 255, 0); border: none;outline:0px;}\n"
 "            ")
