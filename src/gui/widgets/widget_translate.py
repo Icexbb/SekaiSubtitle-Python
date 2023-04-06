@@ -156,7 +156,7 @@ class WidgetTranslateItem(Ui_TranslateItem, QtWidgets.QWidget):
                 p[index] = string
             strings = p
         for line, string in zip(self.lines, strings):
-            line.loadTranslated(value)
+            line.loadTranslated(string)
 
 
 class ListWidgetItem(QtWidgets.QListWidgetItem):
