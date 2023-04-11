@@ -20,11 +20,9 @@
 
 GitHub 地址 [Icexbb/SekaiSubtitle-Python](https://github.com/Icexbb/SekaiSubtitle-Python)
 
-Gitee 地址 [Icexbb/SekaiSubtitle-Python](https://gitee.com/Icexb/SekaiSubtitle-Python) （同步较慢）
-
 ## 开发进度
 
-- [ ] *更多需求请提出**issue***
+- 目前本项目进入完善慢更新阶段 如果有需求的功能请提交Issue或向我反馈
 
 ## 使用教程
 
@@ -43,7 +41,8 @@ python src/main.py
 
 #### 轴机
 
-- 点击`准备就绪`或将视频/数据/翻译文件拖至框内创建任务
+- 点击`主界面蓝色方框`或将视频/数据/翻译文件拖至框内创建任务
+- 选择任务所需的视频/数据/翻译文件，（选择区间/添加Staff行），点击完成添加任务
 - 点击任务进度组件内绿色按钮开启任务进程
 
 ##### 注意
@@ -79,6 +78,6 @@ python src/main.py
 本项目仅供个人学习研究使用，禁止用于商业及非法用途。
 基于 [MIT license](https://opensource.org/licenses/MIT) 许可进行开源。
 
-本项目所使用图像素材所有版权归其合法所有者所有，包括但不限于 Sega、Colorful Palette 和 Crypton
+本项目所使用图像素材所有版权归其合法所有者所有，包括但不限于 Sega、Colorful Palette 和 Crypton Future Media
 
 本项目与项目开发者所属组织与Sega或Colorful Palette没有官方关系
