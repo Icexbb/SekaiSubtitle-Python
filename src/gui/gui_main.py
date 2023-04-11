@@ -270,7 +270,10 @@ class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         if os.path.exists(self.FormTranslateWidget.autoSavePath):
             for file in os.listdir(self.FormTranslateWidget.autoSavePath):
-                os.remove(os.path.join(self.FormTranslateWidget.autoSavePath, file))
+                filepath = os.path.join(self.FormTranslateWidget.autoSavePath, file)
+                if (datetime.datetime.now() - datetime.datetime.fromtimestamp(
+                        os.stat(filepath).st_mtime)) > datetime.timedelta(seconds=3600 * 24):
+                    os.remove(filepath)
         return super().closeEvent(event)
 
     def get_bar(self, widget_id):
