@@ -136,16 +136,16 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         else:
             self.SettingChibiSelect.setCurrentIndex(0)
         if "update" in config:
-            self.SettingStartupUpdateCheck.setChecked(config['update'])
+            self.SettingStartupUpdateCheck.setChecked(bool(config['update']))
         else:
             self.SettingStartupUpdateCheck.setChecked(True)
-        self.SettingStartImmediateCheck.setChecked(config.get('start_immediate'))
-        self.SettingAnimatedCheck.setChecked(config.get('animated'))
+        self.SettingStartImmediateCheck.setChecked(bool(config.get('start_immediate')))
+        self.SettingAnimatedCheck.setChecked(bool(config.get('animated')))
         self.last_dir = config.get('last_dir') or os.getcwd()
-        self.SettingStartAdjustWindowCheck.setChecked(config.get("adjust_window"))
+        self.SettingStartAdjustWindowCheck.setChecked(bool(config.get("adjust_window")))
         self.SettingTyperIntervalSpin.setValue(config.get("typer_interval") or 80)
         self.SettingTyperFadeSpin.setValue(config.get('typer_fade_interval') or 50)
-        self.SettingTimeoutSpin.setValue(config.get("download_timeout") or 15)
+        self.SettingTimeoutSpin.setValue(config.get("download_timeout") or 0)
         self.SettingSaveSpin.setValue(config.get("translate_save_interval") or 5)
 
     def get_config(self, config_field=None) -> dict | str:
