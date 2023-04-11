@@ -19,13 +19,13 @@ from gui.widgets.widget_setting import SettingWidget
 from gui.widgets.widget_subtitle import ProcessWidget
 from gui.widgets.widget_titlebar import TitleBar
 from gui.widgets.widget_translate import TranslateWidget
-from gui.widgets.widget_chibi import WidgetChibi
+# from gui.widgets.widget_chibi import WidgetChibi
 from script import data
 
 EXIT_CODE_REBOOT = -11231351
 
 PROGRAM_NAME = "Sekai Subtitle"
-VERSION = "0.8.230408"
+VERSION = "0.8.230411"
 
 
 class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
@@ -35,6 +35,7 @@ class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
     signal_exception = QtCore.Signal(Exception, dict)
     version = VERSION
     name = PROGRAM_NAME
+
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setupUi(self)
@@ -66,6 +67,7 @@ class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
         self.setTitleBar(self.TitleBar)
         self.setWindowFlag(QtCore.Qt.WindowType.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.titleBar.raise_()
         self.setResizeEnabled(True)
 
         self.FuncButtonSubtitle.clicked.connect(lambda: self.switchWidget(0, QtCore.QSize(900, 600)))
@@ -109,17 +111,23 @@ class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
         try:
             select = self.FormSettingWidget.get_config("chibi")
             animated = self.FormSettingWidget.get_config("animated")
+            if animated:
+                self.FormSettingWidget.SettingAnimatedCheck.setChecked(False)
+                self.FormSettingWidget.save_config()
+            self.FormSettingWidget.SettingAnimatedCheck.setDisabled(True)
+
             if select == "随机":
                 i = os.path.join(icon_path, random.choice(os.listdir(icon_path)))
             else:
                 i = os.path.join(icon_path, f"{select}.png")
                 if not os.path.exists(i):
                     i = os.path.join(icon_path, random.choice(os.listdir(icon_path)))
-            if animated:
-                self.ChibiWidget = WidgetChibi(self, select if select != "随机" else None)
-                self.FigureLayout.addWidget(self.ChibiWidget)
-                self.FigureLabel.deleteLater()
-            else:
+            # if animated:
+            #     self.ChibiWidget = WidgetChibi(self, select if select != "随机" else None)
+            #     self.FigureLayout.addWidget(self.ChibiWidget)
+            #     self.FigureLabel.deleteLater()
+            # else:
+            if True:
                 self.FigureLabel.setPixmap(
                     QtGui.QPixmap(i).scaledToHeight(self.FigureLabel.height(),
                                                     QtCore.Qt.TransformationMode.SmoothTransformation))

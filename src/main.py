@@ -27,6 +27,5 @@ def start_gui(st: int = 0):
 
 
 if __name__ == '__main__':
-    # start_gui()
     sys.excepthook = handleException
     start_gui()
