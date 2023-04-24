@@ -50,6 +50,7 @@ class WidgetTranslateLines(Ui_TranslateLines, QtWidgets.QWidget):
             else:
                 self.WidgetDown.setStyleSheet("")
         self.changeTextColor()
+        self.parent.parent.change_signal.emit()
 
     @staticmethod
     def contentCheck(text):
@@ -202,6 +203,7 @@ border:None;
 
 class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
     type_signal = Signal(int)
+    change_signal = Signal()
 
     def __init__(self, parent):
         super().__init__()
@@ -241,11 +243,22 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
         self.Timer.start()
         self.Timer.setInterval(1000)
         self.Timer.timerEvent = self.AutoSave
+        self.change_signal.connect(self.AutoSaveChange)
         self.autoSavePath = os.path.join(os.path.expanduser('~/Documents'), "SekaiSubtitle", "AutoSave")
 
         self.ScrollContentsLayout.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
         self.ScrollContentsLayout.setSpacing(2)
         # self.ScrollContents.setStyleSheet(scrollBarSheet)
+
+    def AutoSaveChange(self):
+        filename = f"[AutoSave]{self.filePrefix}" \
+                 f"{self.EditTitle.text() or os.path.splitext(os.path.split(self.data_file)[-1])[0]}.yml"
+
+        result = self.write_yml(os.path.join(os.path.split(self.data_file)[0], filename), check=True)
+        if result:
+            timer = QtCore.QTimer()
+            self.AutoSaveLabel.setText("已自动保存到数据文件目录")
+            timer.singleShot(5000, lambda: self.AutoSaveLabel.setText(""))
 
     def AutoSave(self, _):
         if self.data_file:
@@ -352,12 +365,7 @@ class TranslateWidget(Ui_Translate, QtWidgets.QWidget):
                             line.CharaWidget.LabelIcon.setPixmap(
                                 QtGui.QPixmap(icon_path).scaledToWidth(
                                     50, QtCore.Qt.TransformationMode.SmoothTransformation))
-        # item.num = item_id
-        # item.setSizeHint(QtCore.QSize(self.ListWidgetLine.width(), line.size().height()))
-        # item.setSizeHint(line.size() + QtCore.QSize(-60, 0))
-        # self.ListWidgetLine.addItem(item)
-        # self.ListWidgetLine.setItemWidget(item, line)
-        # self.ListLayout.addWidget(line)
+
         self.lines.append(line)
         self.ScrollContentsLayout.addWidget(line)
 
