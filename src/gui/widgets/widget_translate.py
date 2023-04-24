@@ -23,8 +23,9 @@ class WidgetCharaIcon(Ui_CharaIcon, QtWidgets.QWidget):
 
 
 class WidgetTranslateLines(Ui_TranslateLines, QtWidgets.QWidget):
-    def __init__(self, parent, string):
+    def __init__(self, parent, string,check_text=True):
         super().__init__()
+        self.check_text = check_text
         self.setupUi(self)
         self.parent: WidgetTranslateItem = parent
         self.string = string
@@ -36,7 +37,7 @@ class WidgetTranslateLines(Ui_TranslateLines, QtWidgets.QWidget):
 
     def checkText(self):
         text = self.TextEditTranslate.text()
-        if text:
+        if text and self.check_text:
             text = text.replace('…', '...')
             text = text.replace('(', '（').replace(')', '）')
             text = text.replace(',', '，').replace('?', '？').replace('!', '！')
@@ -130,7 +131,7 @@ class WidgetTranslateItem(Ui_TranslateItem, QtWidgets.QWidget):
         self.FrameCharaLayout.addWidget(self.CharaWidget)
         self.parent.type_signal.connect(self.changeProcess)
         for string in self.strings:
-            line = WidgetTranslateLines(self, string)
+            line = WidgetTranslateLines(self, string,bool(self.type=="dialog"))
             self.WidgetLinesLayout.addWidget(line)
             self.lines.append(line)
         self.changeProcess(self.parent.ProcessType)
