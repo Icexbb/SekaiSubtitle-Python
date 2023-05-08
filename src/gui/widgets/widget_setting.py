@@ -43,6 +43,7 @@ class SettingWidget(QtWidgets.QWidget, Ui_Form):
         # self.SettingAnimatedCheck.setEnabled(False)
         self.save_config()
         self.setProxyState()
+        self.scrollArea.setVerticalScrollBarPolicy(QtGui.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
     @property
     def last_dir(self):

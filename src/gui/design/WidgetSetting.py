@@ -15,17 +15,18 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFontComboBox,
-    QFrame, QGridLayout, QGroupBox, QHBoxLayout,
-    QLabel, QLineEdit, QPushButton, QScrollArea,
-    QSizePolicy, QSpacerItem, QSpinBox, QVBoxLayout,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QFontComboBox, QFrame, QGridLayout,
+    QGroupBox, QHBoxLayout, QLabel, QSizePolicy,
+    QSpacerItem, QVBoxLayout, QWidget)
+
+from qfluentwidgets import (CheckBox, ComboBox, LineEdit, PushButton,
+    ScrollArea, SpinBox)
 
 class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(418, 588)
+        Form.resize(562, 626)
         Form.setStyleSheet(u"QFrame#MainFrame{background-color: rgb(255, 255, 255);border-radius:10px;}\n"
 "                QScrollArea{background-color: transparent;}\n"
 "                QWidget#scrollAreaWidgetContents{background-color: transparent;}\n"
@@ -42,7 +43,7 @@ class Ui_Form(object):
         self.verticalLayout = QVBoxLayout(self.MainFrame)
         self.verticalLayout.setSpacing(15)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.scrollArea = QScrollArea(self.MainFrame)
+        self.scrollArea = ScrollArea(self.MainFrame)
         self.scrollArea.setObjectName(u"scrollArea")
         self.scrollArea.setMinimumSize(QSize(400, 0))
         self.scrollArea.setFrameShape(QFrame.NoFrame)
@@ -52,7 +53,7 @@ class Ui_Form(object):
         self.scrollArea.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 400, 521))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 527, 770))
         self.verticalLayout_3 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.GB1 = QGroupBox(self.scrollAreaWidgetContents)
@@ -60,16 +61,19 @@ class Ui_Form(object):
         self.verticalLayout_2 = QVBoxLayout(self.GB1)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.verticalLayout_2.setContentsMargins(3, 3, 3, 3)
-        self.HL1 = QHBoxLayout()
+        self.HW1 = QWidget(self.GB1)
+        self.HW1.setObjectName(u"HW1")
+        self.HW1.setMinimumSize(QSize(0, 60))
+        self.HL1 = QHBoxLayout(self.HW1)
         self.HL1.setSpacing(5)
         self.HL1.setObjectName(u"HL1")
         self.HL1.setContentsMargins(5, 5, 5, 5)
-        self.label_5 = QLabel(self.GB1)
+        self.label_5 = QLabel(self.HW1)
         self.label_5.setObjectName(u"label_5")
 
         self.HL1.addWidget(self.label_5)
 
-        self.widget = QWidget(self.GB1)
+        self.widget = QWidget(self.HW1)
         self.widget.setObjectName(u"widget")
         self.horizontalLayout = QHBoxLayout(self.widget)
         self.horizontalLayout.setSpacing(0)
@@ -79,7 +83,7 @@ class Ui_Form(object):
 
         self.horizontalLayout.addItem(self.horizontalSpacer_2)
 
-        self.SettingStartupUpdateCheck = QCheckBox(self.widget)
+        self.SettingStartupUpdateCheck = CheckBox(self.widget)
         self.SettingStartupUpdateCheck.setObjectName(u"SettingStartupUpdateCheck")
         sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -97,18 +101,21 @@ class Ui_Form(object):
         self.HL1.setStretch(0, 2)
         self.HL1.setStretch(1, 5)
 
-        self.verticalLayout_2.addLayout(self.HL1)
+        self.verticalLayout_2.addWidget(self.HW1)
 
-        self.HL2 = QHBoxLayout()
+        self.HW2 = QWidget(self.GB1)
+        self.HW2.setObjectName(u"HW2")
+        self.HW2.setMinimumSize(QSize(0, 60))
+        self.HL2 = QHBoxLayout(self.HW2)
         self.HL2.setSpacing(5)
         self.HL2.setObjectName(u"HL2")
         self.HL2.setContentsMargins(5, 5, 5, 5)
-        self.label_8 = QLabel(self.GB1)
+        self.label_8 = QLabel(self.HW2)
         self.label_8.setObjectName(u"label_8")
 
         self.HL2.addWidget(self.label_8)
 
-        self.widget_2 = QWidget(self.GB1)
+        self.widget_2 = QWidget(self.HW2)
         self.widget_2.setObjectName(u"widget_2")
         self.horizontalLayout_2 = QHBoxLayout(self.widget_2)
         self.horizontalLayout_2.setSpacing(0)
@@ -118,7 +125,7 @@ class Ui_Form(object):
 
         self.horizontalLayout_2.addItem(self.horizontalSpacer_3)
 
-        self.SettingStartAdjustWindowCheck = QCheckBox(self.widget_2)
+        self.SettingStartAdjustWindowCheck = CheckBox(self.widget_2)
         self.SettingStartAdjustWindowCheck.setObjectName(u"SettingStartAdjustWindowCheck")
         sizePolicy.setHeightForWidth(self.SettingStartAdjustWindowCheck.sizePolicy().hasHeightForWidth())
         self.SettingStartAdjustWindowCheck.setSizePolicy(sizePolicy)
@@ -132,30 +139,35 @@ class Ui_Form(object):
         self.HL2.setStretch(0, 2)
         self.HL2.setStretch(1, 5)
 
-        self.verticalLayout_2.addLayout(self.HL2)
+        self.verticalLayout_2.addWidget(self.HW2)
 
-        self.HL3 = QHBoxLayout()
+        self.HW3 = QWidget(self.GB1)
+        self.HW3.setObjectName(u"HW3")
+        self.HW3.setMinimumSize(QSize(0, 60))
+        self.HL3 = QHBoxLayout(self.HW3)
         self.HL3.setSpacing(5)
         self.HL3.setObjectName(u"HL3")
         self.HL3.setContentsMargins(5, 5, 5, 5)
-        self.label_4 = QLabel(self.GB1)
+        self.label_4 = QLabel(self.HW3)
         self.label_4.setObjectName(u"label_4")
 
         self.HL3.addWidget(self.label_4)
 
-        self.horizontalLayout_6 = QHBoxLayout()
+        self.HWW1 = QWidget(self.HW3)
+        self.HWW1.setObjectName(u"HWW1")
+        self.horizontalLayout_6 = QHBoxLayout(self.HWW1)
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
         self.horizontalSpacer_9 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_6.addItem(self.horizontalSpacer_9)
 
-        self.SettingChibiSelect = QComboBox(self.GB1)
+        self.SettingChibiSelect = ComboBox(self.HWW1)
         self.SettingChibiSelect.setObjectName(u"SettingChibiSelect")
         self.SettingChibiSelect.setMinimumSize(QSize(80, 0))
 
         self.horizontalLayout_6.addWidget(self.SettingChibiSelect)
 
-        self.SettingAnimatedCheck = QCheckBox(self.GB1)
+        self.SettingAnimatedCheck = CheckBox(self.HWW1)
         self.SettingAnimatedCheck.setObjectName(u"SettingAnimatedCheck")
         sizePolicy.setHeightForWidth(self.SettingAnimatedCheck.sizePolicy().hasHeightForWidth())
         self.SettingAnimatedCheck.setSizePolicy(sizePolicy)
@@ -163,12 +175,12 @@ class Ui_Form(object):
         self.horizontalLayout_6.addWidget(self.SettingAnimatedCheck)
 
 
-        self.HL3.addLayout(self.horizontalLayout_6)
+        self.HL3.addWidget(self.HWW1)
 
         self.HL3.setStretch(0, 2)
         self.HL3.setStretch(1, 5)
 
-        self.verticalLayout_2.addLayout(self.HL3)
+        self.verticalLayout_2.addWidget(self.HW3)
 
 
         self.verticalLayout_3.addWidget(self.GB1)
@@ -178,16 +190,19 @@ class Ui_Form(object):
         self.verticalLayout_5 = QVBoxLayout(self.GB2)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.verticalLayout_5.setContentsMargins(3, 3, 3, 3)
-        self.HL4 = QHBoxLayout()
+        self.HW4 = QWidget(self.GB2)
+        self.HW4.setObjectName(u"HW4")
+        self.HW4.setMinimumSize(QSize(0, 60))
+        self.HL4 = QHBoxLayout(self.HW4)
         self.HL4.setSpacing(5)
         self.HL4.setObjectName(u"HL4")
         self.HL4.setContentsMargins(5, 5, 5, 5)
-        self.label_3 = QLabel(self.GB2)
+        self.label_3 = QLabel(self.HW4)
         self.label_3.setObjectName(u"label_3")
 
         self.HL4.addWidget(self.label_3)
 
-        self.widget_3 = QWidget(self.GB2)
+        self.widget_3 = QWidget(self.HW4)
         self.widget_3.setObjectName(u"widget_3")
         self.horizontalLayout_4 = QHBoxLayout(self.widget_3)
         self.horizontalLayout_4.setSpacing(0)
@@ -197,7 +212,7 @@ class Ui_Form(object):
 
         self.horizontalLayout_4.addItem(self.horizontalSpacer_4)
 
-        self.SettingStartImmediateCheck = QCheckBox(self.widget_3)
+        self.SettingStartImmediateCheck = CheckBox(self.widget_3)
         self.SettingStartImmediateCheck.setObjectName(u"SettingStartImmediateCheck")
         sizePolicy.setHeightForWidth(self.SettingStartImmediateCheck.sizePolicy().hasHeightForWidth())
         self.SettingStartImmediateCheck.setSizePolicy(sizePolicy)
@@ -211,18 +226,21 @@ class Ui_Form(object):
         self.HL4.setStretch(0, 2)
         self.HL4.setStretch(1, 5)
 
-        self.verticalLayout_5.addLayout(self.HL4)
+        self.verticalLayout_5.addWidget(self.HW4)
 
-        self.HL5 = QHBoxLayout()
+        self.HW5 = QWidget(self.GB2)
+        self.HW5.setObjectName(u"HW5")
+        self.HW5.setMinimumSize(QSize(0, 60))
+        self.HL5 = QHBoxLayout(self.HW5)
         self.HL5.setSpacing(5)
         self.HL5.setObjectName(u"HL5")
         self.HL5.setContentsMargins(5, 5, 5, 5)
-        self.label = QLabel(self.GB2)
+        self.label = QLabel(self.HW5)
         self.label.setObjectName(u"label")
 
         self.HL5.addWidget(self.label)
 
-        self.widget_4 = QWidget(self.GB2)
+        self.widget_4 = QWidget(self.HW5)
         self.widget_4.setObjectName(u"widget_4")
         self.widget_4.setMinimumSize(QSize(20, 0))
         self.horizontalLayout_5 = QHBoxLayout(self.widget_4)
@@ -249,18 +267,21 @@ class Ui_Form(object):
         self.HL5.setStretch(0, 2)
         self.HL5.setStretch(1, 5)
 
-        self.verticalLayout_5.addLayout(self.HL5)
+        self.verticalLayout_5.addWidget(self.HW5)
 
-        self.HL6 = QHBoxLayout()
+        self.HW6 = QWidget(self.GB2)
+        self.HW6.setObjectName(u"HW6")
+        self.HW6.setMinimumSize(QSize(0, 60))
+        self.HL6 = QHBoxLayout(self.HW6)
         self.HL6.setSpacing(5)
         self.HL6.setObjectName(u"HL6")
         self.HL6.setContentsMargins(5, 5, 5, 5)
-        self.label_7 = QLabel(self.GB2)
+        self.label_7 = QLabel(self.HW6)
         self.label_7.setObjectName(u"label_7")
 
         self.HL6.addWidget(self.label_7)
 
-        self.widget_5 = QWidget(self.GB2)
+        self.widget_5 = QWidget(self.HW6)
         self.widget_5.setObjectName(u"widget_5")
         self.widget_5.setMinimumSize(QSize(20, 0))
         self.horizontalLayout_7 = QHBoxLayout(self.widget_5)
@@ -270,7 +291,7 @@ class Ui_Form(object):
 
         self.horizontalLayout_7.addItem(self.HS)
 
-        self.SettingTyperIntervalSpin = QSpinBox(self.widget_5)
+        self.SettingTyperIntervalSpin = SpinBox(self.widget_5)
         self.SettingTyperIntervalSpin.setObjectName(u"SettingTyperIntervalSpin")
         self.SettingTyperIntervalSpin.setMinimumSize(QSize(47, 0))
         self.SettingTyperIntervalSpin.setMaximum(1000)
@@ -290,18 +311,21 @@ class Ui_Form(object):
         self.HL6.setStretch(0, 2)
         self.HL6.setStretch(1, 5)
 
-        self.verticalLayout_5.addLayout(self.HL6)
+        self.verticalLayout_5.addWidget(self.HW6)
 
-        self.HL6_2 = QHBoxLayout()
+        self.HW7 = QWidget(self.GB2)
+        self.HW7.setObjectName(u"HW7")
+        self.HW7.setMinimumSize(QSize(0, 60))
+        self.HL6_2 = QHBoxLayout(self.HW7)
         self.HL6_2.setSpacing(5)
         self.HL6_2.setObjectName(u"HL6_2")
         self.HL6_2.setContentsMargins(5, 5, 5, 5)
-        self.label_10 = QLabel(self.GB2)
+        self.label_10 = QLabel(self.HW7)
         self.label_10.setObjectName(u"label_10")
 
         self.HL6_2.addWidget(self.label_10)
 
-        self.widget_8 = QWidget(self.GB2)
+        self.widget_8 = QWidget(self.HW7)
         self.widget_8.setObjectName(u"widget_8")
         self.widget_8.setMinimumSize(QSize(20, 0))
         self.horizontalLayout_11 = QHBoxLayout(self.widget_8)
@@ -311,7 +335,7 @@ class Ui_Form(object):
 
         self.horizontalLayout_11.addItem(self.HS_2)
 
-        self.SettingTyperFadeSpin = QSpinBox(self.widget_8)
+        self.SettingTyperFadeSpin = SpinBox(self.widget_8)
         self.SettingTyperFadeSpin.setObjectName(u"SettingTyperFadeSpin")
         self.SettingTyperFadeSpin.setMinimumSize(QSize(47, 0))
         self.SettingTyperFadeSpin.setMaximum(1000)
@@ -331,7 +355,7 @@ class Ui_Form(object):
         self.HL6_2.setStretch(0, 2)
         self.HL6_2.setStretch(1, 5)
 
-        self.verticalLayout_5.addLayout(self.HL6_2)
+        self.verticalLayout_5.addWidget(self.HW7)
 
 
         self.verticalLayout_3.addWidget(self.GB2)
@@ -341,16 +365,19 @@ class Ui_Form(object):
         self.verticalLayout_6 = QVBoxLayout(self.GB3)
         self.verticalLayout_6.setObjectName(u"verticalLayout_6")
         self.verticalLayout_6.setContentsMargins(3, 3, 3, 3)
-        self.HL7 = QHBoxLayout()
+        self.HW8 = QWidget(self.GB3)
+        self.HW8.setObjectName(u"HW8")
+        self.HW8.setMinimumSize(QSize(0, 60))
+        self.HL7 = QHBoxLayout(self.HW8)
         self.HL7.setSpacing(5)
         self.HL7.setObjectName(u"HL7")
         self.HL7.setContentsMargins(5, 5, 5, 5)
-        self.label_2 = QLabel(self.GB3)
+        self.label_2 = QLabel(self.HW8)
         self.label_2.setObjectName(u"label_2")
 
         self.HL7.addWidget(self.label_2)
 
-        self.qw = QWidget(self.GB3)
+        self.qw = QWidget(self.HW8)
         self.qw.setObjectName(u"qw")
         self.horizontalLayout_8 = QHBoxLayout(self.qw)
         self.horizontalLayout_8.setSpacing(2)
@@ -360,19 +387,19 @@ class Ui_Form(object):
 
         self.horizontalLayout_8.addItem(self.horizontalSpacer_6)
 
-        self.SettingProxyTypeCombo = QComboBox(self.qw)
+        self.SettingProxyTypeCombo = ComboBox(self.qw)
         self.SettingProxyTypeCombo.addItem("")
         self.SettingProxyTypeCombo.addItem("")
         self.SettingProxyTypeCombo.addItem("")
         self.SettingProxyTypeCombo.setObjectName(u"SettingProxyTypeCombo")
         sizePolicy.setHeightForWidth(self.SettingProxyTypeCombo.sizePolicy().hasHeightForWidth())
         self.SettingProxyTypeCombo.setSizePolicy(sizePolicy)
-        self.SettingProxyTypeCombo.setMinimumSize(QSize(75, 0))
-        self.SettingProxyTypeCombo.setMaximumSize(QSize(75, 16777215))
+        self.SettingProxyTypeCombo.setMinimumSize(QSize(100, 0))
+        self.SettingProxyTypeCombo.setMaximumSize(QSize(100, 16777215))
 
         self.horizontalLayout_8.addWidget(self.SettingProxyTypeCombo)
 
-        self.SettingProxyEdit = QLineEdit(self.qw)
+        self.SettingProxyEdit = LineEdit(self.qw)
         self.SettingProxyEdit.setObjectName(u"SettingProxyEdit")
 
         self.horizontalLayout_8.addWidget(self.SettingProxyEdit)
@@ -382,10 +409,10 @@ class Ui_Form(object):
 
         self.horizontalLayout_8.addWidget(self.SettingProxyLabel)
 
-        self.SettingProxyHostSpin = QSpinBox(self.qw)
+        self.SettingProxyHostSpin = SpinBox(self.qw)
         self.SettingProxyHostSpin.setObjectName(u"SettingProxyHostSpin")
-        self.SettingProxyHostSpin.setMinimumSize(QSize(60, 0))
-        self.SettingProxyHostSpin.setMaximumSize(QSize(60, 16777215))
+        self.SettingProxyHostSpin.setMinimumSize(QSize(120, 0))
+        self.SettingProxyHostSpin.setMaximumSize(QSize(120, 16777215))
         self.SettingProxyHostSpin.setMinimum(1)
         self.SettingProxyHostSpin.setMaximum(65535)
         self.SettingProxyHostSpin.setValue(8080)
@@ -398,18 +425,21 @@ class Ui_Form(object):
         self.HL7.setStretch(0, 2)
         self.HL7.setStretch(1, 5)
 
-        self.verticalLayout_6.addLayout(self.HL7)
+        self.verticalLayout_6.addWidget(self.HW8)
 
-        self.HL8 = QHBoxLayout()
+        self.HW9 = QWidget(self.GB3)
+        self.HW9.setObjectName(u"HW9")
+        self.HW9.setMinimumSize(QSize(0, 60))
+        self.HL8 = QHBoxLayout(self.HW9)
         self.HL8.setSpacing(5)
         self.HL8.setObjectName(u"HL8")
         self.HL8.setContentsMargins(5, 5, 5, 5)
-        self.label_9 = QLabel(self.GB3)
+        self.label_9 = QLabel(self.HW9)
         self.label_9.setObjectName(u"label_9")
 
         self.HL8.addWidget(self.label_9)
 
-        self.widget_6 = QWidget(self.GB3)
+        self.widget_6 = QWidget(self.HW9)
         self.widget_6.setObjectName(u"widget_6")
         self.widget_6.setMinimumSize(QSize(20, 0))
         self.horizontalLayout_9 = QHBoxLayout(self.widget_6)
@@ -419,7 +449,7 @@ class Ui_Form(object):
 
         self.horizontalLayout_9.addItem(self.horizontalSpacer_7)
 
-        self.SettingTimeoutSpin = QSpinBox(self.widget_6)
+        self.SettingTimeoutSpin = SpinBox(self.widget_6)
         self.SettingTimeoutSpin.setObjectName(u"SettingTimeoutSpin")
         self.SettingTimeoutSpin.setMinimumSize(QSize(60, 0))
         self.SettingTimeoutSpin.setMaximum(60)
@@ -439,7 +469,7 @@ class Ui_Form(object):
         self.HL8.setStretch(0, 2)
         self.HL8.setStretch(1, 5)
 
-        self.verticalLayout_6.addLayout(self.HL8)
+        self.verticalLayout_6.addWidget(self.HW9)
 
 
         self.verticalLayout_3.addWidget(self.GB3)
@@ -449,16 +479,19 @@ class Ui_Form(object):
         self.verticalLayout_7 = QVBoxLayout(self.GB4)
         self.verticalLayout_7.setObjectName(u"verticalLayout_7")
         self.verticalLayout_7.setContentsMargins(3, 3, 3, 3)
-        self.HL9 = QHBoxLayout()
+        self.HW10 = QWidget(self.GB4)
+        self.HW10.setObjectName(u"HW10")
+        self.HW10.setMinimumSize(QSize(0, 60))
+        self.HL9 = QHBoxLayout(self.HW10)
         self.HL9.setSpacing(5)
         self.HL9.setObjectName(u"HL9")
         self.HL9.setContentsMargins(5, 5, 5, 5)
-        self.label_19 = QLabel(self.GB4)
+        self.label_19 = QLabel(self.HW10)
         self.label_19.setObjectName(u"label_19")
 
         self.HL9.addWidget(self.label_19)
 
-        self.widget_7 = QWidget(self.GB4)
+        self.widget_7 = QWidget(self.HW10)
         self.widget_7.setObjectName(u"widget_7")
         self.horizontalLayout_10 = QHBoxLayout(self.widget_7)
         self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
@@ -467,7 +500,7 @@ class Ui_Form(object):
 
         self.horizontalLayout_10.addItem(self.horizontalSpacer_8)
 
-        self.SettingSaveSpin = QSpinBox(self.widget_7)
+        self.SettingSaveSpin = SpinBox(self.widget_7)
         self.SettingSaveSpin.setObjectName(u"SettingSaveSpin")
         self.SettingSaveSpin.setMinimumSize(QSize(60, 0))
         self.SettingSaveSpin.setMaximum(1000)
@@ -487,7 +520,7 @@ class Ui_Form(object):
         self.HL9.setStretch(0, 2)
         self.HL9.setStretch(1, 5)
 
-        self.verticalLayout_7.addLayout(self.HL9)
+        self.verticalLayout_7.addWidget(self.HW10)
 
 
         self.verticalLayout_3.addWidget(self.GB4)
@@ -500,20 +533,22 @@ class Ui_Form(object):
 
         self.verticalLayout.addWidget(self.scrollArea)
 
-        self.horizontalLayout_3 = QHBoxLayout()
+        self.widget1 = QWidget(self.MainFrame)
+        self.widget1.setObjectName(u"widget1")
+        self.horizontalLayout_3 = QHBoxLayout(self.widget1)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.horizontalLayout_3.setContentsMargins(5, 5, 5, 5)
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_3.addItem(self.horizontalSpacer)
 
-        self.pushButton = QPushButton(self.MainFrame)
+        self.pushButton = PushButton(self.widget1)
         self.pushButton.setObjectName(u"pushButton")
 
         self.horizontalLayout_3.addWidget(self.pushButton)
 
 
-        self.verticalLayout.addLayout(self.horizontalLayout_3)
+        self.verticalLayout.addWidget(self.widget1)
 
 
         self.gridLayout.addWidget(self.MainFrame, 0, 0, 1, 1)

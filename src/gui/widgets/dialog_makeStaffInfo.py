@@ -52,28 +52,19 @@ class NewStaffDialog(FramelessDialog, Ui_NewStaffDialog):
         FramelessDialog.keyPressEvent(self, event)
 
     def preload(self, data):
-        if s := data.get("recorder"):
-            self.EditRecord.setText(s)
-        if s := data.get("translator"):
-            self.EditTranslator.setText(s)
-        if s := data.get("translate_proof"):
-            self.EditTranslateProof.setText(s)
-        if s := data.get("subtitle_maker"):
-            self.EditSubMaker.setText(s)
-        if s := data.get("subtitle_proof"):
-            self.EditSubProof.setText(s)
-        if s := data.get("prefix"):
-            self.EditPrefix.setPlainText(s)
-        if s := data.get("subfix"):
-            self.EditSubfix.setPlainText(s)
+        self.EditRecord.setText(data.get("recorder"))
+        self.EditTranslator.setText(data.get("translator"))
+        self.EditTranslateProof.setText(data.get("translate_proof"))
+        self.EditSubMaker.setText(data.get("subtitle_maker"))
+        self.EditSubProof.setText(data.get("subtitle_proof"))
+        self.EditComp.setText(data.get("compositor"))
+        self.EditPrefix.setPlainText(data.get("prefix"))
+        self.EditSubfix.setPlainText(data.get("subfix"))
         if data.get("position") in ['1', '3', '7', '9']:
             self.set_position_radio(int(data.get("position")))
         else:
             self.set_position_radio(1)
-        if s := data.get("duration"):
-            self.EditDuration.setText(str(s))
-        else:
-            self.EditDuration.setText("5")
+        self.EditDuration.setText(str(data.get("duration") or 5))
 
     def set_position_radio(self, value):
         if value == 9:

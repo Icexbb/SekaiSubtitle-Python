@@ -372,7 +372,8 @@ areaDict = [
     "",
     u"舞台的SEKAI", u"街道的SEKAI", u"奇幻仙境的SEKAI", u"空无一人的SEKAI",
     u"神山高中", u"凤凰仙境乐园", u"宫益坂女子学园",
-    u"悪ノ大罪シリーズのセカイ", u"MIKU学院 教室", u"MIKU学院 操场"
+    u"悪ノ大罪シリーズのセカイ", u"MIKU学院 教室", u"MIKU学院 操场",
+
 ]
 
 unit_dict = {
@@ -381,7 +382,8 @@ unit_dict = {
     "street": "Vivid BAD SQUAD",
     "wonder": "Wonderlands × Showtime",
     "idol": "MORE MORE JUMP！",
-    "special": "特殊", "shuffle": "混活"
+    "special": "特殊", "shuffle": "混活",
+    "akuno": "悪ノ大罪シリーズ"
 }
 
 
