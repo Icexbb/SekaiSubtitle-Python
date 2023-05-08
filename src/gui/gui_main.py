@@ -6,11 +6,11 @@ import random
 import sys
 import traceback
 
+import qframelesswindow
 from PySide6 import QtWidgets, QtCore, QtGui, QtNetwork
 from PySide6.QtCore import QUrl, SIGNAL
 from PySide6.QtGui import QIcon, QFont, QDesktopServices
 from packaging.version import Version
-import qframelesswindow
 
 from gui.design.WindowMain import Ui_MainWindow
 from gui.widgets.dialog_about import AboutDialog
@@ -19,13 +19,12 @@ from gui.widgets.widget_setting import SettingWidget
 from gui.widgets.widget_subtitle import ProcessWidget
 from gui.widgets.widget_titlebar import TitleBar
 from gui.widgets.widget_translate import TranslateWidget
-# from gui.widgets.widget_chibi import WidgetChibi
 from script import data
 
 EXIT_CODE_REBOOT = -11231351
 
 PROGRAM_NAME = "Sekai Subtitle"
-VERSION = "0.8.230411"
+VERSION = "0.9"
 
 
 class MainUi(qframelesswindow.FramelessMainWindow, Ui_MainWindow):
